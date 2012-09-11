@@ -64,9 +64,9 @@
         <version>1.6</version>
     </dependency>
     <dependency>
-		<groupId>postgresql</groupId>
-		<artifactId>postgresql</artifactId>
-		<version>9.1-901.jdbc4</version>
+        <groupId>postgresql</groupId>
+        <artifactId>postgresql</artifactId>
+        <version>9.1-901.jdbc4</version>
 	</dependency>
     <dependency>
         <groupId>javax.servlet</groupId>
@@ -100,32 +100,32 @@
         <scope>test</scope>
     </dependency>
     <dependency>
-		<groupId>com.sun.grizzly</groupId>
-		<artifactId>grizzly-http-servlet</artifactId>
-		<version>1.9.51</version>
-		<scope>test</scope>
+        <groupId>com.sun.grizzly</groupId>
+        <artifactId>grizzly-http-servlet</artifactId>
+        <version>1.9.51</version>
+        <scope>test</scope>
     </dependency>
     <dependency>
-		<groupId>com.sun.grizzly</groupId>
-		<artifactId>grizzly-http-webserver</artifactId>
-		<version>1.9.51</version>
-		<scope>test</scope>
+        <groupId>com.sun.grizzly</groupId>
+        <artifactId>grizzly-http-webserver</artifactId>
+        <version>1.9.51</version>
+        <scope>test</scope>
     </dependency>
     <dependency>
-		<groupId>asm</groupId>
-		<artifactId>asm</artifactId>
-		<version>3.3.1</version>
-		<scope>test</scope>
+        <groupId>asm</groupId>
+        <artifactId>asm</artifactId>
+        <version>3.3.1</version>
+        <scope>test</scope>
     </dependency>
     <dependency>
-		<groupId>junit</groupId>
-		<artifactId>junit</artifactId>
-		<version>4.10</version>
-		<scope>test</scope>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.10</version>
+        <scope>test</scope>
     </dependency>
   </dependencies>
-  
-  <build>
+
+    <build>
         <finalName>${project.artifactId}-${project.version}</finalName>
         <plugins>
             <plugin>
@@ -145,26 +145,26 @@
                 </configuration>
             </plugin>
             <plugin>
-		        <groupId>org.glassfish.maven.plugin</groupId>
-		        <artifactId>maven-glassfish-plugin</artifactId>
-		        <version>2.1</version>
-		        <configuration>
-		          <user>admin</user>
-		          <adminPassword>adminadmin</adminPassword>
-		          <glassfishDirectory>/home/eugene/glassfish3/</glassfishDirectory>
-		          <components>
-		            <component>
-		              <name>${project.artifactId}</name>
-		              <artifact>${project.build.directory}/${project.build.finalName}.war</artifact>
-		            </component>
-		          </components>
-		          <domain>
-		            <name>${project.artifactId}</name>
-		            <adminPort>4848</adminPort>
-		            <httpPort>8080</httpPort>
-		            <httpsPort>8181</httpsPort>
-		          </domain>
-		        </configuration>
+                <groupId>org.glassfish.maven.plugin</groupId>
+                <artifactId>maven-glassfish-plugin</artifactId>
+                <version>2.1</version>
+                <configuration>
+                    <user>admin</user>
+                    <adminPassword>adminadmin</adminPassword>
+                    <glassfishDirectory>/home/eugene/glassfish3/</glassfishDirectory>
+                    <components>
+                        <component>
+                            <name>${project.artifactId}</name>
+                            <artifact>${project.build.directory}/${project.build.finalName}.war</artifact>
+                        </component>
+                    </components>
+                    <domain>
+                        <name>${project.artifactId}</name>
+                        <adminPort>4848</adminPort>
+                        <httpPort>8080</httpPort>
+                        <httpsPort>8181</httpsPort>
+                    </domain>
+                </configuration>
 	        </plugin>
 	        <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -184,12 +184,12 @@
                 </configuration>
             </plugin>
             <plugin>
-	            <groupId>org.apache.maven.plugins</groupId>
-	            <artifactId>maven-compiler-plugin</artifactId>
-	            <configuration>
-	                <source>1.7</source>
-	                <target>1.7</target>
-	            </configuration>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
             </plugin>
         </plugins>
 
