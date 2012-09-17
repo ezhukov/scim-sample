@@ -13,9 +13,17 @@ public class AccountCreationTest extends IntegrationJerseyTestCase {
 	
 	private static final String RESOURCE = "v1/Users";
 	
+//	@Test
+//	public void testSmth() {
+//		long time = System.nanoTime();
+//		System.out.println("EEE " + time);
+//		java.util.Random rnd = new java.util.Random();
+//		System.out.println("AAA " + Math.abs(rnd.nextLong()));
+//	}
+
 	@Test
 	public void testRegisterUserRawXML() {
-		String username = "testSCIM" + System.currentTimeMillis();
+		String username = "" + System.currentTimeMillis();
 		
 		String input = "<User xmlns=\"urn:scim:schemas:core:1.0\" " +
 				"xmlns:enterprise=\"urn:scim:schemas:extension:enterprise:1.0\">" +
@@ -77,9 +85,9 @@ public class AccountCreationTest extends IntegrationJerseyTestCase {
 				.type(MediaType.APPLICATION_JSON)
 				.post(ClientResponse.class, input);
 		
-		String responseContent = response.getEntity(String.class);
+//		String responseContent = response.getEntity(String.class);
 		Assert.assertEquals(201, response.getStatus());
-		System.out.println(responseContent);
+//		System.out.println(responseContent);
 //		Assert.assertEquals(retrievedProfile.getAccountId(), JsonPath.read(responseContent, "$.id"));
 //		Assert.assertEquals("S" + nanoTime + "@example.com", JsonPath.read(responseContent, "$.emails[0].value"));
 //		Assert.assertEquals("C" + nanoTime + "@example.com", JsonPath.read(responseContent, "$.emails[1].value"));
@@ -116,7 +124,7 @@ public class AccountCreationTest extends IntegrationJerseyTestCase {
 		Assert.assertEquals("Expexted string from response not found.", expected, response.replaceAll("\n", "").replaceAll(" ", ""));
 	}
 	
-	@Test
+//	@Test
 	public void testRegisterUserRawJsonError() {
 		String input = "{ \"schemas\":[\"urn:scim:schemas:core:1.0\"], "
 				+ "\"userName\":\"testSCIMUser\","
@@ -227,7 +235,7 @@ public class AccountCreationTest extends IntegrationJerseyTestCase {
 	
 	@Test
 	public void testInvalidInput() {
-		String username = "testSCIM" + System.currentTimeMillis();
+		String username = "" + System.currentTimeMillis();
 		
 		String input = "<SCIM xmlns=\"urn:scim:schemas:core:1.0\">" +
 				"<userName>" + username + "</userName>" +
@@ -255,7 +263,7 @@ public class AccountCreationTest extends IntegrationJerseyTestCase {
 	
 	@Test
 	public void testRegisterUserRawTwoPrimaryAddresses() {
-		String username = "testSCIM" + System.currentTimeMillis();
+		String username = "" + System.currentTimeMillis();
 		
 		String input = "<SCIM xmlns=\"urn:scim:schemas:core:1.0\">" +
 				"<userName>" + username + "</userName>" +

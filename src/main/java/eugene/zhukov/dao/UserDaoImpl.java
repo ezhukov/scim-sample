@@ -12,10 +12,20 @@ import scim.schemas.v1.Meta;
 import scim.schemas.v1.MultiValuedAttribute;
 import scim.schemas.v1.Name;
 import scim.schemas.v1.User;
+import scim.schemas.v1.User.Addresses;
 import scim.schemas.v1.User.Emails;
+import scim.schemas.v1.User.Entitlements;
+import scim.schemas.v1.User.Groups;
+import scim.schemas.v1.User.Ims;
+import scim.schemas.v1.User.PhoneNumbers;
+import scim.schemas.v1.User.Photos;
+import scim.schemas.v1.User.Roles;
+import scim.schemas.v1.User.X509Certificates;
 import eugene.zhukov.util.XMLGregorianCalendarConverter;
 
 public class UserDaoImpl implements UserDao {
+
+	private static java.util.Random random = new java.util.Random();
 
 	private JdbcTemplate jdbcTemplate;
 
@@ -29,8 +39,10 @@ public class UserDaoImpl implements UserDao {
 		java.util.Date dateTime = new java.util.Date();
 		StringBuilder sql = new StringBuilder();
 		Name name = user.getName() == null ? new Name() : user.getName();
+		long userId = Math.abs(random.nextLong());
 
 		jdbcTemplate.update(sql.append("insert into users (")
+				.append("id,")
 				.append("username,")
 				.append("formattedName,")
 				.append("familyName,")
@@ -53,7 +65,8 @@ public class UserDaoImpl implements UserDao {
 				.append("location,")
 				.append("version,")
 				.append("gender")
-				.append(") values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)").toString(),
+				.append(") values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)").toString(),
+				userId,
 				user.getUserName(),
 				name.getFormatted(),
 				name.getFamilyName(),
@@ -76,8 +89,6 @@ public class UserDaoImpl implements UserDao {
 				"{server}/Users/@me",
 				"v1",
 				user.getGender());
-		
-		long userId = jdbcTemplate.queryForLong("select id from users where username = ?", user.getUserName());
 
 		if (user.getEmails() != null) {
 			insertMultiValuedAttrs(user.getEmails().getEmail(), "emails", userId);
@@ -159,12 +170,79 @@ public class UserDaoImpl implements UserDao {
 
 		}, username);
 
-		Emails emails = new Emails();
-		emails.getEmail().addAll(retrieveMultiValuedAttrs("emails", Long.parseLong(user.getId())));
-		user.setEmails(emails);
-
-		//TODO fetch addresses, phones, ims etc.
+		long userId = Long.parseLong(user.getId());
+		java.util.List<MultiValuedAttribute> attrs = retrieveMultiValuedAttrs("emails", userId);
 		
+		if (!attrs.isEmpty()) {
+			Emails emails = new Emails();
+			emails.getEmail().addAll(attrs);
+			user.setEmails(emails);
+		}
+		
+		attrs = retrieveMultiValuedAttrs("phoneNumbers", userId);
+
+		if (!attrs.isEmpty()) {
+			PhoneNumbers phoneNumbers = new PhoneNumbers();
+			phoneNumbers.getPhoneNumber().addAll(attrs);
+			user.setPhoneNumbers(phoneNumbers);
+		}
+
+		attrs = retrieveMultiValuedAttrs("ims", userId);
+
+		if (!attrs.isEmpty()) {
+			Ims ims = new Ims();
+			ims.getIm().addAll(attrs);
+			user.setIms(ims);
+		}
+		
+		attrs = retrieveMultiValuedAttrs("photos", userId);
+
+		if (!attrs.isEmpty()) {
+			Photos photos = new Photos();
+			photos.getPhoto().addAll(attrs);
+			user.setPhotos(photos);
+		}
+		
+		attrs = retrieveMultiValuedAttrs("groups", userId);
+
+		if (!attrs.isEmpty()) {
+			Groups proups = new Groups();
+			proups.getGroup().addAll(attrs);
+			user.setGroups(proups);
+		}
+		
+		attrs = retrieveMultiValuedAttrs("entitlements", userId);
+
+		if (!attrs.isEmpty()) {
+			Entitlements entitlements = new Entitlements();
+			entitlements.getEntitlement().addAll(attrs);
+			user.setEntitlements(entitlements);
+		}
+		
+		attrs = retrieveMultiValuedAttrs("roles", userId);
+
+		if (!attrs.isEmpty()) {
+			Roles roles = new Roles();
+			roles.getRole().addAll(attrs);
+			user.setRoles(roles);
+		}
+		
+		attrs = retrieveMultiValuedAttrs("x509Certificates", userId);
+
+		if (!attrs.isEmpty()) {
+			X509Certificates x509Certificates = new X509Certificates();
+			x509Certificates.getX509Certificate().addAll(attrs);
+			user.setX509Certificates(x509Certificates);
+		}
+		
+		java.util.List<Address> addressList = retrieveAddresses(userId);
+
+		if (!addressList.isEmpty()) {
+			Addresses addresses = new Addresses();
+			addresses.getAddress().addAll(addressList);
+			user.setAddresses(addresses);
+		}
+
 		return user;
 	}
 
@@ -179,6 +257,29 @@ public class UserDaoImpl implements UserDao {
 				attr.setPrimary(resultSet.getBoolean("isPrimary"));
 				attr.setType(resultSet.getString("type"));
 				attr.setValue(resultSet.getString("value"));
+				return attr;
+			}
+			
+		}, userId);
+	}
+	
+	private java.util.List<Address> retrieveAddresses(long userId) {
+		return jdbcTemplate.query("select * from addresses where userId =?", new RowMapper<Address>() {
+
+			@Override
+			public Address mapRow(ResultSet resultSet, int arg1) throws SQLException {
+				Address attr = new Address();
+				attr.setDisplay(resultSet.getString("display"));
+				attr.setOperation(resultSet.getString("operation"));
+				attr.setPrimary(resultSet.getBoolean("isPrimary"));
+				attr.setType(resultSet.getString("type"));
+				attr.setValue(resultSet.getString("value"));
+				attr.setCountry(resultSet.getString("country"));
+				attr.setFormatted(resultSet.getString("formatted"));
+				attr.setLocality(resultSet.getString("locality"));
+				attr.setPostalCode(resultSet.getString("postalCode"));
+				attr.setRegion(resultSet.getString("region"));
+				attr.setStreetAddress(resultSet.getString("streetAddress"));
 				return attr;
 			}
 			
@@ -205,27 +306,6 @@ public class UserDaoImpl implements UserDao {
 					email.getOperation(),
 					userId);
 		}
-		
-//		java.util.List<Object[]> args = new java.util.ArrayList<Object[]>();
-//		StringBuilder sql = new StringBuilder();
-//
-//		for (MultiValuedAttribute email : values) {
-//			sql.append("insert into ").append(table).append(" (")
-//					.append("value,")
-//					.append("display,")
-//					.append("isPrimary,")
-//					.append("type,")
-//					.append("operation,")
-//					.append("userId")
-//					.append(") values (?,?,?,?,?,?)").append(";");
-//			args.add(new Object [] {email.getValue(),
-//					email.getDisplay(),
-//					email.isPrimary(),
-//					email.getType(),
-//					email.getOperation(),
-//					userId});
-//		}
-//		jdbcTemplate.batchUpdate(sql.toString(), args);
 	}
 	
 	private void insertAddresses(java.util.List<Address> addresses, long userId) {

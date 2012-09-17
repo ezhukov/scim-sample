@@ -10,7 +10,7 @@ DROP TABLE roles;
 DROP TABLE x509Certificates;
 
 CREATE TABLE users (
-    id                SERIAL8 PRIMARY KEY,
+    id                bigint PRIMARY KEY,
     username          varchar(20) unique not null,
     formattedName     varchar(255),
     familyName        varchar(70),
