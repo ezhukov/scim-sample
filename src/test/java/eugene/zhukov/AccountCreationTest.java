@@ -77,15 +77,15 @@ public class AccountCreationTest extends IntegrationJerseyTestCase {
 				.type(MediaType.APPLICATION_JSON)
 				.post(ClientResponse.class, input);
 		
-//		String responseContent = response.getEntity(String.class);
+		String responseContent = response.getEntity(String.class);
 		Assert.assertEquals(201, response.getStatus());
-		
+		System.out.println(responseContent);
 //		Assert.assertEquals(retrievedProfile.getAccountId(), JsonPath.read(responseContent, "$.id"));
 //		Assert.assertEquals("S" + nanoTime + "@example.com", JsonPath.read(responseContent, "$.emails[0].value"));
 //		Assert.assertEquals("C" + nanoTime + "@example.com", JsonPath.read(responseContent, "$.emails[1].value"));
 	}
 	
-//	@Test
+	@Test
 	public void testRegisterUserError() {
 		long nanoTime = System.nanoTime();
 		String input = "{ \"schemas\":[\"urn:scim:schemas:core:1.0\"], "
@@ -116,7 +116,7 @@ public class AccountCreationTest extends IntegrationJerseyTestCase {
 		Assert.assertEquals("Expexted string from response not found.", expected, response.replaceAll("\n", "").replaceAll(" ", ""));
 	}
 	
-//	@Test
+	@Test
 	public void testRegisterUserRawJsonError() {
 		String input = "{ \"schemas\":[\"urn:scim:schemas:core:1.0\"], "
 				+ "\"userName\":\"testSCIMUser\","
@@ -170,7 +170,7 @@ public class AccountCreationTest extends IntegrationJerseyTestCase {
 		Assert.assertEquals(201, cr.getStatus());
 	}
 	
-//	@Test
+	@Test
 	public void testRegisterUserReservedUsername() {
 		String input = "{ \"schemas\":[\"urn:scim:schemas:core:1.0\"], "
 				+ "\"userName\":\"existing\","
@@ -199,7 +199,7 @@ public class AccountCreationTest extends IntegrationJerseyTestCase {
 		Assert.assertEquals(403, responseMsg.getStatus());
 	}
 	
-//	@Test
+	@Test
 	public void testRegisterUserReservedEmail() {
 		String input = "{ \"schemas\":[\"urn:scim:schemas:core:1.0\"], "
 				+ "\"userName\":\"testSCIMUser\","
@@ -253,7 +253,7 @@ public class AccountCreationTest extends IntegrationJerseyTestCase {
 		Assert.assertTrue("Expexted string from response not found.", response.indexOf("urn:info:scim:errors:1.0:input:invalid") > 1);
 	}
 	
-//	@Test
+	@Test
 	public void testRegisterUserRawTwoPrimaryAddresses() {
 		String username = "testSCIM" + System.currentTimeMillis();
 		
