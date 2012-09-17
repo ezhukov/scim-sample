@@ -77,6 +77,7 @@ public class UserDaoImpl implements UserDao {
 				"v1",
 				user.getGender());
 		
+		// TODO need to generate some random IDs instead of relaying on database generated values
 		long userId = jdbcTemplate.queryForLong("select id from users where username = ?", user.getUserName());
 
 		if (user.getEmails() != null) {
@@ -205,27 +206,6 @@ public class UserDaoImpl implements UserDao {
 					email.getOperation(),
 					userId);
 		}
-		
-//		java.util.List<Object[]> args = new java.util.ArrayList<Object[]>();
-//		StringBuilder sql = new StringBuilder();
-//
-//		for (MultiValuedAttribute email : values) {
-//			sql.append("insert into ").append(table).append(" (")
-//					.append("value,")
-//					.append("display,")
-//					.append("isPrimary,")
-//					.append("type,")
-//					.append("operation,")
-//					.append("userId")
-//					.append(") values (?,?,?,?,?,?)").append(";");
-//			args.add(new Object [] {email.getValue(),
-//					email.getDisplay(),
-//					email.isPrimary(),
-//					email.getType(),
-//					email.getOperation(),
-//					userId});
-//		}
-//		jdbcTemplate.batchUpdate(sql.toString(), args);
 	}
 	
 	private void insertAddresses(java.util.List<Address> addresses, long userId) {
