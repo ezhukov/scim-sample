@@ -12,14 +12,6 @@ import com.sun.jersey.api.client.ClientResponse;
 public class AccountCreationTest extends IntegrationJerseyTestCase {
 	
 	private static final String RESOURCE = "v1/Users";
-	
-//	@Test
-//	public void testSmth() {
-//		long time = System.nanoTime();
-//		System.out.println("EEE " + time);
-//		java.util.Random rnd = new java.util.Random();
-//		System.out.println("AAA " + Math.abs(rnd.nextLong()));
-//	}
 
 	@Test
 	public void testRegisterUserRawXML() {
@@ -46,7 +38,7 @@ public class AccountCreationTest extends IntegrationJerseyTestCase {
 		
 		Assert.assertEquals("Http status code 201 expected.", 201, cr.getStatus());
 		String response = cr.getEntity(String.class);
-		cr = resource().path(RESOURCE + "/@me")
+		cr = resource().path(RESOURCE + "/" + extractValue(response, "id"))
 				.type(MediaType.APPLICATION_XML).accept(MediaType.APPLICATION_XML)
 				.get(ClientResponse.class);
 		Assert.assertTrue("Expexted string from response not found.", response.indexOf("<userName>" + username + "</userName>") > 1);
@@ -286,5 +278,19 @@ public class AccountCreationTest extends IntegrationJerseyTestCase {
 		Assert.assertEquals("Http status code 400 expected.", 400, cr.getStatus());
 		Assert.assertTrue("Expexted string from response not found.", response.indexOf("Multiple primary addresses provided.") > 1);
 	}
-	
+
+	private static String extractValue(String row, String attr) {
+		
+		if (row.indexOf(attr) < 0) {
+			return null;
+		}
+
+		int start = row.indexOf(attr) + attr.length() + 1;
+		int end = row.indexOf("</" + attr);
+
+		if (end < 0) {
+			return null;
+		}
+		return row.substring(start, end);
+	}
 }

@@ -6,5 +6,5 @@ public interface UserDao {
 
 	User persistUser(User user);
 	
-	User retrieveUser(String username);
+	User retrieveUser(long userId);
 }

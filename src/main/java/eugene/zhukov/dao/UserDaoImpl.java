@@ -126,12 +126,12 @@ public class UserDaoImpl implements UserDao {
 			insertAddresses(user.getAddresses().getAddress(), userId);
 		}
 
-		return retrieveUser(user.getUserName());
+		return retrieveUser(userId);
 	}
 
 	@Override
-	public User retrieveUser(String username) {
-		User user = jdbcTemplate.queryForObject("select * from users where username =?", new RowMapper<User>() {
+	public User retrieveUser(long userId) {
+		User user = jdbcTemplate.queryForObject("select * from users where id =?", new RowMapper<User>() {
 
 			@Override
 			public User mapRow(ResultSet resultSet, int arg1) throws SQLException {
@@ -157,7 +157,7 @@ public class UserDaoImpl implements UserDao {
 				user.setTimezone(resultSet.getString("timezone"));
 				user.setActive(resultSet.getBoolean("active"));
 				user.setGender(resultSet.getString("gender"));
-				
+
 				Meta meta = new Meta();
 				meta.setCreated(XMLGregorianCalendarConverter.asXMLGregorianCalendar(resultSet.getDate("created")));
 				meta.setLastModified(XMLGregorianCalendarConverter.asXMLGregorianCalendar(resultSet.getDate("lastModified")));
@@ -168,17 +168,16 @@ public class UserDaoImpl implements UserDao {
 				return user;
 			}
 
-		}, username);
+		}, userId);
 
-		long userId = Long.parseLong(user.getId());
 		java.util.List<MultiValuedAttribute> attrs = retrieveMultiValuedAttrs("emails", userId);
-		
+
 		if (!attrs.isEmpty()) {
 			Emails emails = new Emails();
 			emails.getEmail().addAll(attrs);
 			user.setEmails(emails);
 		}
-		
+
 		attrs = retrieveMultiValuedAttrs("phoneNumbers", userId);
 
 		if (!attrs.isEmpty()) {
@@ -194,7 +193,7 @@ public class UserDaoImpl implements UserDao {
 			ims.getIm().addAll(attrs);
 			user.setIms(ims);
 		}
-		
+
 		attrs = retrieveMultiValuedAttrs("photos", userId);
 
 		if (!attrs.isEmpty()) {
@@ -202,7 +201,7 @@ public class UserDaoImpl implements UserDao {
 			photos.getPhoto().addAll(attrs);
 			user.setPhotos(photos);
 		}
-		
+
 		attrs = retrieveMultiValuedAttrs("groups", userId);
 
 		if (!attrs.isEmpty()) {
@@ -210,7 +209,7 @@ public class UserDaoImpl implements UserDao {
 			proups.getGroup().addAll(attrs);
 			user.setGroups(proups);
 		}
-		
+
 		attrs = retrieveMultiValuedAttrs("entitlements", userId);
 
 		if (!attrs.isEmpty()) {
@@ -218,7 +217,7 @@ public class UserDaoImpl implements UserDao {
 			entitlements.getEntitlement().addAll(attrs);
 			user.setEntitlements(entitlements);
 		}
-		
+
 		attrs = retrieveMultiValuedAttrs("roles", userId);
 
 		if (!attrs.isEmpty()) {
@@ -226,7 +225,7 @@ public class UserDaoImpl implements UserDao {
 			roles.getRole().addAll(attrs);
 			user.setRoles(roles);
 		}
-		
+
 		attrs = retrieveMultiValuedAttrs("x509Certificates", userId);
 
 		if (!attrs.isEmpty()) {
@@ -234,7 +233,7 @@ public class UserDaoImpl implements UserDao {
 			x509Certificates.getX509Certificate().addAll(attrs);
 			user.setX509Certificates(x509Certificates);
 		}
-		
+
 		java.util.List<Address> addressList = retrieveAddresses(userId);
 
 		if (!addressList.isEmpty()) {
