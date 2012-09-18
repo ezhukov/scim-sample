@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import com.sun.jersey.api.client.ClientResponse;
 
-public class AccountCreationTest extends IntegrationJerseyTestCase {
+public class AccountManagementTest extends IntegrationJerseyTestCase {
 	
 	private static final String RESOURCE = "v1/Users";
 
