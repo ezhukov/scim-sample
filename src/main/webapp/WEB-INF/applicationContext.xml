@@ -9,31 +9,36 @@
        	<property name="username" value="eugene"/>
        	<property name="password" value="scim_db"/>
     </bean>
-    
-    <!--bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
-        <property name="dataSource" ref="dataSource" />
-        <property name="packagesToScan" value="eugene.zhukov.dao"/>
-        <property name="hibernateProperties">
-            <props>
-                <prop key="hibernate.dialect">org.hibernate.dialect.GenericDialect</prop>
-            </props>
-        </property>
-    </bean>
-    
-    <bean id="userDao" class="eugene.zhukov.dao.GenericDaoHibernateImpl">
-        <constructor-arg>
-            <value>eugene.zhukov.dao.domain.User</value>
-        </constructor-arg>
-        <property name="sessionFactory">
-            <ref bean="sessionFactory"/>
-        </property>
-	</bean-->
+
     <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
         <property name="dataSource" ref="dataSource"/>
     </bean>
     
     <bean id="userDao" class="eugene.zhukov.dao.UserDaoImpl">
         <property name="jdbcTemplate" ref="jdbcTemplate"/>
+    </bean>
+    
+    <bean id="securityConfig" class="eugene.zhukov.SecurityConfig">
+        <property name="unauthorizedXML">
+        	<value><![CDATA[<Errors xmlns="urn:scim:schemas:core:1.0">
+    <error>
+        <description>Handling of provided authorization header failed</description>
+        <code>401</code>
+        <uri>urn:eugene.zhukov:scim:errors:1.0:unauthorized</uri>
+    </error>
+</Errors>]]></value>
+        </property>
+        <property name="unauthorizedJSON">
+        	<value><![CDATA[{
+  "Errors":[
+    {
+      "description":"Handling of provided authorization header failed",
+      "code":"401",
+      "uri":"urn:eugene.zhukov:scim:errors:1.0:unauthorized"
+    }
+  ]
+}]]></value>
+        </property>
     </bean>
 
     <bean id="applicationContextProvider" class="eugene.zhukov.ApplicationContextProvider"/>

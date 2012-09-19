@@ -1,10 +1,10 @@
 package eugene.zhukov.api;
 
 import static eugene.zhukov.ApplicationContextProvider.USER_DAO;
-import static javax.ws.rs.core.Response.Status.CREATED;
-import static javax.ws.rs.core.Response.Status.OK;
-import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.CREATED;
+import static javax.ws.rs.core.Response.Status.NO_CONTENT;
+import static javax.ws.rs.core.Response.Status.OK;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -19,6 +19,7 @@ import javax.ws.rs.core.MediaType;
 import scim.schemas.v1.Response;
 import scim.schemas.v1.User;
 import eugene.zhukov.ApplicationContextProvider;
+import eugene.zhukov.SCIMException;
 import eugene.zhukov.api.annotation.PATCH;
 import eugene.zhukov.dao.UserDao;
 
@@ -38,7 +39,7 @@ public class AccountManagement {
 	}
 
 	@GET
-	@Path("{accountId}")
+	@Path("{id}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	public javax.ws.rs.core.Response retrieve(@Context HttpServletRequest request) {
 		long userId = 0;
@@ -46,7 +47,7 @@ public class AccountManagement {
 			userId = Long.parseLong(request.getPathInfo().substring(10));
 		
 		} catch (NumberFormatException e) {
-			return javax.ws.rs.core.Response.status(BAD_REQUEST).build();
+			throw new SCIMException(BAD_REQUEST, "id:invalid");
 		}
 		UserDao dao = (UserDao) ApplicationContextProvider.getContext().getBean(USER_DAO);
 		User user = dao.retrieveUser(userId);
@@ -58,14 +59,14 @@ public class AccountManagement {
 	}
 
 	@PATCH
-	@Path("{accountId}/password")
+	@Path("{id}/password")
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 	public javax.ws.rs.core.Response passwordChange(@Context HttpServletRequest request, User user) {
 		return javax.ws.rs.core.Response.status(NO_CONTENT).build();
 	}
 
 	@DELETE
-	@Path("{accountId}")
+	@Path("{id}")
 	public javax.ws.rs.core.Response remove() {
 		return javax.ws.rs.core.Response.status(OK).build();
 	}

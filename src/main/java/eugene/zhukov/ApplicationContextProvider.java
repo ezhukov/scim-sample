@@ -6,6 +6,7 @@ import org.springframework.context.ApplicationContextAware;
 public class ApplicationContextProvider implements ApplicationContextAware {
 	
 	public static final String USER_DAO = "userDao";
+	public static final String SECURITY_CONFIG = "securityConfig";
 	
 	private static ApplicationContext ctx;
 	

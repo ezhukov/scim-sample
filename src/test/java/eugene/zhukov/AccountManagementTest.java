@@ -43,6 +43,7 @@ public class AccountManagementTest extends IntegrationJerseyTestCase {
 				.get(ClientResponse.class);
 		Assert.assertTrue("Expexted string from response not found.", response.indexOf("<userName>" + username + "</userName>") > 1);
 		response = cr.getEntity(String.class);
+//		System.out.println(response);
 		Assert.assertEquals("Http status code 200 expected.", 200, cr.getStatus());
 	}
 	

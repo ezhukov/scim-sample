@@ -10,10 +10,14 @@ public class SCIMException extends WebApplicationException {
 
 	private static final long serialVersionUID = -5903220854675776969L;
 	public static final String BAD_REQUEST = "Invalid, syntactically incorrect or unparseable input provided";
-	public static final String SCIM_ERRORS = "urn:info:scim:errors:1.0:";
+	public static final String SCIM_ERRORS = "urn:eugene.zhukov:scim:errors:1.0:";
 	
 	public SCIMException(Status code, String fieldAndReason, String description) {
 		super(constructErrorResponse(code, fieldAndReason, description));
+	}
+	
+	public SCIMException(Status code, String fieldAndReason) {
+		super(constructErrorResponse(code, fieldAndReason, null));
 	}
 	
 	public static javax.ws.rs.core.Response constructErrorResponse(Status code, String fieldAndReason, String description) {

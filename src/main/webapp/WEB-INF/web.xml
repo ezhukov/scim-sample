@@ -21,5 +21,15 @@
 		<servlet-name>scim-sample</servlet-name>
 		<url-pattern>/*</url-pattern>
 	</servlet-mapping>
+	
+	<filter>
+		<filter-name>SCIMFilter</filter-name>
+		<filter-class>eugene.zhukov.SCIMFilter</filter-class>
+ 	</filter>
+
+	<filter-mapping>
+		<filter-name>SCIMFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
 
 </web-app>
