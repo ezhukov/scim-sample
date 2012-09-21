@@ -127,9 +127,9 @@ public class AccountManagementTest extends IntegrationJerseyTestCase {
 				+ "}";
 		
 		ClientResponse responseMsg = resource().path(RESOURCE)
-//				.header(
-//				"Authorization",
-//				"Bearer APssMFxxoGq2r9joK9Id0dTsiGvwmXu8X2Wm5_4sCMSRpkBRUpdKjtisdLK7S1rIqJIUIgach7o!")
+				.header(
+				"Authorization",
+				"Bearer cWGNA5UfyWJIAUdtiX44fIRC/OOhxVdr85tbJZGAXHTmh55KQ2llq8apVGXyXLjPGxpndl5xMNpL4qGsPCCMKeRLs96no//HYRn6jngCyhfAyJeIzHvIMmffhKWpgSMMsgkIISSiXl2BMWDZmoHjJOWeSrtHoF+0BdCIxwLz6twrPpQkiaAj8XhPJy1B8cvJpmXvtsVkQuMAKrIEEkO4l3ZjrzBETQS+57npmP5pFXPAKOVNL1yIyqyaJRhx4Csowed2ri46R52QIBZ/lBXAqKaihmOMAiP99h00RNPPTtmXloyBJgj4IpDvYxQQAhDCXL6XAnuZnKx6xP45n+uTSg==")
 				.type(MediaType.APPLICATION_JSON)
 				.post(ClientResponse.class, input);
 		

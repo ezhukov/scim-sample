@@ -39,6 +39,7 @@
   ]
 }]]></value>
         </property>
+        <property name="privateKey" value="classpath:private_key.der"/>
     </bean>
 
     <bean id="applicationContextProvider" class="eugene.zhukov.ApplicationContextProvider"/>

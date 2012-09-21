@@ -1,10 +1,19 @@
 package eugene.zhukov;
 
+import org.springframework.core.io.Resource;
+
 public class SecurityConfig {
 
 	private String unauthorizedXML;
 	private String unauthorizedJSON;
+	private Resource privateKey;
 
+	public Resource getPrivateKey() {
+		return privateKey;
+	}
+	public void setPrivateKey(Resource privateKey) {
+		this.privateKey = privateKey;
+	}
 	public String getUnauthorizedXML() {
 		return unauthorizedXML;
 	}
@@ -17,5 +26,4 @@ public class SecurityConfig {
 	public void setUnauthorizedJSON(String unauthorizedJSON) {
 		this.unauthorizedJSON = unauthorizedJSON;
 	}
-
 }
