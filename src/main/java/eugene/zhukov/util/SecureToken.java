@@ -1,4 +1,4 @@
-package eugene.zhukov;
+package eugene.zhukov.util;
 
 import java.io.IOException;
 import java.io.ObjectInput;

@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
 
+import eugene.zhukov.util.SecureToken;
+import eugene.zhukov.util.SecurityConfig;
 import eugene.zhukov.util.Utils;
 
 public class SCIMFilter implements Filter {

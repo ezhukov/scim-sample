@@ -2,7 +2,6 @@ package eugene.zhukov.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -20,8 +19,6 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import eugene.zhukov.ApplicationContextProvider;
-import eugene.zhukov.SecureToken;
-import eugene.zhukov.SecurityConfig;
 
 public class Utils {
 
@@ -65,7 +62,7 @@ public class Utils {
 		try {
 			cipher.init(Cipher.DECRYPT_MODE, privateKey);
 
-			return (SecureToken) new ObjectInputStream(new CipherInputStream(
+			return (SecureToken) new LocalObjectInputStream(new CipherInputStream(
 		    		new ByteArrayInputStream(DatatypeConverter.parseBase64Binary(token)), cipher)).readObject();
 
 		} catch (IOException | ClassNotFoundException | InvalidKeyException e) {

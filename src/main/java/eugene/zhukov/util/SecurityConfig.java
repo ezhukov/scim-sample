@@ -1,4 +1,4 @@
-package eugene.zhukov;
+package eugene.zhukov.util;
 
 import org.springframework.core.io.Resource;
 

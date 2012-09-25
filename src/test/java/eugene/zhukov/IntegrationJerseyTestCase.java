@@ -13,7 +13,7 @@ public class IntegrationJerseyTestCase extends JerseyTest {
 		super(new WebAppDescriptor.Builder("eugene.zhukov")
 				.contextPath("/scim")
 //				.contextListenerClass(ApplicationInitMock.class)
-//				.addFilter(SCIMFilter.class, "filter")
+				.addFilter(SCIMFilter.class, "filter")
 				.build());
 
 		new ApplicationContextProvider().setApplicationContext(

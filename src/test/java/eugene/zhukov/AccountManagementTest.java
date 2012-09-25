@@ -33,12 +33,18 @@ public class AccountManagementTest extends IntegrationJerseyTestCase {
 				"</User>";
 		
 		ClientResponse cr = resource().path(RESOURCE)
+				.header(
+						"Authorization",
+						"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
 				.type(MediaType.APPLICATION_XML).accept(MediaType.APPLICATION_XML)
 				.post(ClientResponse.class, input);
 		
 		Assert.assertEquals("Http status code 201 expected.", 201, cr.getStatus());
 		String response = cr.getEntity(String.class);
 		cr = resource().path(RESOURCE + "/" + extractValue(response, "id"))
+				.header(
+						"Authorization",
+						"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
 				.type(MediaType.APPLICATION_XML).accept(MediaType.APPLICATION_XML)
 				.get(ClientResponse.class);
 		Assert.assertTrue("Expexted string from response not found.", response.indexOf("<userName>" + username + "</userName>") > 1);
@@ -75,6 +81,9 @@ public class AccountManagementTest extends IntegrationJerseyTestCase {
 				+ "}";
 		
 		ClientResponse response = resource().path(RESOURCE)
+				.header(
+						"Authorization",
+						"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
 				.type(MediaType.APPLICATION_JSON)
 				.post(ClientResponse.class, input);
 		
@@ -102,6 +111,9 @@ public class AccountManagementTest extends IntegrationJerseyTestCase {
 				+ "}";
 		
 		ClientResponse responseMsg = resource().path(RESOURCE)
+				.header(
+						"Authorization",
+						"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
 				.type(MediaType.APPLICATION_JSON)
 				.post(ClientResponse.class, input);
 		
@@ -117,7 +129,7 @@ public class AccountManagementTest extends IntegrationJerseyTestCase {
 		Assert.assertEquals("Expexted string from response not found.", expected, response.replaceAll("\n", "").replaceAll(" ", ""));
 	}
 	
-//	@Test
+	@Test
 	public void testRegisterUserRawJsonError() {
 		String input = "{ \"schemas\":[\"urn:scim:schemas:core:1.0\"], "
 				+ "\"userName\":\"testSCIMUser\","
@@ -129,7 +141,7 @@ public class AccountManagementTest extends IntegrationJerseyTestCase {
 		ClientResponse responseMsg = resource().path(RESOURCE)
 				.header(
 				"Authorization",
-				"Bearer cWGNA5UfyWJIAUdtiX44fIRC/OOhxVdr85tbJZGAXHTmh55KQ2llq8apVGXyXLjPGxpndl5xMNpL4qGsPCCMKeRLs96no//HYRn6jngCyhfAyJeIzHvIMmffhKWpgSMMsgkIISSiXl2BMWDZmoHjJOWeSrtHoF+0BdCIxwLz6twrPpQkiaAj8XhPJy1B8cvJpmXvtsVkQuMAKrIEEkO4l3ZjrzBETQS+57npmP5pFXPAKOVNL1yIyqyaJRhx4Csowed2ri46R52QIBZ/lBXAqKaihmOMAiP99h00RNPPTtmXloyBJgj4IpDvYxQQAhDCXL6XAnuZnKx6xP45n+uTSg==")
+				"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
 				.type(MediaType.APPLICATION_JSON)
 				.post(ClientResponse.class, input);
 		
@@ -164,6 +176,9 @@ public class AccountManagementTest extends IntegrationJerseyTestCase {
 				"</SCIM>";
 		
 		ClientResponse cr = resource().path(RESOURCE)
+				.header(
+						"Authorization",
+						"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
 				.type(MediaType.APPLICATION_XML).accept(MediaType.APPLICATION_XML)
 				.post(ClientResponse.class, input);
 		
@@ -194,6 +209,9 @@ public class AccountManagementTest extends IntegrationJerseyTestCase {
 				+ "}";
 		
 		ClientResponse responseMsg = resource().path(RESOURCE)
+				.header(
+						"Authorization",
+						"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
 				.type(MediaType.APPLICATION_JSON)
 				.post(ClientResponse.class, input);
 		
@@ -220,6 +238,9 @@ public class AccountManagementTest extends IntegrationJerseyTestCase {
 				+ "}";
 		
 		ClientResponse responseMsg = resource().path(RESOURCE)
+				.header(
+						"Authorization",
+						"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
 				.type(MediaType.APPLICATION_JSON)
 				.post(ClientResponse.class, input);
 		
@@ -244,6 +265,9 @@ public class AccountManagementTest extends IntegrationJerseyTestCase {
 				"</XXX>>";
 		
 		ClientResponse cr = resource().path(RESOURCE)
+				.header(
+						"Authorization",
+						"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
 				.type(MediaType.APPLICATION_XML).accept(MediaType.APPLICATION_XML)
 				.post(ClientResponse.class, input);
 		
@@ -251,7 +275,7 @@ public class AccountManagementTest extends IntegrationJerseyTestCase {
 		
 		Assert.assertEquals("Http status code 400 expected.", 400, cr.getStatus());
 		Assert.assertTrue("Expexted string from response not found.", response.indexOf("Invalid, syntactically incorrect or unparseable input provided") > 1);
-		Assert.assertTrue("Expexted string from response not found.", response.indexOf("urn:info:scim:errors:1.0:input:invalid") > 1);
+		Assert.assertTrue("Expexted string from response not found.", response.indexOf("urn:eugene.zhukov:scim:errors:1.0:input:invalid") > 1);
 	}
 	
 	@Test
@@ -272,6 +296,9 @@ public class AccountManagementTest extends IntegrationJerseyTestCase {
 				"</SCIM>";
 		
 		ClientResponse cr = resource().path(RESOURCE)
+				.header(
+						"Authorization",
+						"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
 				.type(MediaType.APPLICATION_XML).accept(MediaType.APPLICATION_XML)
 				.post(ClientResponse.class, input);
 		
