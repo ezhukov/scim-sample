@@ -6,6 +6,7 @@ import java.io.ObjectInputStream;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.GregorianCalendar;
@@ -28,20 +29,22 @@ public class Utils {
 
 	private static Cipher cipher;
 	private static DatatypeFactory datatypeFactory;
-	private static byte[] privateKeyBinary;
+	private static PrivateKey privateKey;
 
 	static {
 
 		try {
 			java.io.InputStream is = ((SecurityConfig) ApplicationContextProvider
 					.getContext().getBean(ApplicationContextProvider.SECURITY_CONFIG)).getPrivateKey().getInputStream();
-			privateKeyBinary = new byte[is.available()];
+			byte[] privateKeyBinary = new byte[is.available()];
 			is.read(privateKeyBinary);
 		    is.close();
 
 		    cipher = Cipher.getInstance(ALGORITHM);
+		    privateKey = KeyFactory.getInstance(ALGORITHM)
+					.generatePrivate(new PKCS8EncodedKeySpec(privateKeyBinary));
 
-		} catch (IOException | NoSuchAlgorithmException | NoSuchPaddingException e) {
+		} catch (IOException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeySpecException e) {
 			e.printStackTrace();
 		}
 		
@@ -60,13 +63,12 @@ public class Utils {
 	 */
 	public static SecureToken decryptToken(String token) {
 		try {
-		    cipher.init(Cipher.DECRYPT_MODE, KeyFactory.getInstance(ALGORITHM)
-					.generatePrivate(new PKCS8EncodedKeySpec(privateKeyBinary)));
+			cipher.init(Cipher.DECRYPT_MODE, privateKey);
 
 			return (SecureToken) new ObjectInputStream(new CipherInputStream(
 		    		new ByteArrayInputStream(DatatypeConverter.parseBase64Binary(token)), cipher)).readObject();
 
-		} catch (IOException | ClassNotFoundException | NoSuchAlgorithmException | InvalidKeyException | InvalidKeySpecException e) {
+		} catch (IOException | ClassNotFoundException | InvalidKeyException e) {
 			e.printStackTrace();
 			return null;
 		}
