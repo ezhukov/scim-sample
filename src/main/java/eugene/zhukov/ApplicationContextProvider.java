@@ -9,7 +9,7 @@ public class ApplicationContextProvider implements ApplicationContextAware {
 	public static final String SECURITY_CONFIG = "securityConfig";
 	
 	private static ApplicationContext ctx;
-	
+
 	@Override
 	public void setApplicationContext(ApplicationContext ctxt) {
 		ApplicationContextProvider.ctx = ctxt;

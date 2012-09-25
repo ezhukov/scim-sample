@@ -21,7 +21,7 @@ import scim.schemas.v1.User.PhoneNumbers;
 import scim.schemas.v1.User.Photos;
 import scim.schemas.v1.User.Roles;
 import scim.schemas.v1.User.X509Certificates;
-import eugene.zhukov.util.XMLGregorianCalendarConverter;
+import eugene.zhukov.util.Utils;
 
 public class UserDaoImpl implements UserDao {
 
@@ -159,8 +159,8 @@ public class UserDaoImpl implements UserDao {
 				user.setGender(resultSet.getString("gender"));
 
 				Meta meta = new Meta();
-				meta.setCreated(XMLGregorianCalendarConverter.asXMLGregorianCalendar(resultSet.getDate("created")));
-				meta.setLastModified(XMLGregorianCalendarConverter.asXMLGregorianCalendar(resultSet.getDate("lastModified")));
+				meta.setCreated(Utils.asXMLGregorianCalendar(resultSet.getDate("created")));
+				meta.setLastModified(Utils.asXMLGregorianCalendar(resultSet.getDate("lastModified")));
 				meta.setLocation(resultSet.getString("location"));
 				meta.setVersion(resultSet.getString("version"));
 				user.setMeta(meta);

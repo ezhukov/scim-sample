@@ -32,7 +32,7 @@ public class SCIMFilter implements Filter {
 		SecurityConfig securityConfig = (SecurityConfig) ApplicationContextProvider
 				.getContext().getBean(ApplicationContextProvider.SECURITY_CONFIG);
 		
-		if (!isAccessGranted(req.getHeader(AUTHORIZATION_HEADER), securityConfig)) {
+		if (!isAccessGranted(req.getHeader(AUTHORIZATION_HEADER))) {
 			resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			PrintWriter out = new PrintWriter(response.getWriter(), true);
 			out.println(MediaType.APPLICATION_XML.equals(req.getHeader(ACCEPT_HEADER))
@@ -45,14 +45,18 @@ public class SCIMFilter implements Filter {
 		chain.doFilter(req, resp);
 	}
 	
-	private static boolean isAccessGranted(String authorizationHeader, SecurityConfig securityConfig) {
+	private static boolean isAccessGranted(String authorizationHeader) {
 		
 		if (authorizationHeader == null || !authorizationHeader.startsWith(BEARER_PREFIX)) {
 			return false;
 		}
 
-		SecureToken token = Utils.decryptToken(authorizationHeader.substring(
-				BEARER_PREFIX.length(), authorizationHeader.length()), securityConfig.getPrivateKey());
+		SecureToken token = Utils.decryptToken(
+				authorizationHeader.substring(BEARER_PREFIX.length(), authorizationHeader.length()));
+		
+		if (token == null) {
+			return false;
+		}
 		System.out.println("AAAAAAAAA " + token.getPassword());
 		return true;
 	}
