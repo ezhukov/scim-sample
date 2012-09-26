@@ -45,7 +45,7 @@ public class AccountManagementTest extends IntegrationJerseyTestCase {
 				.header(
 						"Authorization",
 						"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
-				.type(MediaType.APPLICATION_XML).accept(MediaType.APPLICATION_XML)
+				.type(MediaType.APPLICATION_XML).accept(MediaType.APPLICATION_JSON)
 				.get(ClientResponse.class);
 		Assert.assertTrue("Expexted string from response not found.", response.indexOf("<userName>" + username + "</userName>") > 1);
 		response = cr.getEntity(String.class);

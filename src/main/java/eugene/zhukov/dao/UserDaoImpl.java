@@ -159,8 +159,8 @@ public class UserDaoImpl implements UserDao {
 				user.setGender(resultSet.getString("gender"));
 
 				Meta meta = new Meta();
-				meta.setCreated(Utils.asXMLGregorianCalendar(resultSet.getDate("created")));
-				meta.setLastModified(Utils.asXMLGregorianCalendar(resultSet.getDate("lastModified")));
+				meta.setCreated(Utils.asXMLGregorianCalendar(resultSet.getTimestamp("created")));
+				meta.setLastModified(Utils.asXMLGregorianCalendar(resultSet.getTimestamp("lastModified")));
 				meta.setLocation(resultSet.getString("location"));
 				meta.setVersion(resultSet.getString("version"));
 				user.setMeta(meta);

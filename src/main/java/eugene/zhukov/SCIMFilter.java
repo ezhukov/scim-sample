@@ -59,7 +59,7 @@ public class SCIMFilter implements Filter {
 		if (token == null) {
 			return false;
 		}
-		System.out.println("AAAAAAAAA " + token.getPassword());
+		// TODO add password and timestamp validation
 		return true;
 	}
 

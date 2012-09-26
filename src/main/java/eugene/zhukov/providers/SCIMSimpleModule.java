@@ -102,7 +102,7 @@ public class SCIMSimpleModule {
 					public void serialize(Addresses addresses, JsonGenerator jsonGenerator,
 							SerializerProvider provider) throws IOException, JsonProcessingException {
 						jsonGenerator.writeStartArray();
-						
+
 						for (Address attribute : addresses.getAddress()) {
 							jsonGenerator.writeObject(attribute);
 						}
@@ -110,11 +110,11 @@ public class SCIMSimpleModule {
 					}
 				})
 				.addSerializer(XMLGregorianCalendar.class, new JsonSerializer<XMLGregorianCalendar>() {
-					
+
 					@Override
 					public void serialize(XMLGregorianCalendar calendar, JsonGenerator jsonGenerator,
 							SerializerProvider provider) throws IOException, JsonProcessingException {
-						jsonGenerator.writeString(calendar.toString());
+						jsonGenerator.writeString(String.format("%tFT%<tTZ", calendar.toGregorianCalendar()));
 					}
 				})
 				.addSerializer(Response.class, new JsonSerializer<Response>() {

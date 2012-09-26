@@ -27,9 +27,9 @@ CREATE TABLE users (
     locale            char(5),
     timezone          varchar(100),
     active            boolean,
-    password          varchar(255),
-    created           timestamp,
-    lastModified      timestamp,
+    password          varchar(30),
+    created           timestamp with time zone,
+    lastModified      timestamp with time zone,
     location          varchar(255),
     version           varchar(10),
     gender            varchar(6)

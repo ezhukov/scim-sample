@@ -82,18 +82,8 @@ public class Utils {
     	if (date == null) {
             return null;
         }
-        GregorianCalendar gc = new GregorianCalendar();
-        gc.setTimeInMillis(date.getTime());
-        return datatypeFactory.newXMLGregorianCalendar(gc);
-    }
-
-	/**
-     * Converts an XMLGregorianCalendar to an instance of java.util.Date
-     *
-     * @param xgc Instance of XMLGregorianCalendar
-     * @return java.util.Date instance
-     */
-    public static java.util.Date asDate(XMLGregorianCalendar xgc) {
-    	return xgc == null ? null : xgc.toGregorianCalendar().getTime();
+    	GregorianCalendar calendar = new GregorianCalendar();
+        calendar.setTime(date);
+        return datatypeFactory.newXMLGregorianCalendar(calendar);
     }
 }
