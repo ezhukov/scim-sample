@@ -1,9 +1,12 @@
 package eugene.zhukov.dao;
 
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +25,7 @@ import scim.schemas.v1.User.PhoneNumbers;
 import scim.schemas.v1.User.Photos;
 import scim.schemas.v1.User.Roles;
 import scim.schemas.v1.User.X509Certificates;
+import eugene.zhukov.SCIMException;
 import eugene.zhukov.util.Utils;
 
 public class UserDaoImpl implements UserDao {
@@ -40,54 +44,58 @@ public class UserDaoImpl implements UserDao {
 		Name name = user.getName() == null ? new Name() : user.getName();
 		UUID userId = UUID.randomUUID();
 
-		jdbcTemplate.update(sql.append("insert into users (")
-				.append("id,")
-				.append("username,")
-				.append("formattedName,")
-				.append("familyName,")
-				.append("givenName,")
-				.append("middleName,")
-				.append("honorificPrefix,")
-				.append("honorificSuffix,")
-				.append("displayName,")
-				.append("nickname,")
-				.append("profileURL,")
-				.append("title,")
-				.append("userType,")
-				.append("preferredLanguage,")
-				.append("locale,")
-				.append("timezone,")
-				.append("active,")
-				.append("password,")
-				.append("created,")
-				.append("lastModified,")
-				.append("location,")
-				.append("version,")
-				.append("gender")
-				.append(") values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)").toString(),
-				userId,
-				user.getUserName(),
-				name.getFormatted(),
-				name.getFamilyName(),
-				name.getGivenName(),
-				name.getMiddleName(),
-				name.getHonorificPrefix(),
-				name.getHonorificSuffix(),
-				user.getDisplayName(),
-				user.getNickName(),
-				user.getProfileUrl(),
-				user.getTitle(),
-				user.getUserType(),
-				user.getPreferredLanguage(),
-				user.getLocale(),
-				user.getTimezone(),
-				user.isActive(),
-				user.getPassword(),
-				dateTime,
-				dateTime,
-				"/Users/" + userId,
-				"v1",
-				user.getGender());
+		try {
+			jdbcTemplate.update(sql.append("insert into users (")
+					.append("id,")
+					.append("username,")
+					.append("formattedName,")
+					.append("familyName,")
+					.append("givenName,")
+					.append("middleName,")
+					.append("honorificPrefix,")
+					.append("honorificSuffix,")
+					.append("displayName,")
+					.append("nickname,")
+					.append("profileURL,")
+					.append("title,")
+					.append("userType,")
+					.append("preferredLanguage,")
+					.append("locale,")
+					.append("timezone,")
+					.append("active,")
+					.append("password,")
+					.append("created,")
+					.append("lastModified,")
+					.append("location,")
+					.append("version,")
+					.append("gender")
+					.append(") values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)").toString(),
+					userId,
+					user.getUserName(),
+					name.getFormatted(),
+					name.getFamilyName(),
+					name.getGivenName(),
+					name.getMiddleName(),
+					name.getHonorificPrefix(),
+					name.getHonorificSuffix(),
+					user.getDisplayName(),
+					user.getNickName(),
+					user.getProfileUrl(),
+					user.getTitle(),
+					user.getUserType(),
+					user.getPreferredLanguage(),
+					user.getLocale(),
+					user.getTimezone(),
+					user.isActive(),
+					user.getPassword(),
+					dateTime,
+					dateTime,
+					"/Users/" + userId,
+					"v1",
+					user.getGender());
+		} catch (DuplicateKeyException e) {
+			throw new SCIMException(BAD_REQUEST, "username:invalid", "Username " + user.getUserName() + " already exists");
+		}
 
 		if (user.getEmails() != null) {
 			insertMultiValuedAttrs(user.getEmails().getEmail(), "emails", userId);

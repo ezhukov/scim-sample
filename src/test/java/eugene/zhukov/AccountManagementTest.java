@@ -144,7 +144,7 @@ public class AccountManagementTest extends IntegrationJerseyTestCase {
 				"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
 				.type(MediaType.APPLICATION_JSON)
 				.post(ClientResponse.class, input);
-		
+//		System.out.println(responseMsg.getEntity(String.class));
 		Assert.assertEquals(400, responseMsg.getStatus());
 	}
 	
