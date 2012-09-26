@@ -10,7 +10,7 @@ DROP TABLE roles;
 DROP TABLE x509Certificates;
 
 CREATE TABLE users (
-    id                bigint PRIMARY KEY,
+    id                uuid PRIMARY KEY,
     username          varchar(20) unique not null,
     formattedName     varchar(255),
     familyName        varchar(70),
@@ -42,7 +42,7 @@ CREATE TABLE emails (
     isPrimary boolean,
     type      varchar(20),
     operation varchar(20),
-    userId    bigint not null
+    userId    uuid not null
 );
 
 CREATE TABLE phoneNumbers (
@@ -52,7 +52,7 @@ CREATE TABLE phoneNumbers (
     isPrimary boolean,
     type      varchar(20),
     operation varchar(20),
-    userId    bigint not null
+    userId    uuid not null
 );
 
 CREATE TABLE ims (
@@ -62,7 +62,7 @@ CREATE TABLE ims (
     isPrimary boolean,
     type      varchar(20),
     operation varchar(20),
-    userId    bigint not null
+    userId    uuid not null
 );
 
 CREATE TABLE photos (
@@ -72,7 +72,7 @@ CREATE TABLE photos (
     isPrimary boolean,
     type      varchar(20),
     operation varchar(20),
-    userId    bigint not null
+    userId    uuid not null
 );
 
 CREATE TABLE addresses (
@@ -88,7 +88,7 @@ CREATE TABLE addresses (
     region        varchar(50),
     postalCode    varchar(10),
     country       char(2),
-    userId        bigint not null
+    userId        uuid not null
 );
 
 CREATE TABLE groups (
@@ -98,7 +98,7 @@ CREATE TABLE groups (
     isPrimary boolean,
     type      varchar(20),
     operation varchar(20),
-    userId    bigint not null
+    userId    uuid not null
 );
 
 CREATE TABLE entitlements (
@@ -108,7 +108,7 @@ CREATE TABLE entitlements (
     isPrimary boolean,
     type      varchar(20),
     operation varchar(20),
-    userId    bigint not null
+    userId    uuid not null
 );
 
 CREATE TABLE roles (
@@ -118,7 +118,7 @@ CREATE TABLE roles (
     isPrimary boolean,
     type      varchar(20),
     operation varchar(20),
-    userId    bigint not null
+    userId    uuid not null
 );
 
 CREATE TABLE x509Certificates (
@@ -128,6 +128,6 @@ CREATE TABLE x509Certificates (
     isPrimary boolean,
     type      varchar(20),
     operation varchar(20),
-    userId    bigint not null
+    userId    uuid not null
 );
 

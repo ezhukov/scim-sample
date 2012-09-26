@@ -1,10 +1,11 @@
 package eugene.zhukov.api;
 
 import static eugene.zhukov.ApplicationContextProvider.USER_DAO;
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 import static javax.ws.rs.core.Response.Status.OK;
+
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -19,7 +20,6 @@ import javax.ws.rs.core.MediaType;
 import scim.schemas.v1.Response;
 import scim.schemas.v1.User;
 import eugene.zhukov.ApplicationContextProvider;
-import eugene.zhukov.SCIMException;
 import eugene.zhukov.api.annotation.PATCH;
 import eugene.zhukov.dao.UserDao;
 
@@ -42,19 +42,11 @@ public class AccountManagement {
 	@Path("{id}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	public javax.ws.rs.core.Response retrieve(@Context HttpServletRequest request) {
-		long userId = 0;
-		try {
-			userId = Long.parseLong(request.getPathInfo().substring(10));
-		
-		} catch (NumberFormatException e) {
-			throw new SCIMException(BAD_REQUEST, "id:invalid");
-		}
 		UserDao dao = (UserDao) ApplicationContextProvider.getContext().getBean(USER_DAO);
-		User user = dao.retrieveUser(userId);
+		User user = dao.retrieveUser(UUID.fromString(request.getPathInfo().substring(10)));
 
 		Response response = new Response();
 		response.setResource(user);
-
 		return javax.ws.rs.core.Response.status(OK).entity(response).build();
 	}
 

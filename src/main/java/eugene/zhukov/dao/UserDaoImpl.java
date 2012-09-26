@@ -2,6 +2,7 @@ package eugene.zhukov.dao;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.UUID;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -25,8 +26,6 @@ import eugene.zhukov.util.Utils;
 
 public class UserDaoImpl implements UserDao {
 
-	private static java.util.Random random = new java.util.Random();
-
 	private JdbcTemplate jdbcTemplate;
 
 	public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
@@ -39,7 +38,7 @@ public class UserDaoImpl implements UserDao {
 		java.util.Date dateTime = new java.util.Date();
 		StringBuilder sql = new StringBuilder();
 		Name name = user.getName() == null ? new Name() : user.getName();
-		long userId = Math.abs(random.nextLong());
+		UUID userId = UUID.randomUUID();
 
 		jdbcTemplate.update(sql.append("insert into users (")
 				.append("id,")
@@ -86,7 +85,7 @@ public class UserDaoImpl implements UserDao {
 				user.getPassword(),
 				dateTime,
 				dateTime,
-				"{server}/Users/@me",
+				"/Users/" + userId,
 				"v1",
 				user.getGender());
 
@@ -130,13 +129,12 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	@Override
-	public User retrieveUser(long userId) {
+	public User retrieveUser(UUID userId) {
 		User user = jdbcTemplate.queryForObject("select * from users where id =?", new RowMapper<User>() {
 
 			@Override
 			public User mapRow(ResultSet resultSet, int arg1) throws SQLException {
 				User user = new User();
-
 				user.setId(resultSet.getString("id"));
 				user.setUserName(resultSet.getString("username"));
 
@@ -245,7 +243,7 @@ public class UserDaoImpl implements UserDao {
 		return user;
 	}
 
-	private java.util.List<MultiValuedAttribute> retrieveMultiValuedAttrs(String table, long userId) {
+	private java.util.List<MultiValuedAttribute> retrieveMultiValuedAttrs(String table, UUID userId) {
 		return jdbcTemplate.query("select * from " + table + " where userId =?", new RowMapper<MultiValuedAttribute>() {
 
 			@Override
@@ -262,7 +260,7 @@ public class UserDaoImpl implements UserDao {
 		}, userId);
 	}
 	
-	private java.util.List<Address> retrieveAddresses(long userId) {
+	private java.util.List<Address> retrieveAddresses(UUID userId) {
 		return jdbcTemplate.query("select * from addresses where userId =?", new RowMapper<Address>() {
 
 			@Override
@@ -285,7 +283,7 @@ public class UserDaoImpl implements UserDao {
 		}, userId);
 	}
 
-	private void insertMultiValuedAttrs(java.util.List<MultiValuedAttribute> values, String table, long userId) {
+	private void insertMultiValuedAttrs(java.util.List<MultiValuedAttribute> values, String table, UUID userId) {
 		StringBuilder sql = null;
 
 		for (MultiValuedAttribute email : values) {
@@ -307,7 +305,7 @@ public class UserDaoImpl implements UserDao {
 		}
 	}
 	
-	private void insertAddresses(java.util.List<Address> addresses, long userId) {
+	private void insertAddresses(java.util.List<Address> addresses, UUID userId) {
 		StringBuilder sql = null;
 
 		for (Address address : addresses) {
