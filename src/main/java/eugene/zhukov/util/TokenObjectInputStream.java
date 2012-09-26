@@ -5,9 +5,9 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamClass;
 
-public class LocalObjectInputStream extends ObjectInputStream {
+public class TokenObjectInputStream extends ObjectInputStream {
 
-    public LocalObjectInputStream(InputStream in) throws IOException {
+    public TokenObjectInputStream(InputStream in) throws IOException {
         super(in);
     }
 

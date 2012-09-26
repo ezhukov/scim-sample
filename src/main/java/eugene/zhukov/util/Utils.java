@@ -62,7 +62,7 @@ public class Utils {
 		try {
 			cipher.init(Cipher.DECRYPT_MODE, privateKey);
 
-			return (SecureToken) new LocalObjectInputStream(new CipherInputStream(
+			return (SecureToken) new TokenObjectInputStream(new CipherInputStream(
 		    		new ByteArrayInputStream(DatatypeConverter.parseBase64Binary(token)), cipher)).readObject();
 
 		} catch (IOException | ClassNotFoundException | InvalidKeyException e) {

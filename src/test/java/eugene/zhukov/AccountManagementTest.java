@@ -35,7 +35,7 @@ public class AccountManagementTest extends IntegrationJerseyTestCase {
 		ClientResponse cr = resource().path(RESOURCE)
 				.header(
 						"Authorization",
-						"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
+						"Bearer gmLvpEMtbeCjv/DrN7shT2bYj+QLngxFg1thKmk+8NGbGiuiDtMz9OVmLaXlywCeHLoEb6rmPsWf9DiA9fSdE7zB0p4X2NCfp1qQ89EtCau4btceWpKPCMDpwSGXOAE4uHaNxODiSKch5L5vM+Z2pRMOC9GMm3IXSi7GK9vaFIM=")
 				.type(MediaType.APPLICATION_XML).accept(MediaType.APPLICATION_XML)
 				.post(ClientResponse.class, input);
 		
