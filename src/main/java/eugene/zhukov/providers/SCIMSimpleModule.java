@@ -114,7 +114,8 @@ public class SCIMSimpleModule {
 					@Override
 					public void serialize(XMLGregorianCalendar calendar, JsonGenerator jsonGenerator,
 							SerializerProvider provider) throws IOException, JsonProcessingException {
-						jsonGenerator.writeString(String.format("%tFT%<tTZ", calendar.toGregorianCalendar()));
+//						jsonGenerator.writeString(String.format("%tFT%<tTZ", calendar.toGregorianCalendar()));
+						jsonGenerator.writeString(calendar.toString());
 					}
 				})
 				.addSerializer(Response.class, new JsonSerializer<Response>() {

@@ -9,6 +9,7 @@ import java.security.PrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
@@ -23,6 +24,7 @@ import eugene.zhukov.ApplicationContextProvider;
 public class Utils {
 
 	private final static String ALGORITHM = "RSA";
+	private final static String TIME_ZONE = "UTC";
 
 	private static Cipher cipher;
 	private static DatatypeFactory datatypeFactory;
@@ -44,7 +46,7 @@ public class Utils {
 		} catch (IOException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeySpecException e) {
 			e.printStackTrace();
 		}
-		
+
 		try {
 			datatypeFactory = DatatypeFactory.newInstance();
 		} catch (DatatypeConfigurationException e) {
@@ -74,16 +76,18 @@ public class Utils {
 	/**
      * Converts a java.util.Date into an instance of XMLGregorianCalendar
      *
-     * @param date Instance of java.util.Date
+     * @param timestamp Instance of java.sql.Timestamp from database
      * @return XMLGregorianCalendar instance
      */
-	public static XMLGregorianCalendar asXMLGregorianCalendar(java.util.Date date) {
+	public static XMLGregorianCalendar asXMLGregorianCalendar(java.sql.Timestamp timestamp) {
 
-    	if (date == null) {
+    	if (timestamp == null) {
             return null;
         }
-    	GregorianCalendar calendar = new GregorianCalendar();
-        calendar.setTime(date);
-        return datatypeFactory.newXMLGregorianCalendar(calendar);
+    	GregorianCalendar gregorianCalendar = new GregorianCalendar(TimeZone.getTimeZone(TIME_ZONE));
+    	gregorianCalendar.setTime(timestamp);
+        XMLGregorianCalendar calendar = datatypeFactory.newXMLGregorianCalendar(gregorianCalendar);
+        calendar.setFractionalSecond(null);
+        return calendar;
     }
 }

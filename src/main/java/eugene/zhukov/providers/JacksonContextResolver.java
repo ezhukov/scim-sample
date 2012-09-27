@@ -92,7 +92,7 @@ public class JacksonContextResolver implements ContextResolver<ObjectMapper>, Me
 				throw new SCIMException(Status.BAD_REQUEST, "schemas:invalid", null);
 			}
 			return response;
-			
+
 		} catch (org.codehaus.jackson.JsonParseException | java.io.EOFException e) {
 			throw new SCIMException(Status.BAD_REQUEST, "input:invalid", SCIMException.BAD_REQUEST);
 
@@ -101,8 +101,8 @@ public class JacksonContextResolver implements ContextResolver<ObjectMapper>, Me
 					"input:invalid", SCIMException.BAD_REQUEST + ": " + e.getUnrecognizedPropertyName());
 
 		} catch (org.codehaus.jackson.map.JsonMappingException e) {
-			throw new SCIMException(Status.BAD_REQUEST, e.getPath().get(0) != null
-					? (e.getPath().get(0).getFieldName() + ":invalid") : ("input:invalid"), null);
+			throw new SCIMException(Status.BAD_REQUEST, e.getPath().isEmpty()
+					? "input:invalid" : e.getPath().get(0).getFieldName() + ":invalid");
 		}
 	}
 	
