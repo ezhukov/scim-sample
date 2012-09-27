@@ -69,6 +69,9 @@ public class Utils {
 			return (SecureToken) new TokenObjectInputStream(new CipherInputStream(
 		    		new ByteArrayInputStream(DatatypeConverter.parseBase64Binary(token)), cipher)).readObject();
 
+		} catch (ArrayIndexOutOfBoundsException e) {
+			return null;
+
 		} catch (IOException | ClassNotFoundException | InvalidKeyException e) {
 			e.printStackTrace();
 			return null;
