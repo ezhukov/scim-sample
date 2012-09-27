@@ -8,7 +8,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.Arrays;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import javax.crypto.Cipher;
@@ -90,4 +92,28 @@ public class Utils {
         calendar.setFractionalSecond(null);
         return calendar;
     }
+
+	/**
+	 * Checks if given locale is valid according to SCIM schema.
+	 *
+	 * @param locale String to parse and check
+	 * @return boolean true if valid, false otherwise
+	 */
+	public static boolean isLocaleValid(String locale) {
+		String[] split = locale.split("_");
+
+		return split.length == 2
+				&& Arrays.binarySearch(Locale.getISOLanguages(), split[0]) > 0
+				&& isCountryValid(split[1]);
+	}
+
+	/**
+	 * Checks if given 2-letter country code is valid according to ISO 3166.
+	 *
+	 * @param twoLetterCountryCode String to check
+	 * @return boolean true if valid, false otherwise
+	 */
+	public static boolean isCountryValid(String twoLetterCountryCode) {
+		return Arrays.binarySearch(Locale.getISOCountries(), twoLetterCountryCode) > 0;
+	}
 }

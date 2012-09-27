@@ -1,6 +1,6 @@
 package eugene.zhukov.dao;
 
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -86,19 +86,20 @@ public class UserDaoImpl implements UserDao {
 					user.getPreferredLanguage(),
 					user.getLocale(),
 					user.getTimezone(),
-					user.isActive(),
+					true,
 					user.getPassword(),
 					dateTime,
 					dateTime,
 					"/Users/" + userId,
 					"v1",
 					user.getGender());
-		} catch (DuplicateKeyException e) {
-			throw new SCIMException(BAD_REQUEST, "username:invalid", "Username " + user.getUserName() + " already exists");
-		}
 
-		if (user.getEmails() != null) {
-			insertMultiValuedAttrs(user.getEmails().getEmail(), "emails", userId);
+			if (user.getEmails() != null) {
+				insertMultiValuedAttrs(user.getEmails().getEmail(), "emails", userId);
+			}
+
+		} catch (DuplicateKeyException e) {
+			throw new SCIMException(FORBIDDEN, "username/email:reserved");
 		}
 		
 		if (user.getPhoneNumbers() != null) {
@@ -153,7 +154,7 @@ public class UserDaoImpl implements UserDao {
 				name.setHonorificPrefix(resultSet.getString("honorificPrefix"));
 				name.setHonorificSuffix(resultSet.getString("honorificSuffix"));
 				name.setMiddleName(resultSet.getString("middleName"));
-				user.setName(name);
+				user.setName(name); // TODO fix not to set empty Name object
 				user.setNickName(resultSet.getString("nickname"));
 				user.setProfileUrl(resultSet.getString("profileURL"));
 				user.setTitle(resultSet.getString("title"));

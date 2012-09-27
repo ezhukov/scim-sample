@@ -24,6 +24,7 @@ import eugene.zhukov.ApplicationContextProvider;
 import eugene.zhukov.SCIMException;
 import eugene.zhukov.api.annotation.PATCH;
 import eugene.zhukov.dao.UserDao;
+import eugene.zhukov.util.Utils;
 
 @Path("v1/Users")
 public class AccountManagement {
@@ -33,6 +34,14 @@ public class AccountManagement {
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	public javax.ws.rs.core.Response create(User user) {
 		UserDao dao = (UserDao) ApplicationContextProvider.getContext().getBean(USER_DAO);
+		
+		if (user.getPreferredLanguage() != null && !Utils.isLocaleValid(user.getPreferredLanguage())) {
+			throw new SCIMException(BAD_REQUEST, "preferredLanguage:invalid");
+		}
+
+		if (user.getLocale() != null && !Utils.isLocaleValid(user.getLocale())) {
+			throw new SCIMException(BAD_REQUEST, "locale:invalid");
+		}
 		User persisted = dao.persistUser(user);
 
 		Response response = new Response();
