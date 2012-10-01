@@ -47,7 +47,7 @@ public class SCIMSimpleModule {
 					}
 				})
 				.addSerializer(Emails.class, new JsonSerializer<Emails>() {
-					
+
 					@Override
 					public void serialize(Emails emails, JsonGenerator jsonGenerator,
 							SerializerProvider provider) throws IOException, JsonProcessingException {
@@ -60,7 +60,7 @@ public class SCIMSimpleModule {
 					}
 				})
 				.addDeserializer(PhoneNumbers.class, new JsonDeserializer<PhoneNumbers>() {
-					
+
 					@Override
 					public PhoneNumbers deserialize(JsonParser jsonParser, DeserializationContext context) throws IOException, JsonProcessingException {
 						List<MultiValuedAttribute> uem = jsonParser.readValueAs(new TypeReference<List<MultiValuedAttribute>>() {
@@ -72,7 +72,7 @@ public class SCIMSimpleModule {
 					}
 				})
 				.addSerializer(PhoneNumbers.class, new JsonSerializer<PhoneNumbers>() {
-					
+
 					@Override
 					public void serialize(PhoneNumbers numbers, JsonGenerator jsonGenerator,
 							SerializerProvider provider) throws IOException, JsonProcessingException {
@@ -85,7 +85,7 @@ public class SCIMSimpleModule {
 					}
 				})
 				.addDeserializer(Addresses.class, new JsonDeserializer<Addresses>() {
-					
+
 					@Override
 					public Addresses deserialize(JsonParser jsonParser, DeserializationContext context) throws IOException, JsonProcessingException {
 						List<Address> ua = jsonParser.readValueAs(new TypeReference<List<Address>>() {
@@ -97,7 +97,7 @@ public class SCIMSimpleModule {
 					}
 				})
 				.addSerializer(Addresses.class, new JsonSerializer<Addresses>() {
-					
+
 					@Override
 					public void serialize(Addresses addresses, JsonGenerator jsonGenerator,
 							SerializerProvider provider) throws IOException, JsonProcessingException {
@@ -119,25 +119,25 @@ public class SCIMSimpleModule {
 					}
 				})
 				.addSerializer(Response.class, new JsonSerializer<Response>() {
-					
+
 					@Override
 					public void serialize(Response response, JsonGenerator jsonGenerator,
 							SerializerProvider provider) throws IOException, JsonProcessingException {
-						
+
 						if (response.getErrors() != null) {
 							jsonGenerator.writeStartObject();
 							jsonGenerator.writeFieldName("Errors");
 							jsonGenerator.writeStartArray();
-							
+
 							for (Error attribute : response.getErrors().getError()) {
 								jsonGenerator.writeObject(attribute);
 							}
 							jsonGenerator.writeEndArray();
 							jsonGenerator.writeEndObject();
-							
+
 						} else if (response.getResource() != null) {
 							jsonGenerator.writeObject(response.getResource());
-							
+
 						} else if (response.getResources() != null) {
 							jsonGenerator.writeObject(response.getResources());
 						}

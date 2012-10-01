@@ -26,7 +26,7 @@ import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
 
 @Provider
 @Produces({ MediaType.APPLICATION_XML })
-public class XMLWriter implements ContextResolver<JAXBContext>, MessageBodyWriter<Response> {
+public class XMLContextResolver implements ContextResolver<JAXBContext>, MessageBodyWriter<Response> {
 	
 	private final JAXBContext context;
 	private final static String ENTITY_PACKAGE = "scim.schemas.v1";
@@ -34,7 +34,7 @@ public class XMLWriter implements ContextResolver<JAXBContext>, MessageBodyWrite
 	private static final String ENTERPRISE_NAMESPACE = "urn:scim:schemas:extension:enterprise:1.0";
 	private final static String ENTERPRISE_PREFIX = "enterprise";
 	
-	public XMLWriter() throws JAXBException {
+	public XMLContextResolver() throws JAXBException {
 		context = JAXBContext.newInstance(ENTITY_PACKAGE);
 	}
 	

@@ -31,22 +31,22 @@ import org.codehaus.jackson.type.TypeReference;
 
 @Provider
 @Produces(MediaType.APPLICATION_JSON)
-public class JacksonContextResolver implements ContextResolver<ObjectMapper>, MessageBodyWriter<Object>, MessageBodyReader<Object> {
-	
+public class JSONContextResolver implements ContextResolver<ObjectMapper>, MessageBodyWriter<Object>, MessageBodyReader<Object> {
+
 	private static final String CORE = "urn:scim:schemas:core:1.0";
 	private static final String ENTERPRISE = "urn:scim:schemas:extension:enterprise:1.0";
-	
+
 	private ObjectMapper objectMapper;
 	private boolean coreSchemaPresent;
 	private boolean enterpriseSchemaPresent;
 	private boolean enterpriseElementPresent;
-	
-	public JacksonContextResolver() {
+
+	public JSONContextResolver() {
 		objectMapper = new ObjectMapper();
-		
+
 		DeserializationConfig deserializationConfig = objectMapper.getDeserializationConfig();
 		deserializationConfig.addHandler(new JsonDeserializationProblemHandler());
-		
+
 		objectMapper.setDeserializationConfig(deserializationConfig);
 		objectMapper.setSerializationConfig(
 				objectMapper.getSerializationConfig().with(Feature.INDENT_OUTPUT)
@@ -55,33 +55,33 @@ public class JacksonContextResolver implements ContextResolver<ObjectMapper>, Me
 		SCIMSimpleModule moduleLocal = new SCIMSimpleModule();
 		objectMapper.registerModule(moduleLocal.getModule());
 	}
-	
+
 	@Override
 	public ObjectMapper getContext(Class<?> objectType) {
 		return objectMapper;
 	}
-	
+
 	@Override
 	public long getSize(Object target, Class<?> clazz, Type type, Annotation[] annotation, MediaType mediaType) {
 		return -1;
 	}
-	
+
 	@Override
 	public boolean isWriteable(Class<?> clazz, Type type, Annotation[] annotation, MediaType mediaType) {
 		return mediaType.isCompatible(MediaType.APPLICATION_JSON_TYPE);
 	}
-	
+
 	@Override
 	public void writeTo(Object target, Class<?> clazz, Type type, Annotation[] annotation, MediaType mediaType,
 			MultivaluedMap<String, Object> map, OutputStream outputStream) throws IOException, WebApplicationException {
 		objectMapper.writeValue(outputStream, target);
 	}
-	
+
 	@Override
 	public boolean isReadable(Class<?> clazz, Type type, Annotation[] annotation, MediaType mediaType) {
 		return isWriteable(clazz, type, annotation, mediaType);
 	}
-	
+
 	@Override
 	public Object readFrom(Class<Object> clazz, Type type, Annotation[] annotation, MediaType mediaType,
 			MultivaluedMap<String, String> map, InputStream inputStream) throws IOException, WebApplicationException {
@@ -105,9 +105,9 @@ public class JacksonContextResolver implements ContextResolver<ObjectMapper>, Me
 					? "input:invalid" : e.getPath().get(0).getFieldName() + ":invalid");
 		}
 	}
-	
+
 	private class JsonDeserializationProblemHandler extends DeserializationProblemHandler {
-		
+
 		@Override
 		public boolean handleUnknownProperty(DeserializationContext ctx, JsonDeserializer<?> deserializer,
 				Object beanOrClass, String propertyName) throws IOException, JsonProcessingException {
