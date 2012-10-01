@@ -1,6 +1,7 @@
 package eugene.zhukov.dao;
 
 import static javax.ws.rs.core.Response.Status.FORBIDDEN;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,7 +10,6 @@ import java.util.UUID;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.transaction.annotation.Transactional;
 
 import scim.schemas.v1.Address;
 import scim.schemas.v1.Meta;
@@ -37,8 +37,7 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	@Override
-	@Transactional
-	public User persistUser(User user) {
+	public UUID persistUser(User user) {
 		java.util.Date dateTime = new java.util.Date();
 		StringBuilder sql = new StringBuilder();
 		Name name = user.getName() == null ? new Name() : user.getName();
@@ -94,88 +93,108 @@ public class UserDaoImpl implements UserDao {
 					"v1",
 					user.getGender());
 
+		} catch (DuplicateKeyException e) {
+			throw new SCIMException(FORBIDDEN, "username:reserved");
+		}
+		
+		insertAttrs(user, userId);
+
+		return userId;
+	}
+	
+	private void insertAttrs(User user, UUID userId) {
+		try {
 			if (user.getEmails() != null) {
 				insertMultiValuedAttrs(user.getEmails().getEmail(), "emails", userId);
 			}
 
 		} catch (DuplicateKeyException e) {
-			throw new SCIMException(FORBIDDEN, "username/email:reserved");
+			throw new SCIMException(FORBIDDEN, "email:reserved");
 		}
-		
+
 		if (user.getPhoneNumbers() != null) {
 			insertMultiValuedAttrs(user.getPhoneNumbers().getPhoneNumber(), "phoneNumbers", userId);
 		}
-		
+
 		if (user.getIms() != null) {
 			insertMultiValuedAttrs(user.getIms().getIm(), "ims", userId);
 		}
-		
+
 		if (user.getPhotos() != null) {
 			insertMultiValuedAttrs(user.getPhotos().getPhoto(), "photos", userId);
 		}
-		
+
 		if (user.getGroups() != null) {
 			insertMultiValuedAttrs(user.getGroups().getGroup(), "groups", userId);
 		}
-		
+
 		if (user.getEntitlements() != null) {
 			insertMultiValuedAttrs(user.getEntitlements().getEntitlement(), "entitlements", userId);
 		}
-		
+
 		if (user.getRoles() != null) {
 			insertMultiValuedAttrs(user.getRoles().getRole(), "roles", userId);
 		}
-		
+
 		if (user.getX509Certificates() != null) {
 			insertMultiValuedAttrs(user.getX509Certificates().getX509Certificate(), "x509Certificates", userId);
 		}
-		
+
 		if (user.getAddresses() != null) {
 			insertAddresses(user.getAddresses().getAddress(), userId);
 		}
+	}
 
-		return retrieveUser(userId);
+	@Override
+	public boolean checkUserExists(UUID userId) {
+		return jdbcTemplate.queryForInt("select count(*) from users where id = ?", userId) > 0;
 	}
 
 	@Override
 	public User retrieveUser(UUID userId) {
-		User user = jdbcTemplate.queryForObject("select * from users where id =?", new RowMapper<User>() {
+		User user = null;
+		try {
+			user = jdbcTemplate.queryForObject("select * from users where id =?", new RowMapper<User>() {
+	
+				@Override
+				public User mapRow(ResultSet resultSet, int arg1) throws SQLException {
+					User user = new User();
+					user.setId(resultSet.getString("id"));
+					user.setUserName(resultSet.getString("username"));
+	
+					Name name = new Name();
+					name.setFormatted(resultSet.getString("formattedName"));
+					name.setFamilyName(resultSet.getString("familyName"));
+					name.setGivenName(resultSet.getString("givenName"));
+					name.setHonorificPrefix(resultSet.getString("honorificPrefix"));
+					name.setHonorificSuffix(resultSet.getString("honorificSuffix"));
+					name.setMiddleName(resultSet.getString("middleName"));
+					user.setName(name); // TODO fix not to set empty Name object
+					user.setNickName(resultSet.getString("nickname"));
+					user.setProfileUrl(resultSet.getString("profileURL"));
+					user.setTitle(resultSet.getString("title"));
+					user.setUserType(resultSet.getString("userType"));
+					user.setPreferredLanguage(resultSet.getString("preferredLanguage"));
+					user.setLocale(resultSet.getString("locale"));
+					user.setTimezone(resultSet.getString("timezone"));
+					user.setActive(resultSet.getBoolean("active"));
+					user.setGender(resultSet.getString("gender"));
+	
+					Meta meta = new Meta();
+					meta.setCreated(Utils.asXMLGregorianCalendar(resultSet.getTimestamp("created")));
+					meta.setLastModified(Utils.asXMLGregorianCalendar(resultSet.getTimestamp("lastModified")));
+					meta.setLocation(resultSet.getString("location"));
+					meta.setVersion(resultSet.getString("version"));
+					user.setMeta(meta);
+	
+					return user;
+				}
+	
+			}, userId);
 
-			@Override
-			public User mapRow(ResultSet resultSet, int arg1) throws SQLException {
-				User user = new User();
-				user.setId(resultSet.getString("id"));
-				user.setUserName(resultSet.getString("username"));
-
-				Name name = new Name();
-				name.setFormatted(resultSet.getString("formattedName"));
-				name.setFamilyName(resultSet.getString("familyName"));
-				name.setGivenName(resultSet.getString("givenName"));
-				name.setHonorificPrefix(resultSet.getString("honorificPrefix"));
-				name.setHonorificSuffix(resultSet.getString("honorificSuffix"));
-				name.setMiddleName(resultSet.getString("middleName"));
-				user.setName(name); // TODO fix not to set empty Name object
-				user.setNickName(resultSet.getString("nickname"));
-				user.setProfileUrl(resultSet.getString("profileURL"));
-				user.setTitle(resultSet.getString("title"));
-				user.setUserType(resultSet.getString("userType"));
-				user.setPreferredLanguage(resultSet.getString("preferredLanguage"));
-				user.setLocale(resultSet.getString("locale"));
-				user.setTimezone(resultSet.getString("timezone"));
-				user.setActive(resultSet.getBoolean("active"));
-				user.setGender(resultSet.getString("gender"));
-
-				Meta meta = new Meta();
-				meta.setCreated(Utils.asXMLGregorianCalendar(resultSet.getTimestamp("created")));
-				meta.setLastModified(Utils.asXMLGregorianCalendar(resultSet.getTimestamp("lastModified")));
-				meta.setLocation(resultSet.getString("location"));
-				meta.setVersion(resultSet.getString("version"));
-				user.setMeta(meta);
-
-				return user;
-			}
-
-		}, userId);
+		} catch (org.springframework.dao.EmptyResultDataAccessException e) {
+			throw new SCIMException(NOT_FOUND, "user:missing");
+		}
 
 		java.util.List<MultiValuedAttribute> attrs = retrieveMultiValuedAttrs("emails", userId);
 
@@ -252,6 +271,71 @@ public class UserDaoImpl implements UserDao {
 		return user;
 	}
 
+	@Override
+	public void updateUser(User user) {
+		Name name = user.getName() == null ? new Name() : user.getName();
+		StringBuilder sql = new StringBuilder();
+		try {
+			jdbcTemplate.update(sql.append("update users set (")
+				.append("username,")
+				.append("formattedName,")
+				.append("familyName,")
+				.append("givenName,")
+				.append("middleName,")
+				.append("honorificPrefix,")
+				.append("honorificSuffix,")
+				.append("displayName,")
+				.append("nickname,")
+				.append("profileURL,")
+				.append("title,")
+				.append("userType,")
+				.append("preferredLanguage,")
+				.append("locale,")
+				.append("timezone,")
+				.append("active,")
+				.append("password,")
+				.append("lastModified,")
+				.append("gender")
+				.append(") = (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) where id = ?").toString(),
+				user.getUserName(),
+				name.getFormatted(),
+				name.getFamilyName(),
+				name.getGivenName(),
+				name.getMiddleName(),
+				name.getHonorificPrefix(),
+				name.getHonorificSuffix(),
+				user.getDisplayName(),
+				user.getNickName(),
+				user.getProfileUrl(),
+				user.getTitle(),
+				user.getUserType(),
+				user.getPreferredLanguage(),
+				user.getLocale(),
+				user.getTimezone(),
+				user.isActive(),
+				user.getPassword(),
+				new java.util.Date(),
+				user.getGender(),
+				UUID.fromString(user.getId()));
+
+		} catch (DuplicateKeyException e) {
+			throw new SCIMException(FORBIDDEN, "username:reserved");
+		}
+
+		deleteMultiValuedAttrs(UUID.fromString(user.getId()),
+				"emails", "phoneNumbers", "ims", "photos", "groups",
+				"entitlements", "roles", "x509Certificates", "addresses");
+
+		insertAttrs(user, UUID.fromString(user.getId()));
+	}
+
+	private void deleteMultiValuedAttrs(UUID userId, String...tables) {
+
+		for (String table : tables) {
+			jdbcTemplate.update("delete from ".concat(table).concat(" where userId = ?"), userId);
+		}
+	}
+
 	private java.util.List<MultiValuedAttribute> retrieveMultiValuedAttrs(String table, UUID userId) {
 		return jdbcTemplate.query("select * from " + table + " where userId =?", new RowMapper<MultiValuedAttribute>() {
 
@@ -265,7 +349,7 @@ public class UserDaoImpl implements UserDao {
 				attr.setValue(resultSet.getString("value"));
 				return attr;
 			}
-			
+
 		}, userId);
 	}
 	
@@ -295,7 +379,7 @@ public class UserDaoImpl implements UserDao {
 	private void insertMultiValuedAttrs(java.util.List<MultiValuedAttribute> values, String table, UUID userId) {
 		StringBuilder sql = null;
 
-		for (MultiValuedAttribute email : values) {
+		for (MultiValuedAttribute attr : values) {
 			sql = new StringBuilder();
 			jdbcTemplate.update(sql.append("insert into ").append(table).append(" (")
 					.append("value,")
@@ -305,15 +389,15 @@ public class UserDaoImpl implements UserDao {
 					.append("operation,")
 					.append("userId")
 					.append(") values (?,?,?,?,?,?)").toString(),
-					email.getValue(),
-					email.getDisplay(),
-					email.isPrimary(),
-					email.getType(),
-					email.getOperation(),
+					attr.getValue(),
+					attr.getDisplay(),
+					attr.isPrimary(),
+					attr.getType(),
+					attr.getOperation(),
 					userId);
 		}
 	}
-	
+
 	private void insertAddresses(java.util.List<Address> addresses, UUID userId) {
 		StringBuilder sql = null;
 

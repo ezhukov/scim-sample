@@ -1,6 +1,7 @@
 package eugene.zhukov;
 
 import java.text.ParseException;
+import java.util.HashMap;
 
 import javax.ws.rs.core.MediaType;
 
@@ -49,14 +50,14 @@ public class AccountManagementTest extends IntegrationJerseyTestCase {
 						"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
 				.type(MediaType.APPLICATION_XML).accept(MediaType.APPLICATION_JSON)
 				.get(ClientResponse.class);
-		Assert.assertTrue("Expexted string from response not found.", response.indexOf("<userName>" + username + "</userName>") > 1);
+		Assert.assertTrue("Expected string from response not found.", response.indexOf("<userName>" + username + "</userName>") > 1);
 		response = cr.getEntity(String.class);
 //		System.out.println(response);
 		Assert.assertEquals("Http status code 200 expected.", 200, cr.getStatus());
 	}
 	
 	@Test
-	public void testRegisterUserRawJson() throws ParseException {
+	public void testRegisterAndUpdateUserRawJson() throws ParseException {
 		long nanoTime = System.nanoTime();
 		
 		String input = "{ \"schemas\":[\"urn:scim:schemas:core:1.0\", \"urn:scim:schemas:extension:enterprise:1.0\"], "
@@ -86,11 +87,36 @@ public class AccountManagementTest extends IntegrationJerseyTestCase {
 				.header(
 						"Authorization",
 						"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
-				.type(MediaType.APPLICATION_JSON)
+				.type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_XML)
 				.post(ClientResponse.class, input);
 		
-//		String responseContent = response.getEntity(String.class);
 		Assert.assertEquals(201, response.getStatus());
+		String responseContent = response.getEntity(String.class);
+		String id = extractValue(responseContent, "id");
+		
+		response = resource().path(RESOURCE + "/" + id)
+				.header(
+						"Authorization",
+						"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
+				.type(MediaType.APPLICATION_XML).accept(MediaType.APPLICATION_XML)
+				.get(ClientResponse.class);
+		Assert.assertEquals(200, response.getStatus());
+		responseContent = response.getEntity(String.class);
+		
+		HashMap<String, String> values = new HashMap<String, String>();
+		values.put("familyName", "Zhukov");
+		responseContent = substituteValues(values, responseContent);
+		
+		response = resource().path(RESOURCE + "/" + id)
+				.header(
+						"Authorization",
+						"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
+				.type(MediaType.APPLICATION_XML).accept(MediaType.APPLICATION_XML)
+				.put(ClientResponse.class, responseContent);
+		
+		Assert.assertEquals(200, response.getStatus());
+		responseContent = response.getEntity(String.class);
+		Assert.assertEquals("Zhukov", extractValue(responseContent, "familyName"));
 //		System.out.println(responseContent);
 //		Assert.assertEquals(retrievedProfile.getAccountId(), JsonPath.read(responseContent, "$.id"));
 //		Assert.assertEquals("S" + nanoTime + "@example.com", JsonPath.read(responseContent, "$.emails[0].value"));
@@ -305,5 +331,20 @@ public class AccountManagementTest extends IntegrationJerseyTestCase {
 			return null;
 		}
 		return row.substring(start, end);
+	}
+
+	private static String substituteValues(HashMap<String, String> valuesIn, String xml) {
+		
+		if (valuesIn == null) {
+			return xml;
+		}
+
+		for (String attr : valuesIn.keySet()) {
+
+			if (xml.contains("</" + attr + ">")) {
+				xml = xml.replace(extractValue(xml, attr), valuesIn.get(attr));
+			}
+		}
+		return xml;
 	}
 }

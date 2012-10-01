@@ -13,6 +13,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
@@ -34,7 +35,7 @@ public class AccountManagement {
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	public javax.ws.rs.core.Response create(User user) {
 		UserDao dao = (UserDao) ApplicationContextProvider.getContext().getBean(USER_DAO);
-		
+
 		if (user.getPreferredLanguage() != null && !Utils.isLocaleValid(user.getPreferredLanguage())) {
 			throw new SCIMException(BAD_REQUEST, "preferredLanguage:invalid");
 		}
@@ -42,10 +43,10 @@ public class AccountManagement {
 		if (user.getLocale() != null && !Utils.isLocaleValid(user.getLocale())) {
 			throw new SCIMException(BAD_REQUEST, "locale:invalid");
 		}
-		User persisted = dao.persistUser(user);
+		UUID id = dao.persistUser(user);
 
 		Response response = new Response();
-		response.setResource(persisted);
+		response.setResource(dao.retrieveUser(id));
 		return javax.ws.rs.core.Response.status(CREATED).entity(response).build();
 	}
 
@@ -64,6 +65,19 @@ public class AccountManagement {
 		} catch (IllegalArgumentException e) {
 			throw new SCIMException(BAD_REQUEST, "id:invalid");
 		}
+	}
+
+	@PUT
+	@Path("{id}")
+	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	public javax.ws.rs.core.Response update(User user) {
+		UserDao dao = (UserDao) ApplicationContextProvider.getContext().getBean(USER_DAO);
+		dao.updateUser(user);
+
+		Response response = new Response();
+		response.setResource(dao.retrieveUser(UUID.fromString(user.getId())));
+		return javax.ws.rs.core.Response.status(OK).entity(response).build();
 	}
 
 	@PATCH
