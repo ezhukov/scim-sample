@@ -1,6 +1,6 @@
 package eugene.zhukov;
 
-import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.sun.jersey.test.framework.JerseyTest;
 import com.sun.jersey.test.framework.WebAppDescriptor;
@@ -16,7 +16,7 @@ public class IntegrationJerseyTestCase extends JerseyTest {
 				.build());
 
 		new ApplicationContextProvider().setApplicationContext(
-				new FileSystemXmlApplicationContext("file:/home/eugene/workspace/scim-sample/src/main/webapp/WEB-INF/applicationContext.xml"));
+				new ClassPathXmlApplicationContext("springConfiguration.xml"));
 	}
 
 	@Override
