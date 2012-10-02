@@ -33,7 +33,6 @@ public class Utils {
 	private static PrivateKey privateKey;
 
 	static {
-
 		try {
 			java.io.InputStream is = ((SecurityConfig) ApplicationContextProvider
 					.getContext().getBean(ApplicationContextProvider.SECURITY_CONFIG)).getPrivateKey().getInputStream();
@@ -51,6 +50,7 @@ public class Utils {
 
 		try {
 			datatypeFactory = DatatypeFactory.newInstance();
+
 		} catch (DatatypeConfigurationException e) {
 			e.printStackTrace();
 		}
@@ -59,7 +59,7 @@ public class Utils {
 	/**
 	 * Decrypts given token and casts to <code>SecureToken</code> object.
 	 *
-	 * @param token do decrypt
+	 * @param token to decrypt
 	 * @return SecureToken object
 	 */
 	public static SecureToken decryptToken(String token) {
@@ -79,7 +79,7 @@ public class Utils {
 	}
 
 	/**
-     * Converts a java.util.Date into an instance of XMLGregorianCalendar
+     * Converts a java.sql.Timestamp into an instance of XMLGregorianCalendar
      *
      * @param timestamp Instance of java.sql.Timestamp from database
      * @return XMLGregorianCalendar instance
@@ -118,5 +118,16 @@ public class Utils {
 	 */
 	public static boolean isCountryValid(String twoLetterCountryCode) {
 		return Arrays.binarySearch(Locale.getISOCountries(), twoLetterCountryCode) > 0;
+	}
+
+	/**
+	 * Trims this string if it is not null.
+	 *
+	 * @param s string to trim
+	 * @return string trimmed or null
+	 */
+	public static String trimOrNull(String s) {
+		s = s != null ? s.trim() : s;
+		return s != null && s.length() > 0 ? s : null;
 	}
 }

@@ -163,13 +163,21 @@ public class UserDaoImpl implements UserDao {
 					user.setUserName(resultSet.getString("username"));
 	
 					Name name = new Name();
-					name.setFormatted(resultSet.getString("formattedName"));
-					name.setFamilyName(resultSet.getString("familyName"));
-					name.setGivenName(resultSet.getString("givenName"));
-					name.setHonorificPrefix(resultSet.getString("honorificPrefix"));
-					name.setHonorificSuffix(resultSet.getString("honorificSuffix"));
-					name.setMiddleName(resultSet.getString("middleName"));
-					user.setName(name); // TODO fix not to set empty Name object
+					name.setFormatted(Utils.trimOrNull(resultSet.getString("formattedName")));
+					name.setFamilyName(Utils.trimOrNull(resultSet.getString("familyName")));
+					name.setGivenName(Utils.trimOrNull(resultSet.getString("givenName")));
+					name.setHonorificPrefix(Utils.trimOrNull(resultSet.getString("honorificPrefix")));
+					name.setHonorificSuffix(Utils.trimOrNull(resultSet.getString("honorificSuffix")));
+					name.setMiddleName(Utils.trimOrNull(resultSet.getString("middleName")));
+
+					if (name.getFormatted() != null
+							|| name.getFamilyName() != null
+							|| name.getGivenName() != null
+							|| name.getHonorificPrefix() != null
+							|| name.getHonorificSuffix() != null
+							|| name.getMiddleName() != null) {
+						user.setName(name);
+					}
 					user.setNickName(resultSet.getString("nickname"));
 					user.setProfileUrl(resultSet.getString("profileURL"));
 					user.setTitle(resultSet.getString("title"));
