@@ -1,4 +1,4 @@
-package eugene.zhukov;
+package eugene.zhukov.api;
 
 import java.text.ParseException;
 import java.util.HashMap;
@@ -10,7 +10,9 @@ import org.junit.Test;
 
 import com.sun.jersey.api.client.ClientResponse;
 
-public class AccountManagementTest extends IntegrationJerseyTestCase {
+import eugene.zhukov.BasicTestCase;
+
+public class AccountManagementTest extends BasicTestCase {
 	
 	private static final String RESOURCE = "v1/Users";
 

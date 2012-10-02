@@ -7,9 +7,9 @@ import com.sun.jersey.test.framework.WebAppDescriptor;
 import com.sun.jersey.test.framework.spi.container.TestContainerFactory;
 import com.sun.jersey.test.framework.spi.container.grizzly.web.GrizzlyWebTestContainerFactory;
 
-public class IntegrationJerseyTestCase extends JerseyTest {
+public class BasicTestCase extends JerseyTest {
 
-	public IntegrationJerseyTestCase() {
+	public BasicTestCase() {
 		super(new WebAppDescriptor.Builder("eugene.zhukov")
 				.contextPath("/scim")
 				.addFilter(SCIMFilter.class, "filter")
