@@ -27,7 +27,7 @@ import eugene.zhukov.api.annotation.PATCH;
 import eugene.zhukov.dao.UserDao;
 import eugene.zhukov.util.Utils;
 
-@Path("v1/Users")
+@Path("Users")
 public class AccountManagement {
 
 	@POST
@@ -56,13 +56,14 @@ public class AccountManagement {
 	public javax.ws.rs.core.Response retrieve(@Context HttpServletRequest request) {
 		UserDao dao = (UserDao) ApplicationContextProvider.getContext().getBean(USER_DAO);
 		try {
-			User user = dao.retrieveUser(UUID.fromString(request.getPathInfo().substring(10)));
+			int userIdBeginIndex = request.getPathInfo().lastIndexOf("/") + 1;
+			User user = dao.retrieveUser(UUID.fromString(request.getPathInfo().substring(userIdBeginIndex)));
 	
 			Response response = new Response();
 			response.setResource(user);
 			return javax.ws.rs.core.Response.status(OK).entity(response).build();
 
-		} catch (IllegalArgumentException e) {
+		} catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
 			throw new SCIMException(BAD_REQUEST, "id:invalid");
 		}
 	}
