@@ -6,15 +6,34 @@ import java.util.HashMap;
 import javax.ws.rs.core.MediaType;
 
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.test.framework.AppDescriptor;
+import com.sun.jersey.test.framework.JerseyTest;
+import com.sun.jersey.test.framework.WebAppDescriptor;
 
-import eugene.zhukov.BasicTestCase;
+import eugene.zhukov.ApplicationContextProvider;
+import eugene.zhukov.SCIMFilter;
 
-public class AccountManagementTest extends BasicTestCase {
-	
+public class AccountManagementTest extends JerseyTest {
+
 	private static final String RESOURCE = "/Users";
+
+	 private static final AppDescriptor APP_DESCRIPTOR
+	 		= new WebAppDescriptor.Builder("eugene.zhukov").addFilter(SCIMFilter.class, "f").build();
+
+	public AccountManagementTest() {
+		super(APP_DESCRIPTOR);
+	}
+
+	@BeforeClass
+	public static void initAppContext() throws Exception {
+		new ApplicationContextProvider().setApplicationContext(
+				new ClassPathXmlApplicationContext("springConfiguration.xml"));
+	}
 
 	@Test
 	public void testRegisterUserRawXML() {
@@ -42,13 +61,13 @@ public class AccountManagementTest extends BasicTestCase {
 		ClientResponse cr = resource().path(RESOURCE)
 				.header(
 						"Authorization",
-						"Bearer gmLvpEMtbeCjv/DrN7shT2bYj+QLngxFg1thKmk+8NGbGiuiDtMz9OVmLaXlywCeHLoEb6rmPsWf9DiA9fSdE7zB0p4X2NCfp1qQ89EtCau4btceWpKPCMDpwSGXOAE4uHaNxODiSKch5L5vM+Z2pRMOC9GMm3IXSi7GK9vaFIM=")
+						"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
 				.type(MediaType.APPLICATION_XML).accept(MediaType.APPLICATION_XML)
 				.post(ClientResponse.class, input);
 		
 		String response = cr.getEntity(String.class);
-		Assert.assertTrue("Expected string from response not found.", response.indexOf("<userName>" + username + "</userName>") > 1);
 //		System.out.println(response);
+		Assert.assertTrue("Expected string from response not found.", response.indexOf("<userName>" + username + "</userName>") > 1);
 		Assert.assertEquals("Http status code 201 expected.", 201, cr.getStatus());
 
 		cr = resource().path(RESOURCE + "/" + extractValue(response, "id"))
