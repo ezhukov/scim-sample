@@ -22,8 +22,8 @@ public class AccountManagementTest extends JerseyTest {
 
 	private static final String RESOURCE = "/Users";
 
-	 private static final AppDescriptor APP_DESCRIPTOR
-	 		= new WebAppDescriptor.Builder("eugene.zhukov").addFilter(SCIMFilter.class, "f").build();
+	private static final AppDescriptor APP_DESCRIPTOR
+			= new WebAppDescriptor.Builder("eugene.zhukov").addFilter(SCIMFilter.class, "f").build();
 
 	public AccountManagementTest() {
 		super(APP_DESCRIPTOR);

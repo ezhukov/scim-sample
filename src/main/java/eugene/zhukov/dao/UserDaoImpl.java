@@ -1,5 +1,6 @@
 package eugene.zhukov.dao;
 
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
@@ -145,10 +146,10 @@ public class UserDaoImpl implements UserDao {
 		}
 	}
 
-	@Override
-	public boolean checkUserExists(UUID userId) {
-		return jdbcTemplate.queryForInt("select count(*) from users where id = ?", userId) > 0;
-	}
+//	@Override
+//	public boolean checkUserExists(UUID userId) {
+//		return jdbcTemplate.queryForInt("select count(*) from users where id = ?", userId) > 0;
+//	}
 
 	@Override
 	public User retrieveUser(UUID userId) {
@@ -283,51 +284,61 @@ public class UserDaoImpl implements UserDao {
 	public void updateUser(User user) {
 		Name name = user.getName() == null ? new Name() : user.getName();
 		StringBuilder sql = new StringBuilder();
+		int numberOfRowsAffected = 0;
 		try {
-			jdbcTemplate.update(sql.append("update users set (")
-				.append("username,")
-				.append("formattedName,")
-				.append("familyName,")
-				.append("givenName,")
-				.append("middleName,")
-				.append("honorificPrefix,")
-				.append("honorificSuffix,")
-				.append("displayName,")
-				.append("nickname,")
-				.append("profileURL,")
-				.append("title,")
-				.append("userType,")
-				.append("preferredLanguage,")
-				.append("locale,")
-				.append("timezone,")
-				.append("active,")
-				.append("password,")
-				.append("lastModified,")
-				.append("gender")
-				.append(") = (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) where id = ?").toString(),
-				user.getUserName(),
-				name.getFormatted(),
-				name.getFamilyName(),
-				name.getGivenName(),
-				name.getMiddleName(),
-				name.getHonorificPrefix(),
-				name.getHonorificSuffix(),
-				user.getDisplayName(),
-				user.getNickName(),
-				user.getProfileUrl(),
-				user.getTitle(),
-				user.getUserType(),
-				user.getPreferredLanguage(),
-				user.getLocale(),
-				user.getTimezone(),
-				user.isActive(),
-				user.getPassword(),
-				new java.util.Date(),
-				user.getGender(),
-				UUID.fromString(user.getId()));
+			numberOfRowsAffected = jdbcTemplate.update(
+					sql.append("update users set (")
+					.append("username,")
+					.append("formattedName,")
+					.append("familyName,")
+					.append("givenName,")
+					.append("middleName,")
+					.append("honorificPrefix,")
+					.append("honorificSuffix,")
+					.append("displayName,")
+					.append("nickname,")
+					.append("profileURL,")
+					.append("title,")
+					.append("userType,")
+					.append("preferredLanguage,")
+					.append("locale,")
+					.append("timezone,")
+					.append("active,")
+					.append("password,")
+					.append("lastModified,")
+					.append("gender")
+					.append(") = (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) where id = ?")
+					.toString(),
+					user.getUserName(),
+					name.getFormatted(),
+					name.getFamilyName(),
+					name.getGivenName(),
+					name.getMiddleName(),
+					name.getHonorificPrefix(),
+					name.getHonorificSuffix(),
+					user.getDisplayName(),
+					user.getNickName(),
+					user.getProfileUrl(),
+					user.getTitle(),
+					user.getUserType(),
+					user.getPreferredLanguage(),
+					user.getLocale(),
+					user.getTimezone(),
+					user.isActive(),
+					user.getPassword(),
+					new java.util.Date(),
+					user.getGender(),
+					UUID.fromString(user.getId()));
 
 		} catch (DuplicateKeyException e) {
 			throw new SCIMException(CONFLICT, "username:reserved");
+
+		} catch (IllegalArgumentException e) {
+			throw new SCIMException(BAD_REQUEST, "id:invalid");
+		}
+
+		if (numberOfRowsAffected == 0) {
+			throw new SCIMException(NOT_FOUND, null, "Resource " + user.getId() + " not found");
 		}
 
 		deleteMultiValuedAttrs(UUID.fromString(user.getId()),
