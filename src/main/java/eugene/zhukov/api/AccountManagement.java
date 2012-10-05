@@ -8,15 +8,14 @@ import static javax.ws.rs.core.Response.Status.OK;
 
 import java.util.UUID;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import scim.schemas.v1.Response;
@@ -53,38 +52,33 @@ public class AccountManagement {
 	@GET
 	@Path("{id}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public javax.ws.rs.core.Response retrieve(@Context HttpServletRequest request) {
+	public javax.ws.rs.core.Response retrieve(@PathParam("id") UUID id) {
 		UserDao dao = (UserDao) ApplicationContextProvider.getContext().getBean(USER_DAO);
-		try {
-			int userIdBeginIndex = request.getPathInfo().lastIndexOf("/") + 1;
-			User user = dao.retrieveUser(UUID.fromString(request.getPathInfo().substring(userIdBeginIndex)));
-	
-			Response response = new Response();
-			response.setResource(user);
-			return javax.ws.rs.core.Response.status(OK).entity(response).build();
+		User user = dao.retrieveUser(id);
 
-		} catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
-			throw new SCIMException(BAD_REQUEST, "id:invalid");
-		}
+		Response response = new Response();
+		response.setResource(user);
+		return javax.ws.rs.core.Response.status(OK).entity(response).build();
 	}
 
 	@PUT
 	@Path("{id}")
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public javax.ws.rs.core.Response update(User user) {
+	public javax.ws.rs.core.Response update(User user, @PathParam("id") UUID id) {
+		user.setId(id.toString());
 		UserDao dao = (UserDao) ApplicationContextProvider.getContext().getBean(USER_DAO);
 		dao.updateUser(user);
 
 		Response response = new Response();
-		response.setResource(dao.retrieveUser(UUID.fromString(user.getId())));
+		response.setResource(dao.retrieveUser(id));
 		return javax.ws.rs.core.Response.status(OK).entity(response).build();
 	}
 
 	@PATCH
 	@Path("{id}/password")
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-	public javax.ws.rs.core.Response passwordChange(@Context HttpServletRequest request, User user) {
+	public javax.ws.rs.core.Response passwordChange(@PathParam("id") String id, User user) {
 		return javax.ws.rs.core.Response.status(NO_CONTENT).build();
 	}
 

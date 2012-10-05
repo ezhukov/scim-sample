@@ -1,6 +1,5 @@
 package eugene.zhukov.dao;
 
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
@@ -332,9 +331,6 @@ public class UserDaoImpl implements UserDao {
 
 		} catch (DuplicateKeyException e) {
 			throw new SCIMException(CONFLICT, "username:reserved");
-
-		} catch (IllegalArgumentException e) {
-			throw new SCIMException(BAD_REQUEST, "id:invalid");
 		}
 
 		if (numberOfRowsAffected == 0) {
