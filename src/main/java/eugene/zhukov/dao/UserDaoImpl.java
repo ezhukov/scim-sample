@@ -1,6 +1,6 @@
 package eugene.zhukov.dao;
 
-import static javax.ws.rs.core.Response.Status.FORBIDDEN;
+import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
 import java.sql.ResultSet;
@@ -94,7 +94,7 @@ public class UserDaoImpl implements UserDao {
 					user.getGender());
 
 		} catch (DuplicateKeyException e) {
-			throw new SCIMException(FORBIDDEN, "username:reserved");
+			throw new SCIMException(CONFLICT, "username:reserved");
 		}
 		
 		insertAttrs(user, userId);
@@ -109,7 +109,7 @@ public class UserDaoImpl implements UserDao {
 			}
 
 		} catch (DuplicateKeyException e) {
-			throw new SCIMException(FORBIDDEN, "email:reserved");
+			throw new SCIMException(CONFLICT, "email:reserved");
 		}
 
 		if (user.getPhoneNumbers() != null) {
@@ -201,7 +201,7 @@ public class UserDaoImpl implements UserDao {
 			}, userId);
 
 		} catch (org.springframework.dao.EmptyResultDataAccessException e) {
-			throw new SCIMException(NOT_FOUND, "user:missing");
+			throw new SCIMException(NOT_FOUND, null, "Resource " + userId + " not found");
 		}
 
 		java.util.List<MultiValuedAttribute> attrs = retrieveMultiValuedAttrs("emails", userId);
@@ -327,7 +327,7 @@ public class UserDaoImpl implements UserDao {
 				UUID.fromString(user.getId()));
 
 		} catch (DuplicateKeyException e) {
-			throw new SCIMException(FORBIDDEN, "username:reserved");
+			throw new SCIMException(CONFLICT, "username:reserved");
 		}
 
 		deleteMultiValuedAttrs(UUID.fromString(user.getId()),

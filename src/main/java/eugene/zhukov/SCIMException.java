@@ -25,7 +25,7 @@ public class SCIMException extends WebApplicationException {
 		Response.Errors errors = new Response.Errors();
 		Error error = new Error();
 		error.setCode(String.valueOf(code.getStatusCode()));
-		error.setUri(SCIM_ERRORS + fieldAndReason);
+		error.setUri(fieldAndReason != null ? (SCIM_ERRORS + fieldAndReason) : null);
 		error.setDescription(description);
 		errors.getError().add(error);
 		response.setErrors(errors);

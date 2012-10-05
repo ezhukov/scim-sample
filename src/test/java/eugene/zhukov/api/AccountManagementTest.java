@@ -14,7 +14,7 @@ import eugene.zhukov.BasicTestCase;
 
 public class AccountManagementTest extends BasicTestCase {
 	
-	private static final String RESOURCE = "v1/Users";
+	private static final String RESOURCE = "/Users";
 
 	@Test
 	public void testRegisterUserRawXML() {
@@ -30,6 +30,10 @@ public class AccountManagementTest extends BasicTestCase {
 				"<value>" + username + "@test.com</value>" +
 				"<primary>true</primary>" +
 				"</email>" +
+				"<email>" +
+				"<value>" + username + "2@test.com</value>" +
+//				"<primary>false</primary>" +
+				"</email>" +
 				"</emails>" +
 				"<addresses><address><country>FI</country></address></addresses>" +
 				"<enterprise:gender>female</enterprise:gender>" +
@@ -43,6 +47,7 @@ public class AccountManagementTest extends BasicTestCase {
 				.post(ClientResponse.class, input);
 		
 		String response = cr.getEntity(String.class);
+		Assert.assertTrue("Expected string from response not found.", response.indexOf("<userName>" + username + "</userName>") > 1);
 //		System.out.println(response);
 		Assert.assertEquals("Http status code 201 expected.", 201, cr.getStatus());
 
@@ -52,7 +57,7 @@ public class AccountManagementTest extends BasicTestCase {
 						"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
 				.type(MediaType.APPLICATION_XML).accept(MediaType.APPLICATION_JSON)
 				.get(ClientResponse.class);
-		Assert.assertTrue("Expected string from response not found.", response.indexOf("<userName>" + username + "</userName>") > 1);
+
 		response = cr.getEntity(String.class);
 //		System.out.println(response);
 		Assert.assertEquals("Http status code 200 expected.", 200, cr.getStatus());
@@ -218,15 +223,16 @@ public class AccountManagementTest extends BasicTestCase {
 				+ "}]"
 				+ ",\"addresses\": [{\"country\": \"FI\"}]"
 				+ "}";
-		
+
 		ClientResponse responseMsg = resource().path(RESOURCE)
 				.header(
 						"Authorization",
 						"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
 				.type(MediaType.APPLICATION_JSON)
 				.post(ClientResponse.class, input);
-		
-		Assert.assertEquals(403, responseMsg.getStatus());
+//		String responseContent = responseMsg.getEntity(String.class);
+//		System.out.println(responseContent);
+		Assert.assertEquals(409, responseMsg.getStatus());
 	}
 	
 	@Test
@@ -257,7 +263,7 @@ public class AccountManagementTest extends BasicTestCase {
 				.type(MediaType.APPLICATION_JSON)
 				.post(ClientResponse.class, input);
 
-		Assert.assertEquals(403, responseMsg.getStatus());
+		Assert.assertEquals(409, responseMsg.getStatus());
 	}
 	
 	@Test
