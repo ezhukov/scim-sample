@@ -14,8 +14,8 @@ private static final String URL_PATTERN_LOCAL = "http://localhost:8080/Users";
 	
 	public static void main(String[] args) throws MalformedURLException, IOException {
 		create();
-		update();
 		retrieve();
+		update();
 	}
 
 	private static void create() throws MalformedURLException, IOException {
@@ -45,7 +45,7 @@ private static final String URL_PATTERN_LOCAL = "http://localhost:8080/Users";
 	}
 
 	private static void retrieve() throws UnsupportedEncodingException, IOException {
-		HttpURLConnection connection = (HttpURLConnection) new URL(URL_PATTERN_LOCAL + "/5769b016-722f-43dc-87bc-f12cf2c95345").openConnection();
+		HttpURLConnection connection = (HttpURLConnection) new URL(URL_PATTERN_LOCAL + "/5c3f2127-d826-4843-9153-6258c3f35555").openConnection();
 		connection.setDoOutput(true);
 //		connection.setRequestProperty("Content-Type", "application/xml");
 		connection.setRequestProperty("Accept", "application/xml");
@@ -58,7 +58,7 @@ private static final String URL_PATTERN_LOCAL = "http://localhost:8080/Users";
 	}
 
 	private static void update() throws MalformedURLException, IOException {
-		HttpURLConnection connection = (HttpURLConnection) new URL(URL_PATTERN_LOCAL + "/1").openConnection();
+		HttpURLConnection connection = (HttpURLConnection) new URL(URL_PATTERN_LOCAL + "/5c3f2127-d826-4843-9153-6258c3f35555").openConnection();
 		connection.setDoOutput(true);
 		connection.setRequestProperty("Content-Type", "application/xml");
 		connection.setRequestProperty("Accept", "application/xml");
