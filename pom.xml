@@ -38,6 +38,11 @@
         <version>${jersey.version}</version>
     </dependency>
     <dependency>
+        <groupId>com.sun.jersey</groupId>
+        <artifactId>jersey-servlet</artifactId>
+        <version>${jersey.version}</version>
+    </dependency>
+    <dependency>
         <groupId>org.codehaus.jackson</groupId>
         <artifactId>jackson-mapper-asl</artifactId>
         <version>${jackson.version}</version>
@@ -56,6 +61,11 @@
         <groupId>postgresql</groupId>
         <artifactId>postgresql</artifactId>
         <version>9.1-901.jdbc4</version>
+	</dependency>
+	<dependency>
+        <groupId>asm</groupId>
+        <artifactId>asm</artifactId>
+        <version>3.3.1</version>
 	</dependency>
     <dependency>
         <groupId>javax.servlet</groupId>
@@ -104,12 +114,6 @@
         <groupId>com.sun.grizzly</groupId>
         <artifactId>grizzly-http-webserver</artifactId>
         <version>1.9.51</version>
-        <scope>test</scope>
-    </dependency>
-    <dependency>
-        <groupId>asm</groupId>
-        <artifactId>asm</artifactId>
-        <version>3.3.1</version>
         <scope>test</scope>
     </dependency>
     <dependency>

@@ -4,7 +4,7 @@
 	</listener>
 
 	<servlet>
-		<servlet-name>sample</servlet-name>
+		<servlet-name>scim</servlet-name>
 		<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
 		<init-param>
 			<param-name>com.sun.jersey.config.property.packages</param-name>
@@ -13,7 +13,7 @@
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>sample</servlet-name>
+		<servlet-name>scim</servlet-name>
 		<url-pattern>/*</url-pattern>
 	</servlet-mapping>
 
