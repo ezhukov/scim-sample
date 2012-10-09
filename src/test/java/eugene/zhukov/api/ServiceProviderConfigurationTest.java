@@ -36,7 +36,7 @@ public class ServiceProviderConfigurationTest extends JerseyTest {
 				.get(ClientResponse.class);
 
 		String response = cr.getEntity(String.class);
-		System.out.println(response);
+//		System.out.println(response);
 		Assert.assertEquals("Http status code 200 expected.", 200, cr.getStatus());
 	}
 }

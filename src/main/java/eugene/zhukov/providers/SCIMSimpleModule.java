@@ -150,6 +150,7 @@ public class SCIMSimpleModule {
 							jsonGenerator.writeEndObject();
 
 						} else if (response.getResource() != null) {
+							response.getResource().getSchemas().add("urn:scim:schemas:core:1.0");
 							jsonGenerator.writeObject(response.getResource());
 
 						} else if (response.getResources() != null) {

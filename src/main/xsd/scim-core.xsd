@@ -256,6 +256,8 @@
                 maxOccurs="1"/>
     <xs:element name="meta" type="tns:meta" minOccurs="0"
                 maxOccurs="1"/>
+    <xs:element name="schemas" type="xs:string" minOccurs="0"
+                maxOccurs="2"/>
     </xs:sequence>
   </xs:complexType>
 
