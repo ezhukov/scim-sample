@@ -34,7 +34,7 @@ public class SCIMFilter implements Filter {
 		SecurityConfig securityConfig = (SecurityConfig) ApplicationContextProvider
 				.getContext().getBean(ApplicationContextProvider.SECURITY_CONFIG);
 		
-		if (!isAccessGranted(req.getHeader(AUTHORIZATION_HEADER))) {
+		if (!isAccessGranted(req.getHeader(AUTHORIZATION_HEADER), req.getPathInfo(), req.getMethod())) {
 			resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			PrintWriter out = new PrintWriter(response.getWriter(), true);
 			out.println(MediaType.APPLICATION_XML.equals(req.getHeader(ACCEPT_HEADER))
@@ -47,8 +47,12 @@ public class SCIMFilter implements Filter {
 		chain.doFilter(req, resp);
 	}
 	
-	private static boolean isAccessGranted(String authorizationHeader) {
-		
+	private static boolean isAccessGranted(String authorizationHeader, String pathInfo, String method) {
+
+		if (pathInfo.endsWith("/ServiceProviderConfig") && "GET".equalsIgnoreCase(method)) {
+			return true;
+		}
+
 		if (authorizationHeader == null || !authorizationHeader.startsWith(BEARER_PREFIX)) {
 			return false;
 		}
@@ -59,7 +63,7 @@ public class SCIMFilter implements Filter {
 		if (token == null) {
 			return false;
 		}
-		// TODO add password and timestamp validation
+		// TODO add request method, endpoint, password and timestamp validation
 		return true;
 	}
 

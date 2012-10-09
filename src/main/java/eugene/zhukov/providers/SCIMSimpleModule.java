@@ -17,10 +17,12 @@ import org.codehaus.jackson.map.module.SimpleModule;
 import org.codehaus.jackson.type.TypeReference;
 
 import scim.schemas.v1.Address;
+import scim.schemas.v1.AuthenticationScheme;
 import scim.schemas.v1.Error;
 import scim.schemas.v1.MultiValuedAttribute;
 import scim.schemas.v1.ObjectFactory;
 import scim.schemas.v1.Response;
+import scim.schemas.v1.ServiceProviderConfig;
 import scim.schemas.v1.User.Addresses;
 import scim.schemas.v1.User.Emails;
 import scim.schemas.v1.User.PhoneNumbers;
@@ -115,6 +117,19 @@ public class SCIMSimpleModule {
 					public void serialize(XMLGregorianCalendar calendar, JsonGenerator jsonGenerator,
 							SerializerProvider provider) throws IOException, JsonProcessingException {
 						jsonGenerator.writeString(calendar.toString());
+					}
+				})
+				.addSerializer(ServiceProviderConfig.AuthenticationSchemes.class, new JsonSerializer<ServiceProviderConfig.AuthenticationSchemes>() {
+
+					@Override
+					public void serialize(ServiceProviderConfig.AuthenticationSchemes schemes, JsonGenerator jsonGenerator,
+							SerializerProvider provider) throws IOException, JsonProcessingException {
+						jsonGenerator.writeStartArray();
+
+						for (AuthenticationScheme attribute : schemes.getAuthenticationScheme()) {
+							jsonGenerator.writeObject(attribute);
+						}
+						jsonGenerator.writeEndArray();
 					}
 				})
 				.addSerializer(Response.class, new JsonSerializer<Response>() {

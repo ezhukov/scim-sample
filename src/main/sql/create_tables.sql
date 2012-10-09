@@ -1,3 +1,16 @@
+--After postgresql installation:
+--sudo -u postgres psql
+
+--create database scim_db;
+
+--CREATE ROLE eugene;
+--alter role eugene with LOGIN;
+--alter role eugene with superuser;
+--alter role eugene with unencrypted password 'scim_db';
+
+--Only then:
+--psql scim_db
+
 DROP TABLE users;
 DROP TABLE emails;
 DROP TABLE phoneNumbers;

@@ -10,20 +10,21 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class SCIMWSTest {
-//	private static final String URL_PATTERN_LOCAL = "http://ee.dy.fi/scim/Users";
+//	private static final String URL_PATTERN_LOCAL = "https://ee.dy.fi/scim/Users";
 	private static final String URL_PATTERN_LOCAL = "http://localhost:8080/Users";
-	
+
 	public static void main(String[] args) throws MalformedURLException, IOException {
 		create();
 		retrieve();
 		update();
+		serviceProviderConfig();
 	}
 
 	private static void create() throws MalformedURLException, IOException {
 		HttpURLConnection connection = (HttpURLConnection) new URL(URL_PATTERN_LOCAL).openConnection();
 		connection.setDoOutput(true);
 		connection.setRequestProperty("Content-Type", "application/xml");
-		connection.setRequestProperty("Accept", "application/xml");
+		connection.setRequestProperty("Accept", "application/json");
 		connection
 				.setRequestProperty(
 						"Authorization",
@@ -46,7 +47,7 @@ public class SCIMWSTest {
 	}
 
 	private static void retrieve() throws UnsupportedEncodingException, IOException {
-		HttpURLConnection connection = (HttpURLConnection) new URL(URL_PATTERN_LOCAL + "/5c3f2127-d826-4843-9153-6258c3f35555").openConnection();
+		HttpURLConnection connection = (HttpURLConnection) new URL(URL_PATTERN_LOCAL + "/f70d408e-abb1-486f-ab40-60058d7ab6f0").openConnection();
 		connection.setDoOutput(true);
 //		connection.setRequestProperty("Content-Type", "application/xml");
 		connection.setRequestProperty("Accept", "application/xml");
@@ -84,6 +85,14 @@ public class SCIMWSTest {
 				"<addresses><address><country>FI</country></address></addresses>" +
 				"<enterprise:gender>male</enterprise:gender>" +
 				"</User>");
+	}
+
+	private static void serviceProviderConfig() throws UnsupportedEncodingException, IOException {
+		HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8080/ServiceProviderConfig").openConnection();
+		connection.setDoOutput(true);
+		connection.setRequestProperty("Accept", "application/json");
+		connection.setRequestProperty("X-HTTP-Method-Override", "GET");
+		makeCall(connection, "");
 	}
 
 	private static void makeCall(HttpURLConnection connection, String input) throws UnsupportedEncodingException, IOException {
