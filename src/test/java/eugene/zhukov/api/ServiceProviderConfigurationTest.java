@@ -13,11 +13,12 @@ import com.sun.jersey.test.framework.JerseyTest;
 import com.sun.jersey.test.framework.WebAppDescriptor;
 
 import eugene.zhukov.ApplicationContextProvider;
+import eugene.zhukov.SCIMFilter;
 
 public class ServiceProviderConfigurationTest extends JerseyTest {
 
 	private static final AppDescriptor APP_DESCRIPTOR
-			= new WebAppDescriptor.Builder("eugene.zhukov").build();
+			= new WebAppDescriptor.Builder("eugene.zhukov").addFilter(SCIMFilter.class, "f").build();
 	
 	public ServiceProviderConfigurationTest() {
 		super(APP_DESCRIPTOR);
@@ -31,11 +32,11 @@ public class ServiceProviderConfigurationTest extends JerseyTest {
 
 	@Test
 	public void testServiceProviderConfiguration() {
-		ClientResponse cr = resource().path("/ServiceProviderConfig")
+		ClientResponse cr = resource().path("v1/ServiceProviderConfigs")
 				.accept(MediaType.APPLICATION_JSON)
 				.get(ClientResponse.class);
 
-		String response = cr.getEntity(String.class);
+//		String response = cr.getEntity(String.class);
 //		System.out.println(response);
 		Assert.assertEquals("Http status code 200 expected.", 200, cr.getStatus());
 	}

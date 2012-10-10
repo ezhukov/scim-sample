@@ -20,7 +20,7 @@ import eugene.zhukov.SCIMFilter;
 
 public class AccountManagementTest extends JerseyTest {
 
-	private static final String RESOURCE = "/Users";
+	private static final String RESOURCE = "v1/Users";
 
 	private static final AppDescriptor APP_DESCRIPTOR
 			= new WebAppDescriptor.Builder("eugene.zhukov").addFilter(SCIMFilter.class, "f").build();
@@ -104,9 +104,9 @@ public class AccountManagementTest extends JerseyTest {
 				+ "\"primary\": false"
 				+ "}]"
 				+ ",\"addresses\": [{\"country\": \"FI\", \"primary\": \"true\"},{\"country\": \"SE\", \"primary\": \"false\"}],"
-//				+ "\"urn:scim:schemas:extension:enterprise:1.0\": {"
+				+ "\"urn:scim:schemas:extension:enterprise:1.0\": {"
 				+ "\"gender\":\"male\""
-//				+ "}"
+				+ "}"
 				+ "}";
 		
 		ClientResponse response = resource().path(RESOURCE)
@@ -116,8 +116,9 @@ public class AccountManagementTest extends JerseyTest {
 				.type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_XML)
 				.post(ClientResponse.class, input);
 		
-		Assert.assertEquals(201, response.getStatus());
 		String responseContent = response.getEntity(String.class);
+//		System.out.println(responseContent);
+		Assert.assertEquals(201, response.getStatus());
 		String id = extractValue(responseContent, "id");
 		
 		response = resource().path(RESOURCE + "/" + id)
@@ -208,16 +209,18 @@ public class AccountManagementTest extends JerseyTest {
 				"</phoneNumber>" +
 				"</phoneNumbers>" +
 				"<addresses><address><country>FI</country></address></addresses>" +
+				"<enterprise:gender>male</enterprise:gender>" +
 				"</SCIM>";
 		
 		ClientResponse cr = resource().path(RESOURCE)
 				.header(
 						"Authorization",
 						"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
-				.type(MediaType.APPLICATION_XML).accept(MediaType.APPLICATION_XML)
+				.type(MediaType.APPLICATION_XML).accept(MediaType.APPLICATION_JSON)
 				.post(ClientResponse.class, input);
 		
 //		String responseContent = cr.getEntity(String.class);
+//		System.out.println(responseContent);
 		Assert.assertEquals(201, cr.getStatus());
 	}
 	
@@ -252,6 +255,41 @@ public class AccountManagementTest extends JerseyTest {
 //		String responseContent = responseMsg.getEntity(String.class);
 //		System.out.println(responseContent);
 		Assert.assertEquals(409, responseMsg.getStatus());
+	}
+	
+	@Test
+	public void testRegisterUserWithGender() {
+		long nanoTime = System.nanoTime();
+		String input = "{ \"schemas\":[\"urn:scim:schemas:core:1.0\"], "
+				+ "\"userName\":\"W" + nanoTime + "\","
+				+ "\"preferredLanguage\":\"en_US\","
+				+ "\"name\":{"
+				+ "\"familyName\":\"Jensen\","
+				+ "\"givenName\":\"Barbara\"},"
+				+ "\"password\":\"foobar\""
+				+ ","
+				+ "\"emails\": ["
+				+ "{"
+				+ "\"value\": \"W" + nanoTime + "@example.com\","
+				+ "\"primary\": true"
+				+ "},"
+				+ "{"
+				+ "\"value\": \"" + nanoTime + "2@example.com\","
+				+ "\"primary\": false"
+				+ "}]"
+				+ ",\"addresses\": [{\"country\": \"FI\"}],"
+				+ "\"gender\":\"female\""
+				+ "}";
+
+		ClientResponse responseMsg = resource().path(RESOURCE)
+				.header(
+						"Authorization",
+						"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
+				.type(MediaType.APPLICATION_JSON)
+				.post(ClientResponse.class, input);
+//		String responseContent = responseMsg.getEntity(String.class);
+//		System.out.println(responseContent);
+		Assert.assertEquals(201, responseMsg.getStatus());
 	}
 	
 	@Test

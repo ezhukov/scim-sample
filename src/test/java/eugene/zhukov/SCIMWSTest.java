@@ -10,8 +10,18 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class SCIMWSTest {
-//	private static final String URL_PATTERN_LOCAL = "https://ee.dy.fi/scim/Users";
-	private static final String URL_PATTERN_LOCAL = "http://localhost:8080/Users";
+	private static final String URL_PATTERN_LOCAL = "https://scim.dy.fi/scim/v1/";
+//	private static final String URL_PATTERN_LOCAL = "http://localhost:8080/v1/";
+	
+	static {
+		javax.net.ssl.HttpsURLConnection.setDefaultHostnameVerifier(
+			    new javax.net.ssl.HostnameVerifier(){
+
+			        public boolean verify(String hostname, javax.net.ssl.SSLSession sslSession) {
+			        	return hostname.equals("scim.dy.fi");
+			        }
+			    });
+	}
 
 	public static void main(String[] args) throws MalformedURLException, IOException {
 		create();
@@ -21,7 +31,7 @@ public class SCIMWSTest {
 	}
 
 	private static void create() throws MalformedURLException, IOException {
-		HttpURLConnection connection = (HttpURLConnection) new URL(URL_PATTERN_LOCAL).openConnection();
+		HttpURLConnection connection = (HttpURLConnection) new URL(URL_PATTERN_LOCAL + "Users").openConnection();
 		connection.setDoOutput(true);
 		connection.setRequestProperty("Content-Type", "application/xml");
 		connection.setRequestProperty("Accept", "application/json");
@@ -47,7 +57,7 @@ public class SCIMWSTest {
 	}
 
 	private static void retrieve() throws UnsupportedEncodingException, IOException {
-		HttpURLConnection connection = (HttpURLConnection) new URL(URL_PATTERN_LOCAL + "/f70d408e-abb1-486f-ab40-60058d7ab6f0").openConnection();
+		HttpURLConnection connection = (HttpURLConnection) new URL(URL_PATTERN_LOCAL + "Users/f70d408e-abb1-486f-ab40-60058d7ab6f0").openConnection();
 		connection.setDoOutput(true);
 //		connection.setRequestProperty("Content-Type", "application/xml");
 		connection.setRequestProperty("Accept", "application/xml");
@@ -60,7 +70,7 @@ public class SCIMWSTest {
 	}
 
 	private static void update() throws MalformedURLException, IOException {
-		HttpURLConnection connection = (HttpURLConnection) new URL(URL_PATTERN_LOCAL + "/5c3f2127-d826-4843-9153-6258c3f35555").openConnection();
+		HttpURLConnection connection = (HttpURLConnection) new URL(URL_PATTERN_LOCAL + "Users/5c3f2127-d826-4843-9153-6258c3f35555").openConnection();
 		connection.setDoOutput(true);
 		connection.setRequestProperty("Content-Type", "application/xml");
 		connection.setRequestProperty("Accept", "application/xml");
@@ -88,9 +98,8 @@ public class SCIMWSTest {
 	}
 
 	private static void serviceProviderConfig() throws UnsupportedEncodingException, IOException {
-		HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8080/ServiceProviderConfig").openConnection();
+		HttpURLConnection connection = (HttpURLConnection) new URL(URL_PATTERN_LOCAL + "ServiceProviderConfigs").openConnection();
 		connection.setDoOutput(true);
-		connection.setRequestProperty("Accept", "application/json");
 		connection.setRequestProperty("X-HTTP-Method-Override", "GET");
 		makeCall(connection, "");
 	}

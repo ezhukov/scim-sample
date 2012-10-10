@@ -11,7 +11,7 @@ import scim.schemas.v1.AuthenticationScheme;
 import scim.schemas.v1.Response;
 import scim.schemas.v1.ServiceProviderConfig;
 
-@Path("ServiceProviderConfig")
+@Path("v1/ServiceProviderConfigs")
 public class ServiceProviderConfiguration {
 
 	@GET

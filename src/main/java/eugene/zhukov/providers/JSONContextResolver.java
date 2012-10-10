@@ -1,13 +1,10 @@
 package eugene.zhukov.providers;
 
-import eugene.zhukov.SCIMException;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.util.List;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
@@ -27,19 +24,17 @@ import org.codehaus.jackson.map.JsonDeserializer;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig.Feature;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
-import org.codehaus.jackson.type.TypeReference;
+
+import eugene.zhukov.SCIMException;
 
 @Provider
 @Produces(MediaType.APPLICATION_JSON)
 public class JSONContextResolver implements ContextResolver<ObjectMapper>, MessageBodyWriter<Object>, MessageBodyReader<Object> {
 
-	private static final String CORE = "urn:scim:schemas:core:1.0";
+//	private static final String CORE = "urn:scim:schemas:core:1.0";
 	private static final String ENTERPRISE = "urn:scim:schemas:extension:enterprise:1.0";
 
 	private ObjectMapper objectMapper;
-	private boolean coreSchemaPresent;
-	private boolean enterpriseSchemaPresent;
-	private boolean enterpriseElementPresent;
 
 	public JSONContextResolver() {
 		objectMapper = new ObjectMapper();
@@ -86,12 +81,7 @@ public class JSONContextResolver implements ContextResolver<ObjectMapper>, Messa
 	public Object readFrom(Class<Object> clazz, Type type, Annotation[] annotation, MediaType mediaType,
 			MultivaluedMap<String, String> map, InputStream inputStream) throws IOException, WebApplicationException {
 		try {
-			Object response = objectMapper.readValue(inputStream, clazz);
-			
-			if (!coreSchemaPresent || enterpriseElementPresent && !enterpriseSchemaPresent) {
-				throw new SCIMException(Status.BAD_REQUEST, "schemas:invalid", null);
-			}
-			return response;
+			return objectMapper.readValue(inputStream, clazz);
 
 		} catch (org.codehaus.jackson.JsonParseException | java.io.EOFException e) {
 			throw new SCIMException(Status.BAD_REQUEST, "input:invalid", SCIMException.BAD_REQUEST);
@@ -111,21 +101,7 @@ public class JSONContextResolver implements ContextResolver<ObjectMapper>, Messa
 		@Override
 		public boolean handleUnknownProperty(DeserializationContext ctx, JsonDeserializer<?> deserializer,
 				Object beanOrClass, String propertyName) throws IOException, JsonProcessingException {
-			
-			if ("schemas".equals(propertyName)) {
-				List<String> schemasValue = ctx.getParser().readValueAs(new TypeReference<List<String>>() {
-				});
-				ctx.getParser().skipChildren();
-				coreSchemaPresent = schemasValue.contains(CORE);
-				enterpriseSchemaPresent = schemasValue.contains(ENTERPRISE);
-				return true;
-			}
-			
-			if (ENTERPRISE.equals(propertyName)) {
-				enterpriseElementPresent = true;
-				return enterpriseElementPresent;
-			}
-			return false;
+			return ENTERPRISE.equals(propertyName);
 		}
 	}
 }

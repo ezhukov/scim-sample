@@ -49,7 +49,7 @@ public class SCIMFilter implements Filter {
 	
 	private static boolean isAccessGranted(String authorizationHeader, String pathInfo, String method) {
 
-		if (pathInfo.endsWith("/ServiceProviderConfig") && "GET".equalsIgnoreCase(method)) {
+		if (pathInfo.endsWith("/ServiceProviderConfigs") && "GET".equalsIgnoreCase(method)) {
 			return true;
 		}
 

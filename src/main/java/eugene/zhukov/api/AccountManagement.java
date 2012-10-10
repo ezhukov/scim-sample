@@ -26,7 +26,7 @@ import eugene.zhukov.api.annotation.PATCH;
 import eugene.zhukov.dao.UserDao;
 import eugene.zhukov.util.Utils;
 
-@Path("Users")
+@Path("v1/Users")
 public class AccountManagement {
 
 	@POST
