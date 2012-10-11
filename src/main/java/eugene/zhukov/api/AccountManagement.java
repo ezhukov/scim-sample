@@ -5,6 +5,8 @@ import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 import static javax.ws.rs.core.Response.Status.OK;
+import static eugene.zhukov.SCIMFilter.API_VERSION;
+import static eugene.zhukov.SCIMFilter.ENDPOINT_USERS;
 
 import java.util.UUID;
 
@@ -26,7 +28,7 @@ import eugene.zhukov.api.annotation.PATCH;
 import eugene.zhukov.dao.UserDao;
 import eugene.zhukov.util.Utils;
 
-@Path("v1/Users")
+@Path(API_VERSION + ENDPOINT_USERS)
 public class AccountManagement {
 
 	@POST

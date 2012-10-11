@@ -20,6 +20,9 @@ import eugene.zhukov.util.Utils;
 
 public class SCIMFilter implements Filter {
 
+	public static final String API_VERSION = "/v1";
+	public static final String ENDPOINT_SERVICE_PROVIDER_CONFIGS = "/ServiceProviderConfigs";
+	public static final String ENDPOINT_USERS = "/Users";
 	private static final String ACCEPT_HEADER = "Accept";
 	private static final String AUTHORIZATION_HEADER = "Authorization";
 	private static final String METHOD_OVERRIDE = "X-HTTP-Method-Override";
@@ -49,7 +52,8 @@ public class SCIMFilter implements Filter {
 	
 	private static boolean isAccessGranted(String authorizationHeader, String pathInfo, String method) {
 
-		if (pathInfo.endsWith("/ServiceProviderConfigs") && "GET".equalsIgnoreCase(method)) {
+		if ("GET".equalsIgnoreCase(method)
+				&& pathInfo.equals(API_VERSION + ENDPOINT_SERVICE_PROVIDER_CONFIGS)) {
 			return true;
 		}
 

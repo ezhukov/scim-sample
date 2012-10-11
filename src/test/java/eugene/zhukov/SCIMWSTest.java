@@ -10,8 +10,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class SCIMWSTest {
-	private static final String URL_PATTERN_LOCAL = "https://scim.dy.fi/v1/";
-//	private static final String URL_PATTERN_LOCAL = "http://localhost:8080/v1/";
+//	private static final String URL_PATTERN_LOCAL = "https://scim.dy.fi/v1/";
+	private static final String URL_PATTERN_LOCAL = "http://localhost:8080/scim/v1/";
 	
 	static {
 		javax.net.ssl.HttpsURLConnection.setDefaultHostnameVerifier(

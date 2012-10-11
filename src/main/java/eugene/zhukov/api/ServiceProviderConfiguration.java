@@ -1,6 +1,8 @@
 package eugene.zhukov.api;
 
 import static javax.ws.rs.core.Response.Status.OK;
+import static eugene.zhukov.SCIMFilter.API_VERSION;
+import static eugene.zhukov.SCIMFilter.ENDPOINT_SERVICE_PROVIDER_CONFIGS;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -11,7 +13,7 @@ import scim.schemas.v1.AuthenticationScheme;
 import scim.schemas.v1.Response;
 import scim.schemas.v1.ServiceProviderConfig;
 
-@Path("v1/ServiceProviderConfigs")
+@Path(API_VERSION + ENDPOINT_SERVICE_PROVIDER_CONFIGS)
 public class ServiceProviderConfiguration {
 
 	@GET
