@@ -12,5 +12,5 @@ public interface UserDao {
 
 	void updateUser(User user);
 
-//	boolean checkUserExists(UUID userId);
+	String getPasswd(UUID userId);
 }

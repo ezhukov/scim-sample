@@ -9,6 +9,9 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import eugene.zhukov.util.S;
+import eugene.zhukov.util.TestRSA;
+
 public class SCIMWSTest {
 //	private static final String URL_PATTERN_LOCAL = "https://scim.dy.fi/v1/";
 	private static final String URL_PATTERN_LOCAL = "http://localhost:8080/scim/v1/";
@@ -23,25 +26,30 @@ public class SCIMWSTest {
 			    });
 	}
 
-	public static void main(String[] args) throws MalformedURLException, IOException {
+	public static void main(String[] args) throws Exception {
 		create();
 		retrieve();
 		update();
 		serviceProviderConfig();
 	}
 
-	private static void create() throws MalformedURLException, IOException {
+	private static void create() throws Exception {
 		HttpURLConnection connection = (HttpURLConnection) new URL(URL_PATTERN_LOCAL + "Users").openConnection();
 		connection.setDoOutput(true);
 		connection.setRequestProperty("Content-Type", "application/xml");
 		connection.setRequestProperty("Accept", "application/json");
+
+		S token = new S();
+	    token.setTimestamp(System.currentTimeMillis());
+		String encrypted = TestRSA.encrypt(token);
 		connection
 				.setRequestProperty(
 						"Authorization",
-						"Bearer GHOTqBHdpZklMYki7t1KqlXpPW7pJLs7AkpJYdEaB7wmXBb0nte65hNVnqvOiUT89pOYnrxmWqsjLEZP1yQfVHz2K/mcKiZd5XndIFoh2YIx+szMgCxCZdbd681d426adJhkVrKP1VA1xsYoIF5TN3ny/JNFqhExiEjcDtPB7cg=");
+						"Bearer " + encrypted);
 
 		long nanoTime = System.nanoTime();
-		makeCall(connection, "<User xmlns=\"urn:scim:schemas:core:1.0\" xmlns:enterprise=\"urn:scim:schemas:extension:enterprise:1.0\">" +
+		makeCall(connection, "<User xmlns=\"urn:scim:schemas:core:1.0\" " +
+				"xmlns:enterprise=\"urn:scim:schemas:extension:enterprise:1.0\">" +
 				"<userName>" + nanoTime + "</userName>" +
 				"<password>foobar</password>" +
 				"<preferredLanguage>en_US</preferredLanguage>" +
@@ -56,32 +64,44 @@ public class SCIMWSTest {
 				"</User>");
 	}
 
-	private static void retrieve() throws UnsupportedEncodingException, IOException {
-		HttpURLConnection connection = (HttpURLConnection) new URL(URL_PATTERN_LOCAL + "Users/f70d408e-abb1-486f-ab40-60058d7ab6f0").openConnection();
+	private static void retrieve() throws Exception {
+		HttpURLConnection connection = (HttpURLConnection) new URL(URL_PATTERN_LOCAL
+				+ "Users/fbfe88d9-0bac-491f-8930-59be83b2f8a1").openConnection();
 		connection.setDoOutput(true);
 //		connection.setRequestProperty("Content-Type", "application/xml");
 		connection.setRequestProperty("Accept", "application/xml");
 		connection.setRequestProperty("X-HTTP-Method-Override", "GET");
+		S token = new S();
+	    token.setTimestamp(System.currentTimeMillis());
+	    token.setPassword("foobar");
+		String encrypted = TestRSA.encrypt(token);
 		connection
 				.setRequestProperty(
 						"Authorization",
-						"Bearer fSOsufDQ+oV6cgF2nSFGFLOo6k403+nacG3NPNHWxAp8JD/fe0bR/KX3mUy5PE+qR8bCkWkp68uzoFGMhmNGIlm9czJZmmSekiUaqfnea5dJT/ShgdyTBleh/ALCs72/mmu7tHEsGdcGLM1pMBxxeoYoGTQnBYWcV/K7istXHEg=");
+						"Bearer " + encrypted);
 		makeCall(connection, "");
 	}
 
-	private static void update() throws MalformedURLException, IOException {
-		HttpURLConnection connection = (HttpURLConnection) new URL(URL_PATTERN_LOCAL + "Users/5c3f2127-d826-4843-9153-6258c3f35555").openConnection();
+	private static void update() throws Exception {
+		HttpURLConnection connection = (HttpURLConnection) new URL(URL_PATTERN_LOCAL
+				+ "Users/5c3f2127-d826-4843-9153-6258c3f35555").openConnection();
 		connection.setDoOutput(true);
 		connection.setRequestProperty("Content-Type", "application/xml");
 		connection.setRequestProperty("Accept", "application/xml");
 		connection.setRequestProperty("X-HTTP-Method-Override", "PUT");
+
+		S token = new S();
+	    token.setTimestamp(System.currentTimeMillis());
+	    token.setPassword("foobar");
+		String encrypted = TestRSA.encrypt(token);
 		connection
 				.setRequestProperty(
 						"Authorization",
-						"Bearer GHOTqBHdpZklMYki7t1KqlXpPW7pJLs7AkpJYdEaB7wmXBb0nte65hNVnqvOiUT89pOYnrxmWqsjLEZP1yQfVHz2K/mcKiZd5XndIFoh2YIx+szMgCxCZdbd681d426adJhkVrKP1VA1xsYoIF5TN3ny/JNFqhExiEjcDtPB7cg=");
+						"Bearer " + encrypted);
 
 		long nanoTime = System.nanoTime();
-		makeCall(connection, "<User xmlns=\"urn:scim:schemas:core:1.0\" xmlns:enterprise=\"urn:scim:schemas:extension:enterprise:1.0\">" +
+		makeCall(connection, "<User xmlns=\"urn:scim:schemas:core:1.0\" " +
+				"xmlns:enterprise=\"urn:scim:schemas:extension:enterprise:1.0\">" +
 				"<userName>" + nanoTime + "</userName>" +
 				"<id>bb1d0a94-445a-468f-ad27-5d98b7be890c</id>" +
 				"<password>foobar</password>" +
@@ -97,8 +117,9 @@ public class SCIMWSTest {
 				"</User>");
 	}
 
-	private static void serviceProviderConfig() throws UnsupportedEncodingException, IOException {
-		HttpURLConnection connection = (HttpURLConnection) new URL(URL_PATTERN_LOCAL + "ServiceProviderConfigs").openConnection();
+	private static void serviceProviderConfig() throws MalformedURLException, IOException {
+		HttpURLConnection connection = (HttpURLConnection) new URL(
+				URL_PATTERN_LOCAL + "ServiceProviderConfigs").openConnection();
 		connection.setDoOutput(true);
 		connection.setRequestProperty("X-HTTP-Method-Override", "GET");
 		makeCall(connection, "");

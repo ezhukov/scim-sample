@@ -1,15 +1,16 @@
 package eugene.zhukov.api;
 
 import static eugene.zhukov.ApplicationContextProvider.USER_DAO;
+import static eugene.zhukov.SCIMFilter.API_VERSION;
+import static eugene.zhukov.SCIMFilter.ENDPOINT_USERS;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 import static javax.ws.rs.core.Response.Status.OK;
-import static eugene.zhukov.SCIMFilter.API_VERSION;
-import static eugene.zhukov.SCIMFilter.ENDPOINT_USERS;
 
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -18,6 +19,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import scim.schemas.v1.Response;
@@ -54,8 +56,10 @@ public class AccountManagement {
 	@GET
 	@Path("{id}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public javax.ws.rs.core.Response retrieve(@PathParam("id") UUID id) {
+	public javax.ws.rs.core.Response retrieve(
+			@PathParam("id") UUID id, @Context HttpServletRequest request) {
 		UserDao dao = (UserDao) ApplicationContextProvider.getContext().getBean(USER_DAO);
+		checkPassword(dao.getPasswd(id), request);
 		User user = dao.retrieveUser(id);
 
 		Response response = new Response();
@@ -67,9 +71,11 @@ public class AccountManagement {
 	@Path("{id}")
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public javax.ws.rs.core.Response update(User user, @PathParam("id") UUID id) {
-		user.setId(id.toString());
+	public javax.ws.rs.core.Response update(
+			User user, @PathParam("id") UUID id, @Context HttpServletRequest request) {
 		UserDao dao = (UserDao) ApplicationContextProvider.getContext().getBean(USER_DAO);
+		checkPassword(dao.getPasswd(id), request);
+		user.setId(id.toString());
 		dao.updateUser(user);
 
 		Response response = new Response();
@@ -80,7 +86,11 @@ public class AccountManagement {
 	@PATCH
 	@Path("{id}/password")
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-	public javax.ws.rs.core.Response passwordChange(@PathParam("id") String id, User user) {
+	public javax.ws.rs.core.Response passwordChange(
+			@PathParam("id") UUID id, User user, @Context HttpServletRequest request) {
+		UserDao dao = (UserDao) ApplicationContextProvider.getContext().getBean(USER_DAO);
+		checkPassword(dao.getPasswd(id), request);
+
 		return javax.ws.rs.core.Response.status(NO_CONTENT).build();
 	}
 
@@ -88,5 +98,11 @@ public class AccountManagement {
 	@Path("{id}")
 	public javax.ws.rs.core.Response remove() {
 		return javax.ws.rs.core.Response.status(OK).build();
+	}
+
+	private void checkPassword(String dbPassword, HttpServletRequest request) {
+		if (dbPassword != null && !dbPassword.equalsIgnoreCase((String) request.getAttribute("password"))) {
+			throw new SCIMException(BAD_REQUEST, "password:invalid");
+		}
 	}
 }

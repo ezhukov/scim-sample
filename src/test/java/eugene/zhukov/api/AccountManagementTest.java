@@ -1,6 +1,5 @@
 package eugene.zhukov.api;
 
-import java.text.ParseException;
 import java.util.HashMap;
 
 import javax.ws.rs.core.MediaType;
@@ -17,6 +16,8 @@ import com.sun.jersey.test.framework.WebAppDescriptor;
 
 import eugene.zhukov.ApplicationContextProvider;
 import eugene.zhukov.SCIMFilter;
+import eugene.zhukov.util.S;
+import eugene.zhukov.util.TestRSA;
 
 public class AccountManagementTest extends JerseyTest {
 
@@ -36,44 +37,50 @@ public class AccountManagementTest extends JerseyTest {
 	}
 
 	@Test
-	public void testRegisterUserRawXML() {
-		String username = "" + System.currentTimeMillis();
-		
+	public void testRegisterUserRawXML() throws Exception {
+		long timestamp = System.currentTimeMillis();
+		String password = "pa$$word8888889!";
+
 		String input = "<User xmlns=\"urn:scim:schemas:core:1.0\" " +
 				"xmlns:enterprise=\"urn:scim:schemas:extension:enterprise:1.0\">" +
-				"<userName>" + username + "</userName>" +
+				"<userName>" + timestamp + "</userName>" +
 				"<preferredLanguage>en_GB</preferredLanguage>" +
-				"<password>123456</password>" +
+				"<password>" + password + "</password>" +
 				"<emails>" +
 				"<email>" +
-				"<value>" + username + "@test.com</value>" +
+				"<value>" + timestamp + "@test.com</value>" +
 				"<primary>true</primary>" +
 				"</email>" +
 				"<email>" +
-				"<value>" + username + "2@test.com</value>" +
+				"<value>" + timestamp + "2@test.com</value>" +
 //				"<primary>false</primary>" +
 				"</email>" +
 				"</emails>" +
 				"<addresses><address><country>FI</country></address></addresses>" +
 				"<enterprise:gender>female</enterprise:gender>" +
 				"</User>";
-		
+		S token = new S();
+	    token.setPassword(password);
+	    token.setTimestamp(timestamp);
+		String encrypted = TestRSA.encrypt(token);
+
 		ClientResponse cr = resource().path(RESOURCE)
 				.header(
 						"Authorization",
-						"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
+						"Bearer " + encrypted)
+//						"Bearer bN9B2rMAtWG7xC/pYcEj9bYk9Iu2F1yiw0OSj+lLOK60bzuNWiukRD6gAKR1c6SRVRJFvOQVJ4FfhFYf8k0vqg265TWLR9ttZHZwhC4AyekFH0Bot3icpTC9SPdtVIULOcJPwLcyE89OpqSv31q2Ccdlxq1B70p5woqFeZHhwEw=")
 				.type(MediaType.APPLICATION_XML).accept(MediaType.APPLICATION_XML)
 				.post(ClientResponse.class, input);
-		
+
 		String response = cr.getEntity(String.class);
 //		System.out.println(response);
-		Assert.assertTrue("Expected string from response not found.", response.indexOf("<userName>" + username + "</userName>") > 1);
 		Assert.assertEquals("Http status code 201 expected.", 201, cr.getStatus());
+		Assert.assertTrue("Expected string from response not found.", response.indexOf("<userName>" + timestamp + "</userName>") > 1);
 
 		cr = resource().path(RESOURCE + "/" + extractValue(response, "id"))
 				.header(
 						"Authorization",
-						"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
+						"Bearer " + encrypted)
 				.type(MediaType.APPLICATION_XML).accept(MediaType.APPLICATION_JSON)
 				.get(ClientResponse.class);
 
@@ -83,13 +90,14 @@ public class AccountManagementTest extends JerseyTest {
 	}
 	
 	@Test
-	public void testRegisterAndUpdateUserRawJson() throws ParseException {
+	public void testRegisterAndUpdateUserRawJson() throws Exception {
 		long nanoTime = System.nanoTime();
-		
+		String password = "pa$$word8888889!1234567890";
+
 		String input = "{ \"schemas\":[\"urn:scim:schemas:core:1.0\", \"urn:scim:schemas:extension:enterprise:1.0\"], "
 				+ "\"userName\":\"S" + nanoTime + "\","
 				+ "\"preferredLanguage\":\"en_FI\","
-				+ "\"password\":\"123456\","
+				+ "\"password\":\"" + password + "\","
 				+ "\"name\":{"
 				+ "\"familyName\":\"Jensen\","
 				+ "\"givenName\":\"Barbara\" }"
@@ -108,11 +116,15 @@ public class AccountManagementTest extends JerseyTest {
 				+ "\"gender\":\"male\""
 				+ "}"
 				+ "}";
-		
+		S token = new S();
+	    token.setPassword(password);
+	    token.setTimestamp(System.currentTimeMillis());
+		String encrypted = TestRSA.encrypt(token);
+
 		ClientResponse response = resource().path(RESOURCE)
 				.header(
 						"Authorization",
-						"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
+						"Bearer " + encrypted)
 				.type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_XML)
 				.post(ClientResponse.class, input);
 		
@@ -124,7 +136,7 @@ public class AccountManagementTest extends JerseyTest {
 		response = resource().path(RESOURCE + "/" + id)
 				.header(
 						"Authorization",
-						"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
+						"Bearer " + encrypted)
 				.type(MediaType.APPLICATION_XML).accept(MediaType.APPLICATION_XML)
 				.get(ClientResponse.class);
 		Assert.assertEquals(200, response.getStatus());
@@ -137,57 +149,19 @@ public class AccountManagementTest extends JerseyTest {
 		response = resource().path(RESOURCE + "/" + id)
 				.header(
 						"Authorization",
-						"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
+						"Bearer " + encrypted)
 				.type(MediaType.APPLICATION_XML).accept(MediaType.APPLICATION_XML)
 				.put(ClientResponse.class, responseContent);
 		
 		Assert.assertEquals(200, response.getStatus());
 		responseContent = response.getEntity(String.class);
 		Assert.assertEquals("Zhukov", extractValue(responseContent, "familyName"));
-//		System.out.println(responseContent);
-//		Assert.assertEquals(retrievedProfile.getAccountId(), JsonPath.read(responseContent, "$.id"));
-//		Assert.assertEquals("S" + nanoTime + "@example.com", JsonPath.read(responseContent, "$.emails[0].value"));
-//		Assert.assertEquals("C" + nanoTime + "@example.com", JsonPath.read(responseContent, "$.emails[1].value"));
-	}
-	
-//	@Test
-	public void testRegisterUserError() {
-		long nanoTime = System.nanoTime();
-		String input = "{ \"schemas\":[\"urn:scim:schemas:core:1.0\"], "
-				+ "\"userName\":\"S" + nanoTime + "\","
-				+ "\"preferredLanguage\":\"en_SE\","
-				+ "\"password\":\"123456\","
-				+ "\"name\":{"
-				+ "\"familyName\":\"Jensen\","
-				+ "\"givenName\":\"Barbara\" }"
-				+ ","
-				+ "\"phoneNumbers\": [ { \"value\": \"555-555-5555\", \"type\": \"work\" }, { \"value\": \"555-555-4444\", \"primary\": \"true\" } ]"
-				+ ",\"addresses\":[{\"country\":\"FI\"}]"
-				+ "}";
-		
-		ClientResponse responseMsg = resource().path(RESOURCE)
-				.header(
-						"Authorization",
-						"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
-				.type(MediaType.APPLICATION_JSON)
-				.post(ClientResponse.class, input);
-		
-		String expected = "{\"Errors\":[{\"description\":\"555-555-5555Providedmobilenumberisinvalid.\",\"code\":\"400\","
-				+ "\"uri\":\"urn:info:scim:errors:1.0:phoneNumbers:phoneNumber:invalid\"},"
-				+ "{\"description\":\"555-555-4444Providedmobilenumberisinvalid.\",\"code\":\"400\","
-				+ "\"uri\":\"urn:info:scim:errors:1.0:phoneNumbers:phoneNumber:invalid\"}]}";
-		
-		Assert.assertEquals("Http status code 400 expected.", 400, responseMsg.getStatus());
-		
-		String response = responseMsg.getEntity(String.class);
-		
-		Assert.assertEquals("Expexted string from response not found.", expected, response.replaceAll("\n", "").replaceAll(" ", ""));
 	}
 
 	@Test
-	public void testRegisterUserRawXML2() {
+	public void testRegisterUserRawXML2() throws Exception {
 		long nanoTime = System.nanoTime();
-		
+
 		String input = "<SCIM xmlns=\"urn:scim:schemas:core:1.0\" " +
 				"xmlns:enterprise=\"urn:scim:schemas:extension:enterprise:1.0\">" +
 				"<userName>S" + nanoTime + "</userName>" +
@@ -211,11 +185,14 @@ public class AccountManagementTest extends JerseyTest {
 				"<addresses><address><country>FI</country></address></addresses>" +
 				"<enterprise:gender>male</enterprise:gender>" +
 				"</SCIM>";
-		
+		S token = new S();
+	    token.setTimestamp(System.currentTimeMillis());
+		String encrypted = TestRSA.encrypt(token);
+
 		ClientResponse cr = resource().path(RESOURCE)
 				.header(
 						"Authorization",
-						"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
+						"Bearer " + encrypted)
 				.type(MediaType.APPLICATION_XML).accept(MediaType.APPLICATION_JSON)
 				.post(ClientResponse.class, input);
 		
@@ -225,7 +202,7 @@ public class AccountManagementTest extends JerseyTest {
 	}
 	
 	@Test
-	public void testRegisterUserReservedUsername() {
+	public void testRegisterUserReservedUsername() throws Exception {
 		String input = "{ \"schemas\":[\"urn:scim:schemas:core:1.0\"], "
 				+ "\"userName\":\"existing\","
 				+ "\"preferredLanguage\":\"en_US\","
@@ -245,11 +222,14 @@ public class AccountManagementTest extends JerseyTest {
 				+ "}]"
 				+ ",\"addresses\": [{\"country\": \"FI\"}]"
 				+ "}";
+		S token = new S();
+	    token.setTimestamp(System.currentTimeMillis());
+		String encrypted = TestRSA.encrypt(token);
 
 		ClientResponse responseMsg = resource().path(RESOURCE)
 				.header(
 						"Authorization",
-						"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
+						"Bearer " + encrypted)
 				.type(MediaType.APPLICATION_JSON)
 				.post(ClientResponse.class, input);
 //		String responseContent = responseMsg.getEntity(String.class);
@@ -258,7 +238,7 @@ public class AccountManagementTest extends JerseyTest {
 	}
 	
 	@Test
-	public void testRegisterUserWithGender() {
+	public void testRegisterUserWithGender() throws Exception {
 		long nanoTime = System.nanoTime();
 		String input = "{ \"schemas\":[\"urn:scim:schemas:core:1.0\"], "
 				+ "\"userName\":\"W" + nanoTime + "\","
@@ -280,11 +260,14 @@ public class AccountManagementTest extends JerseyTest {
 				+ ",\"addresses\": [{\"country\": \"FI\"}],"
 				+ "\"gender\":\"female\""
 				+ "}";
+		S token = new S();
+	    token.setTimestamp(System.currentTimeMillis());
+		String encrypted = TestRSA.encrypt(token);
 
 		ClientResponse responseMsg = resource().path(RESOURCE)
 				.header(
 						"Authorization",
-						"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
+						"Bearer " + encrypted)
 				.type(MediaType.APPLICATION_JSON)
 				.post(ClientResponse.class, input);
 //		String responseContent = responseMsg.getEntity(String.class);
@@ -293,7 +276,7 @@ public class AccountManagementTest extends JerseyTest {
 	}
 	
 	@Test
-	public void testRegisterUserReservedEmail() {
+	public void testRegisterUserReservedEmail() throws Exception {
 		long nanoTime = System.nanoTime();
 		
 		String input = "{ \"schemas\":[\"urn:scim:schemas:core:1.0\"], "
@@ -312,11 +295,14 @@ public class AccountManagementTest extends JerseyTest {
 				+ "]"
 				+ ",\"addresses\": [{\"country\": \"FI\"}]"
 				+ "}";
+		S token = new S();
+	    token.setTimestamp(System.currentTimeMillis());
+		String encrypted = TestRSA.encrypt(token);
 		
 		ClientResponse responseMsg = resource().path(RESOURCE)
 				.header(
 						"Authorization",
-						"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
+						"Bearer " + encrypted)
 				.type(MediaType.APPLICATION_JSON)
 				.post(ClientResponse.class, input);
 
@@ -324,7 +310,7 @@ public class AccountManagementTest extends JerseyTest {
 	}
 	
 	@Test
-	public void testInvalidInput() {
+	public void testInvalidInput() throws Exception {
 		String username = "" + System.currentTimeMillis();
 		
 		String input = "<SCIM xmlns=\"urn:scim:schemas:core:1.0\">" +
@@ -339,11 +325,14 @@ public class AccountManagementTest extends JerseyTest {
 				"</emails>" +
 				"<addresses><address><country>FI</country></address></addresses>" +
 				"</XXX>>";
+		S token = new S();
+	    token.setTimestamp(System.currentTimeMillis());
+		String encrypted = TestRSA.encrypt(token);
 		
 		ClientResponse cr = resource().path(RESOURCE)
 				.header(
 						"Authorization",
-						"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
+						"Bearer " + encrypted)
 				.type(MediaType.APPLICATION_XML).accept(MediaType.APPLICATION_XML)
 				.post(ClientResponse.class, input);
 		
@@ -381,6 +370,40 @@ public class AccountManagementTest extends JerseyTest {
 		String response = cr.getEntity(String.class);
 		Assert.assertEquals("Http status code 400 expected.", 400, cr.getStatus());
 		Assert.assertTrue("Expexted string from response not found.", response.indexOf("Multiple primary addresses provided.") > 1);
+	}
+
+//	@Test
+	public void testRegisterUserError() {
+		long nanoTime = System.nanoTime();
+		String input = "{ \"schemas\":[\"urn:scim:schemas:core:1.0\"], "
+				+ "\"userName\":\"S" + nanoTime + "\","
+				+ "\"preferredLanguage\":\"en_SE\","
+				+ "\"password\":\"123456\","
+				+ "\"name\":{"
+				+ "\"familyName\":\"Jensen\","
+				+ "\"givenName\":\"Barbara\" }"
+				+ ","
+				+ "\"phoneNumbers\": [ { \"value\": \"555-555-5555\", \"type\": \"work\" }, { \"value\": \"555-555-4444\", \"primary\": \"true\" } ]"
+				+ ",\"addresses\":[{\"country\":\"FI\"}]"
+				+ "}";
+		
+		ClientResponse responseMsg = resource().path(RESOURCE)
+				.header(
+						"Authorization",
+						"Bearer Mnxabms6rYiy+mb1uOzeMjSuf0hhzYvWeZKjsaqMh+A6SkP5oOH5neORSkQOXsbXOZFfwT6v9UM6sltOWWYT6umfGvrsKJHLMtTzSMs5GrAfeai/ilNYrjgd49QV0QJrimQXsdCkcJqNNCm8eyVP5W7GD+jMk6CVN1mvExngAVk=")
+				.type(MediaType.APPLICATION_JSON)
+				.post(ClientResponse.class, input);
+		
+		String expected = "{\"Errors\":[{\"description\":\"555-555-5555Providedmobilenumberisinvalid.\",\"code\":\"400\","
+				+ "\"uri\":\"urn:info:scim:errors:1.0:phoneNumbers:phoneNumber:invalid\"},"
+				+ "{\"description\":\"555-555-4444Providedmobilenumberisinvalid.\",\"code\":\"400\","
+				+ "\"uri\":\"urn:info:scim:errors:1.0:phoneNumbers:phoneNumber:invalid\"}]}";
+		
+		Assert.assertEquals("Http status code 400 expected.", 400, responseMsg.getStatus());
+		
+		String response = responseMsg.getEntity(String.class);
+		
+		Assert.assertEquals("Expexted string from response not found.", expected, response.replaceAll("\n", "").replaceAll(" ", ""));
 	}
 
 	private static String extractValue(String row, String attr) {

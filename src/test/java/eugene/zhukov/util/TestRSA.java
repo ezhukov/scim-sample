@@ -21,12 +21,12 @@ import org.junit.Test;
 
 public class TestRSA {
 
-	public static PrivateKey getPrivate() throws Exception {
+	private static PrivateKey getPrivate() throws Exception {
 	    PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(getKeyBytes("private_key.der"));
 	    return KeyFactory.getInstance("RSA").generatePrivate(spec);
 	}
 
-	public static PublicKey getPublic() throws Exception {
+	private static PublicKey getPublic() throws Exception {
 	    X509EncodedKeySpec spec = new X509EncodedKeySpec(getKeyBytes("public_key.der"));
 	    return KeyFactory.getInstance("RSA").generatePublic(spec);
 	}
@@ -55,7 +55,7 @@ public class TestRSA {
 		Assert.assertEquals("pa$$word8888889!", decrypted.getPassword());
 	}
 	
-	private static String encrypt(S token) throws Exception {
+	public static String encrypt(S token) throws Exception {
 		Cipher c = Cipher.getInstance("RSA");
 	    c.init(Cipher.ENCRYPT_MODE, getPublic());
 

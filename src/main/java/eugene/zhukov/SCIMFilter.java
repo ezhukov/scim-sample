@@ -23,10 +23,12 @@ public class SCIMFilter implements Filter {
 	public static final String API_VERSION = "/v1";
 	public static final String ENDPOINT_SERVICE_PROVIDER_CONFIGS = "/ServiceProviderConfigs";
 	public static final String ENDPOINT_USERS = "/Users";
+
 	private static final String ACCEPT_HEADER = "Accept";
 	private static final String AUTHORIZATION_HEADER = "Authorization";
 	private static final String METHOD_OVERRIDE = "X-HTTP-Method-Override";
 	private static final String BEARER_PREFIX = "Bearer ";
+	private static final long TOKEN_VALIDITY_TIME_IN_MILLIS = 60000; // one minute
 
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response,
@@ -36,8 +38,8 @@ public class SCIMFilter implements Filter {
 
 		SecurityConfig securityConfig = (SecurityConfig) ApplicationContextProvider
 				.getContext().getBean(ApplicationContextProvider.SECURITY_CONFIG);
-		
-		if (!isAccessGranted(req.getHeader(AUTHORIZATION_HEADER), req.getPathInfo(), req.getMethod())) {
+
+		if (!isAccessGranted(req)) {
 			resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			PrintWriter out = new PrintWriter(response.getWriter(), true);
 			out.println(MediaType.APPLICATION_XML.equals(req.getHeader(ACCEPT_HEADER))
@@ -50,24 +52,24 @@ public class SCIMFilter implements Filter {
 		chain.doFilter(req, resp);
 	}
 	
-	private static boolean isAccessGranted(String authorizationHeader, String pathInfo, String method) {
+	private static boolean isAccessGranted(HttpServletRequest request) {
 
-		if ("GET".equalsIgnoreCase(method)
-				&& pathInfo.equals(API_VERSION + ENDPOINT_SERVICE_PROVIDER_CONFIGS)) {
+		if ("GET".equalsIgnoreCase(request.getMethod())
+				&& API_VERSION.concat(ENDPOINT_SERVICE_PROVIDER_CONFIGS).equals(request.getPathInfo())) {
 			return true;
 		}
+		String authorizationHeader = request.getHeader(AUTHORIZATION_HEADER);
 
 		if (authorizationHeader == null || !authorizationHeader.startsWith(BEARER_PREFIX)) {
 			return false;
 		}
-
 		SecureToken token = Utils.decryptToken(
 				authorizationHeader.substring(BEARER_PREFIX.length(), authorizationHeader.length()));
-		
-		if (token == null) {
+
+		if (token == null || token.getTimestamp() + TOKEN_VALIDITY_TIME_IN_MILLIS < System.currentTimeMillis()) {
 			return false;
 		}
-		// TODO add request method, endpoint, password and timestamp validation
+		request.setAttribute("password", token.getPassword());
 		return true;
 	}
 

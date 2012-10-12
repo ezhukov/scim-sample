@@ -145,64 +145,63 @@ public class UserDaoImpl implements UserDao {
 		}
 	}
 
-//	@Override
-//	public boolean checkUserExists(UUID userId) {
-//		return jdbcTemplate.queryForInt("select count(*) from users where id = ?", userId) > 0;
-//	}
-
 	@Override
-	public User retrieveUser(UUID userId) {
-		User user = null;
+	public String getPasswd(UUID userId) {
 		try {
-			user = jdbcTemplate.queryForObject("select * from users where id =?", new RowMapper<User>() {
-	
-				@Override
-				public User mapRow(ResultSet resultSet, int arg1) throws SQLException {
-					User user = new User();
-					user.setId(resultSet.getString("id"));
-					user.setUserName(resultSet.getString("username"));
-	
-					Name name = new Name();
-					name.setFormatted(Utils.trimOrNull(resultSet.getString("formattedName")));
-					name.setFamilyName(Utils.trimOrNull(resultSet.getString("familyName")));
-					name.setGivenName(Utils.trimOrNull(resultSet.getString("givenName")));
-					name.setHonorificPrefix(Utils.trimOrNull(resultSet.getString("honorificPrefix")));
-					name.setHonorificSuffix(Utils.trimOrNull(resultSet.getString("honorificSuffix")));
-					name.setMiddleName(Utils.trimOrNull(resultSet.getString("middleName")));
-
-					if (name.getFormatted() != null
-							|| name.getFamilyName() != null
-							|| name.getGivenName() != null
-							|| name.getHonorificPrefix() != null
-							|| name.getHonorificSuffix() != null
-							|| name.getMiddleName() != null) {
-						user.setName(name);
-					}
-					user.setNickName(resultSet.getString("nickname"));
-					user.setProfileUrl(resultSet.getString("profileURL"));
-					user.setTitle(resultSet.getString("title"));
-					user.setUserType(resultSet.getString("userType"));
-					user.setPreferredLanguage(resultSet.getString("preferredLanguage"));
-					user.setLocale(resultSet.getString("locale"));
-					user.setTimezone(resultSet.getString("timezone"));
-					user.setActive(resultSet.getBoolean("active"));
-					user.setGender(resultSet.getString("gender"));
-	
-					Meta meta = new Meta();
-					meta.setCreated(Utils.asXMLGregorianCalendar(resultSet.getTimestamp("created")));
-					meta.setLastModified(Utils.asXMLGregorianCalendar(resultSet.getTimestamp("lastModified")));
-					meta.setLocation(resultSet.getString("location"));
-					meta.setVersion(resultSet.getString("version"));
-					user.setMeta(meta);
-	
-					return user;
-				}
-	
-			}, userId);
+			return jdbcTemplate.queryForObject("select password from users where id = ?", String.class, userId);
 
 		} catch (org.springframework.dao.EmptyResultDataAccessException e) {
 			throw new SCIMException(NOT_FOUND, null, "Resource " + userId + " not found");
 		}
+	}
+
+	@Override
+	public User retrieveUser(UUID userId) {
+		User user = jdbcTemplate.queryForObject("select * from users where id =?", new RowMapper<User>() {
+
+			@Override
+			public User mapRow(ResultSet resultSet, int arg1) throws SQLException {
+				User user = new User();
+				user.setId(resultSet.getString("id"));
+				user.setUserName(resultSet.getString("username"));
+
+				Name name = new Name();
+				name.setFormatted(Utils.trimOrNull(resultSet.getString("formattedName")));
+				name.setFamilyName(Utils.trimOrNull(resultSet.getString("familyName")));
+				name.setGivenName(Utils.trimOrNull(resultSet.getString("givenName")));
+				name.setHonorificPrefix(Utils.trimOrNull(resultSet.getString("honorificPrefix")));
+				name.setHonorificSuffix(Utils.trimOrNull(resultSet.getString("honorificSuffix")));
+				name.setMiddleName(Utils.trimOrNull(resultSet.getString("middleName")));
+
+				if (name.getFormatted() != null
+						|| name.getFamilyName() != null
+						|| name.getGivenName() != null
+						|| name.getHonorificPrefix() != null
+						|| name.getHonorificSuffix() != null
+						|| name.getMiddleName() != null) {
+					user.setName(name);
+				}
+				user.setNickName(resultSet.getString("nickname"));
+				user.setProfileUrl(resultSet.getString("profileURL"));
+				user.setTitle(resultSet.getString("title"));
+				user.setUserType(resultSet.getString("userType"));
+				user.setPreferredLanguage(resultSet.getString("preferredLanguage"));
+				user.setLocale(resultSet.getString("locale"));
+				user.setTimezone(resultSet.getString("timezone"));
+				user.setActive(resultSet.getBoolean("active"));
+				user.setGender(resultSet.getString("gender"));
+
+				Meta meta = new Meta();
+				meta.setCreated(Utils.asXMLGregorianCalendar(resultSet.getTimestamp("created")));
+				meta.setLastModified(Utils.asXMLGregorianCalendar(resultSet.getTimestamp("lastModified")));
+				meta.setLocation(resultSet.getString("location"));
+				meta.setVersion(resultSet.getString("version"));
+				user.setMeta(meta);
+
+				return user;
+			}
+
+		}, userId);
 
 		java.util.List<MultiValuedAttribute> attrs = retrieveMultiValuedAttrs("emails", userId);
 
@@ -283,9 +282,9 @@ public class UserDaoImpl implements UserDao {
 	public void updateUser(User user) {
 		Name name = user.getName() == null ? new Name() : user.getName();
 		StringBuilder sql = new StringBuilder();
-		int numberOfRowsAffected = 0;
+
 		try {
-			numberOfRowsAffected = jdbcTemplate.update(
+			jdbcTemplate.update(
 					sql.append("update users set (")
 					.append("username,")
 					.append("formattedName,")
@@ -331,10 +330,6 @@ public class UserDaoImpl implements UserDao {
 
 		} catch (DuplicateKeyException e) {
 			throw new SCIMException(CONFLICT, "username:reserved");
-		}
-
-		if (numberOfRowsAffected == 0) {
-			throw new SCIMException(NOT_FOUND, null, "Resource " + user.getId() + " not found");
 		}
 
 		deleteMultiValuedAttrs(UUID.fromString(user.getId()),
