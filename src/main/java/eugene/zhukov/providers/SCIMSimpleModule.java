@@ -151,6 +151,7 @@ public class SCIMSimpleModule {
 
 						} else if (response.getResource() != null) {
 							response.getResource().getSchemas().add("urn:scim:schemas:core:1.0");
+							response.getResource().getSchemas().add("urn:scim:schemas:extension:enterprise:1.0");
 							jsonGenerator.writeObject(response.getResource());
 
 						} else if (response.getResources() != null) {
