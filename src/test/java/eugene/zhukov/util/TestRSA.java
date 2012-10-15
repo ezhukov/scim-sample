@@ -1,15 +1,5 @@
 package eugene.zhukov.util;
 
-
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
-import java.security.KeyFactory;
-import java.security.spec.X509EncodedKeySpec;
-
-import javax.crypto.Cipher;
-import javax.crypto.CipherOutputStream;
-import javax.xml.bind.DatatypeConverter;
-
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -61,24 +51,24 @@ public class TestRSA {
 	}
 
 	public static String encrypt(S token) throws Exception {
-		Cipher c = Cipher.getInstance("RSA");
-		X509EncodedKeySpec spec = new X509EncodedKeySpec(getKeyBytes("public_key.der"));
-	    c.init(Cipher.ENCRYPT_MODE, KeyFactory.getInstance("RSA").generatePublic(spec));
+		javax.crypto.Cipher c = javax.crypto.Cipher.getInstance("RSA");
+		java.security.spec.X509EncodedKeySpec spec = new java.security.spec.X509EncodedKeySpec(getKeyBytes("public_key.der"));
+	    c.init(javax.crypto.Cipher.ENCRYPT_MODE, java.security.KeyFactory.getInstance("RSA").generatePublic(spec));
 
-	    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream out = new ObjectOutputStream(baos);
+	    java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+	    java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(baos);
         out.writeObject(token);
         out.flush();
 
         byte[] tokenBytes = baos.toByteArray();
 //        System.out.println("Byte array length before encryption: " + tokenBytes.length);
 
-        baos = new ByteArrayOutputStream();
-        CipherOutputStream cout = new CipherOutputStream(baos, c);
+        baos = new java.io.ByteArrayOutputStream();
+        javax.crypto.CipherOutputStream cout = new javax.crypto.CipherOutputStream(baos, c);
         cout.write(tokenBytes);
         cout.close();
 
-        return DatatypeConverter.printBase64Binary(baos.toByteArray());
+        return javax.xml.bind.DatatypeConverter.printBase64Binary(baos.toByteArray());
 	}
 
 	private static byte[] getKeyBytes(String key) throws Exception {
