@@ -53,7 +53,7 @@
 	<tx:advice id="txAdvice">
 		<tx:attributes>
 		  <tx:method name="retrieve*" read-only="true"/>
-		  <!--tx:method name="check*" read-only="true"/-->
+		  <tx:method name="get*" read-only="true"/>
 		  <tx:method name="persist*"/>
 		  <tx:method name="update*"/>
 		</tx:attributes>
