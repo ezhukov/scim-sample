@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -16,30 +15,35 @@ import eugene.zhukov.util.TestRSA;
 
 public class SCIMWSTest {
 	private static final String URL_PATTERN_LOCAL = "https://ee.dy.fi/scim/v1/";
-//	private static final String URL_PATTERN_LOCAL = "http://localhost:8080/scim/v1/";
-	
+//	private static final String URL_PATTERN_LOCAL = "https://localhost:8181/scim/v1/";
+
 //	static {
+//		System.getProperties().put("javax.net.ssl.keyStore", "/home/eugene/Downloads/cert/eugene.jks");
+//		System.getProperties().put("javax.net.ssl.keyStorePassword", "changeit");
+//		
 //		javax.net.ssl.HttpsURLConnection.setDefaultHostnameVerifier(
 //			    new javax.net.ssl.HostnameVerifier(){
 //
 //			        public boolean verify(String hostname, javax.net.ssl.SSLSession sslSession) {
-//			        	return hostname.equals("ee.dy.fi");
+//			        	return hostname.equals("localhost");
 //			        }
 //			    });
 //	}
 
 	public static void main(String[] args) throws Exception {
-		create();
+		create("application/json");
 		retrieve();
 		update();
+		changePasswd();
+		delete();
 		serviceProviderConfig();
 	}
 
-	private static void create() throws Exception {
+	private static String create(String type) throws Exception {
 		HttpsURLConnection connection = (HttpsURLConnection) new URL(URL_PATTERN_LOCAL + "Users").openConnection();
 		connection.setDoOutput(true);
 		connection.setRequestProperty("Content-Type", "application/xml");
-		connection.setRequestProperty("Accept", "application/json");
+		connection.setRequestProperty("Accept", type);
 
 		S token = new S();
 	    token.setTimestamp(System.currentTimeMillis());
@@ -50,7 +54,7 @@ public class SCIMWSTest {
 						"Bearer " + encrypted);
 
 		long nanoTime = System.nanoTime();
-		makeCall(connection, "<User xmlns=\"urn:scim:schemas:core:1.0\" " +
+		String response = makeCall(connection, "<User xmlns=\"urn:scim:schemas:core:1.0\" " +
 				"xmlns:enterprise=\"urn:scim:schemas:extension:enterprise:1.0\">" +
 				"<userName>" + nanoTime + "</userName>" +
 				"<password>foobar</password>" +
@@ -64,13 +68,14 @@ public class SCIMWSTest {
 				"<addresses><address><country>FI</country></address></addresses>" +
 				"<enterprise:gender>male</enterprise:gender>" +
 				"</User>");
+		return response;
 	}
 
 	private static void retrieve() throws Exception {
+		String id = extractValue(create("application/xml"), "id");
 		HttpsURLConnection connection = (HttpsURLConnection) new URL(URL_PATTERN_LOCAL
-				+ "Users/c0c4594a-19d1-496a-9da6-af6eac2d3286").openConnection();
+				+ "Users/" + id).openConnection();
 		connection.setDoOutput(true);
-//		connection.setRequestProperty("Content-Type", "application/xml");
 		connection.setRequestProperty("Accept", "application/xml");
 		connection.setRequestProperty("X-HTTP-Method-Override", "GET");
 		S token = new S();
@@ -85,8 +90,9 @@ public class SCIMWSTest {
 	}
 
 	private static void update() throws Exception {
+		String id = extractValue(create("application/xml"), "id");
 		HttpsURLConnection connection = (HttpsURLConnection) new URL(URL_PATTERN_LOCAL
-				+ "Users/5c3f2127-d826-4843-9153-6258c3f35555").openConnection();
+				+ "Users/" + id).openConnection();
 		connection.setDoOutput(true);
 		connection.setRequestProperty("Content-Type", "application/xml");
 		connection.setRequestProperty("Accept", "application/xml");
@@ -105,8 +111,6 @@ public class SCIMWSTest {
 		makeCall(connection, "<User xmlns=\"urn:scim:schemas:core:1.0\" " +
 				"xmlns:enterprise=\"urn:scim:schemas:extension:enterprise:1.0\">" +
 				"<userName>" + nanoTime + "</userName>" +
-				"<id>bb1d0a94-445a-468f-ad27-5d98b7be890c</id>" +
-				"<password>foobar</password>" +
 				"<preferredLanguage>en_US</preferredLanguage>" +
 				"<emails>" +
 					"<email>" +
@@ -119,6 +123,47 @@ public class SCIMWSTest {
 				"</User>");
 	}
 
+	private static void changePasswd() throws Exception {
+		String id = extractValue(create("application/xml"), "id");
+		HttpsURLConnection connection = (HttpsURLConnection) new URL(URL_PATTERN_LOCAL
+				+ "Users/" + id + "/password").openConnection();
+		connection.setDoOutput(true);
+		connection.setRequestProperty("Content-Type", "application/xml");
+		connection.setRequestProperty("Accept", "application/xml");
+		connection.setRequestProperty("X-HTTP-Method-Override", "PATCH");
+
+		S token = new S();
+	    token.setTimestamp(System.currentTimeMillis());
+	    token.setPassword("foobar");
+		String encrypted = TestRSA.encrypt(token);
+		connection
+				.setRequestProperty(
+						"Authorization",
+						"Bearer " + encrypted);
+
+		makeCall(connection, "<User xmlns=\"urn:scim:schemas:core:1.0\" " +
+				"xmlns:enterprise=\"urn:scim:schemas:extension:enterprise:1.0\">" +
+				"<password>foobar2</password>" +
+				"</User>");
+	}
+
+	private static void delete() throws Exception {
+		String id = extractValue(create("application/xml"), "id");
+		HttpsURLConnection connection = (HttpsURLConnection) new URL(URL_PATTERN_LOCAL
+				+ "Users/" + id).openConnection();
+		connection.setDoOutput(true);
+		connection.setRequestProperty("X-HTTP-Method-Override", "DELETE");
+		S token = new S();
+	    token.setTimestamp(System.currentTimeMillis());
+	    token.setPassword("foobar");
+		String encrypted = TestRSA.encrypt(token);
+		connection
+				.setRequestProperty(
+						"Authorization",
+						"Bearer " + encrypted);
+		makeCall(connection, "");
+	}
+
 	private static void serviceProviderConfig() throws MalformedURLException, IOException {
 		HttpsURLConnection connection = (HttpsURLConnection) new URL(
 				URL_PATTERN_LOCAL + "ServiceProviderConfigs").openConnection();
@@ -127,7 +172,7 @@ public class SCIMWSTest {
 		makeCall(connection, "");
 	}
 
-	private static void makeCall(HttpURLConnection connection, String input) throws UnsupportedEncodingException, IOException {
+	private static String makeCall(HttpsURLConnection connection, String input) throws UnsupportedEncodingException, IOException {
 		OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream(), "UTF-8");
 		out.write(input);
 		out.flush();
@@ -139,12 +184,30 @@ public class SCIMWSTest {
 			in = new BufferedReader(
 					new InputStreamReader(connection.getErrorStream()));
 		}
+		StringBuilder response = new StringBuilder();
 		for (String s = in.readLine(); s != null; s = in.readLine()) {
+			response.append(s);
 			System.out.println(s);
 		}
 		System.out.println("----------------Response code: " + connection.getResponseCode() + "----------------");
 		
 		out.close();
 		in.close();
+		return response.toString();
+	}
+
+	private static String extractValue(String row, String attr) {
+		
+		if (row.indexOf(attr) < 0) {
+			return null;
+		}
+
+		int start = row.indexOf(attr) + attr.length() + 1;
+		int end = row.indexOf("</" + attr);
+
+		if (end < 0) {
+			return null;
+		}
+		return row.substring(start, end);
 	}
 }

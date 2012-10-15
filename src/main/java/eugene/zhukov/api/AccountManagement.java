@@ -59,7 +59,7 @@ public class AccountManagement {
 	public javax.ws.rs.core.Response retrieve(
 			@PathParam("id") UUID id, @Context HttpServletRequest request) {
 		UserDao dao = (UserDao) ApplicationContextProvider.getContext().getBean(USER_DAO);
-		checkPassword(dao.getPasswd(id), request);
+		checkPassword(dao.retrievePasswd(id), request);
 		User user = dao.retrieveUser(id);
 
 		Response response = new Response();
@@ -74,7 +74,7 @@ public class AccountManagement {
 	public javax.ws.rs.core.Response update(
 			User user, @PathParam("id") UUID id, @Context HttpServletRequest request) {
 		UserDao dao = (UserDao) ApplicationContextProvider.getContext().getBean(USER_DAO);
-		checkPassword(dao.getPasswd(id), request);
+		checkPassword(dao.retrievePasswd(id), request);
 		user.setId(id.toString());
 		dao.updateUser(user);
 
@@ -89,14 +89,24 @@ public class AccountManagement {
 	public javax.ws.rs.core.Response passwordChange(
 			@PathParam("id") UUID id, User user, @Context HttpServletRequest request) {
 		UserDao dao = (UserDao) ApplicationContextProvider.getContext().getBean(USER_DAO);
-		checkPassword(dao.getPasswd(id), request);
+		checkPassword(dao.retrievePasswd(id), request);
+		String newPassword = Utils.trimOrNull(user.getPassword());
+
+		if (newPassword == null) {
+			throw new SCIMException(BAD_REQUEST, "password:invalid");
+		}
+		dao.updatePasswd(id, newPassword);
 
 		return javax.ws.rs.core.Response.status(NO_CONTENT).build();
 	}
 
 	@DELETE
 	@Path("{id}")
-	public javax.ws.rs.core.Response remove() {
+	public javax.ws.rs.core.Response remove(@PathParam("id") UUID id, @Context HttpServletRequest request) {
+		UserDao dao = (UserDao) ApplicationContextProvider.getContext().getBean(USER_DAO);
+		checkPassword(dao.retrievePasswd(id), request);
+		dao.deleteUser(id);
+
 		return javax.ws.rs.core.Response.status(OK).build();
 	}
 

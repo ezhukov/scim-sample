@@ -50,7 +50,7 @@ public class ServiceProviderConfiguration {
 		config.setFilter(filter);
 
 		ServiceProviderConfig.Patch patch = new ServiceProviderConfig.Patch();
-		patch.setSupported(true);
+		patch.setSupported(false);
 		config.setPatch(patch);
 
 		ServiceProviderConfig.Sort sort = new ServiceProviderConfig.Sort();

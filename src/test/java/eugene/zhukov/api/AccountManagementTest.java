@@ -342,7 +342,57 @@ public class AccountManagementTest extends JerseyTest {
 		Assert.assertTrue("Expexted string from response not found.", response.indexOf("Invalid, syntactically incorrect or unparseable input provided") > 1);
 		Assert.assertTrue("Expexted string from response not found.", response.indexOf("urn:eugene.zhukov:scim:errors:1.0:input:invalid") > 1);
 	}
-	
+
+	@Test
+	public void testDelete() throws Exception {
+		long timestamp = System.currentTimeMillis();
+		String password = "pa$$word8888889!";
+
+		String input = "<User xmlns=\"urn:scim:schemas:core:1.0\" " +
+				"xmlns:enterprise=\"urn:scim:schemas:extension:enterprise:1.0\">" +
+				"<userName>" + timestamp + "</userName>" +
+				"<preferredLanguage>en_GB</preferredLanguage>" +
+				"<password>" + password + "</password>" +
+				"<emails>" +
+				"<email>" +
+				"<value>" + timestamp + "@test.com</value>" +
+				"<primary>true</primary>" +
+				"</email>" +
+				"<email>" +
+				"<value>" + timestamp + "2@test.com</value>" +
+//				"<primary>false</primary>" +
+				"</email>" +
+				"</emails>" +
+				"<addresses><address><country>FI</country></address></addresses>" +
+				"<enterprise:gender>female</enterprise:gender>" +
+				"</User>";
+		S token = new S();
+	    token.setPassword(password);
+	    token.setTimestamp(timestamp);
+		String encrypted = TestRSA.encrypt(token);
+
+		ClientResponse cr = resource().path(RESOURCE)
+				.header(
+						"Authorization",
+						"Bearer " + encrypted)
+				.type(MediaType.APPLICATION_XML).accept(MediaType.APPLICATION_XML)
+				.post(ClientResponse.class, input);
+
+		String response = cr.getEntity(String.class);
+//		System.out.println(response);
+		Assert.assertEquals("Http status code 201 expected.", 201, cr.getStatus());
+		Assert.assertTrue("Expected string from response not found.", response.indexOf("<userName>" + timestamp + "</userName>") > 1);
+
+		cr = resource().path(RESOURCE + "/" + extractValue(response, "id"))
+				.header(
+						"Authorization",
+						"Bearer " + encrypted)
+				.type(MediaType.APPLICATION_XML).accept(MediaType.APPLICATION_JSON)
+				.delete(ClientResponse.class);
+
+		Assert.assertEquals("Http status code 200 expected.", 200, cr.getStatus());
+	}
+
 //	@Test
 	public void testRegisterUserRawTwoPrimaryAddresses() {
 		String username = "" + System.currentTimeMillis();

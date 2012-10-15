@@ -146,13 +146,20 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	@Override
-	public String getPasswd(UUID userId) {
+	public String retrievePasswd(UUID userId) {
 		try {
 			return jdbcTemplate.queryForObject("select password from users where id = ?", String.class, userId);
 
 		} catch (org.springframework.dao.EmptyResultDataAccessException e) {
 			throw new SCIMException(NOT_FOUND, null, "Resource " + userId + " not found");
 		}
+	}
+
+	@Override
+	public void updatePasswd(UUID userId, String password) {
+		jdbcTemplate.update(
+				"update users set (password, lastModified) = (?,?) where id = ?",
+				password, new java.util.Date(), userId);
 	}
 
 	@Override
@@ -302,10 +309,10 @@ public class UserDaoImpl implements UserDao {
 					.append("locale,")
 					.append("timezone,")
 					.append("active,")
-					.append("password,")
+//					.append("password,")
 					.append("lastModified,")
 					.append("gender")
-					.append(") = (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) where id = ?")
+					.append(") = (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) where id = ?")
 					.toString(),
 					user.getUserName(),
 					name.getFormatted(),
@@ -323,7 +330,7 @@ public class UserDaoImpl implements UserDao {
 					user.getLocale(),
 					user.getTimezone(),
 					user.isActive(),
-					user.getPassword(),
+//					user.getPassword(),
 					new java.util.Date(),
 					user.getGender(),
 					UUID.fromString(user.getId()));
@@ -332,14 +339,22 @@ public class UserDaoImpl implements UserDao {
 			throw new SCIMException(CONFLICT, "username:reserved");
 		}
 
-		deleteMultiValuedAttrs(UUID.fromString(user.getId()),
+		deleteFromTable(UUID.fromString(user.getId()),
 				"emails", "phoneNumbers", "ims", "photos", "groups",
 				"entitlements", "roles", "x509Certificates", "addresses");
 
 		insertAttrs(user, UUID.fromString(user.getId()));
 	}
 
-	private void deleteMultiValuedAttrs(UUID userId, String...tables) {
+	@Override
+	public void deleteUser(UUID userId) {
+		jdbcTemplate.update("delete from users where id = ?", userId);
+		deleteFromTable(userId,
+				"emails", "phoneNumbers", "ims", "photos", "groups",
+				"entitlements", "roles", "x509Certificates", "addresses");
+	}
+
+	private void deleteFromTable(UUID userId, String...tables) {
 
 		for (String table : tables) {
 			jdbcTemplate.update("delete from ".concat(table).concat(" where userId = ?"), userId);
