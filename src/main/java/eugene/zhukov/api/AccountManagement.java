@@ -38,14 +38,7 @@ public class AccountManagement {
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	public javax.ws.rs.core.Response create(User user) {
 		UserDao dao = (UserDao) ApplicationContextProvider.getContext().getBean(USER_DAO);
-
-		if (user.getPreferredLanguage() != null && !Utils.isLocaleValid(user.getPreferredLanguage())) {
-			throw new SCIMException(BAD_REQUEST, "preferredLanguage:invalid");
-		}
-
-		if (user.getLocale() != null && !Utils.isLocaleValid(user.getLocale())) {
-			throw new SCIMException(BAD_REQUEST, "locale:invalid");
-		}
+		validateUser(user);
 		UUID id = dao.persistUser(user);
 
 		Response response = new Response();
@@ -60,10 +53,9 @@ public class AccountManagement {
 			@PathParam("id") UUID id, @Context HttpServletRequest request) {
 		UserDao dao = (UserDao) ApplicationContextProvider.getContext().getBean(USER_DAO);
 		checkPassword(dao.retrievePasswd(id), request);
-		User user = dao.retrieveUser(id);
 
 		Response response = new Response();
-		response.setResource(user);
+		response.setResource(dao.retrieveUser(id));
 		return javax.ws.rs.core.Response.status(OK).entity(response).build();
 	}
 
@@ -75,6 +67,7 @@ public class AccountManagement {
 			User user, @PathParam("id") UUID id, @Context HttpServletRequest request) {
 		UserDao dao = (UserDao) ApplicationContextProvider.getContext().getBean(USER_DAO);
 		checkPassword(dao.retrievePasswd(id), request);
+		validateUser(user);
 		user.setId(id.toString());
 		dao.updateUser(user);
 
@@ -90,12 +83,7 @@ public class AccountManagement {
 			@PathParam("id") UUID id, User user, @Context HttpServletRequest request) {
 		UserDao dao = (UserDao) ApplicationContextProvider.getContext().getBean(USER_DAO);
 		checkPassword(dao.retrievePasswd(id), request);
-		String newPassword = Utils.trimOrNull(user.getPassword());
-
-		if (newPassword == null) {
-			throw new SCIMException(BAD_REQUEST, "password:invalid");
-		}
-		dao.updatePasswd(id, newPassword);
+		dao.updatePasswd(id, Utils.trimOrNull(user.getPassword()));
 
 		return javax.ws.rs.core.Response.status(NO_CONTENT).build();
 	}
@@ -108,6 +96,17 @@ public class AccountManagement {
 		dao.deleteUser(id);
 
 		return javax.ws.rs.core.Response.status(OK).build();
+	}
+
+	private void validateUser(User user) {
+
+		if (user.getPreferredLanguage() != null && !Utils.isLocaleValid(user.getPreferredLanguage())) {
+			throw new SCIMException(BAD_REQUEST, "preferredLanguage:invalid");
+		}
+
+		if (user.getLocale() != null && !Utils.isLocaleValid(user.getLocale())) {
+			throw new SCIMException(BAD_REQUEST, "locale:invalid");
+		}
 	}
 
 	private void checkPassword(String dbPassword, HttpServletRequest request) {

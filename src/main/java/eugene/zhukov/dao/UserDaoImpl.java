@@ -70,15 +70,15 @@ public class UserDaoImpl implements UserDao {
 					.append("gender")
 					.append(") values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)").toString(),
 					userId,
-					user.getUserName(),
-					name.getFormatted(),
-					name.getFamilyName(),
-					name.getGivenName(),
-					name.getMiddleName(),
-					name.getHonorificPrefix(),
-					name.getHonorificSuffix(),
-					user.getDisplayName(),
-					user.getNickName(),
+					Utils.trimOrNull(user.getUserName()),
+					Utils.trimOrNull(name.getFormatted()),
+					Utils.trimOrNull(name.getFamilyName()),
+					Utils.trimOrNull(name.getGivenName()),
+					Utils.trimOrNull(name.getMiddleName()),
+					Utils.trimOrNull(name.getHonorificPrefix()),
+					Utils.trimOrNull(name.getHonorificSuffix()),
+					Utils.trimOrNull(user.getDisplayName()),
+					Utils.trimOrNull(user.getNickName()),
 					user.getProfileUrl(),
 					user.getTitle(),
 					user.getUserType(),
@@ -86,7 +86,7 @@ public class UserDaoImpl implements UserDao {
 					user.getLocale(),
 					user.getTimezone(),
 					true,
-					user.getPassword(),
+					Utils.trimOrNull(user.getPassword()),
 					dateTime,
 					dateTime,
 					"/Users/" + userId,
@@ -100,49 +100,6 @@ public class UserDaoImpl implements UserDao {
 		insertAttrs(user, userId);
 
 		return userId;
-	}
-	
-	private void insertAttrs(User user, UUID userId) {
-		try {
-			if (user.getEmails() != null) {
-				insertMultiValuedAttrs(user.getEmails().getEmail(), "emails", userId);
-			}
-
-		} catch (DuplicateKeyException e) {
-			throw new SCIMException(CONFLICT, "email:reserved");
-		}
-
-		if (user.getPhoneNumbers() != null) {
-			insertMultiValuedAttrs(user.getPhoneNumbers().getPhoneNumber(), "phoneNumbers", userId);
-		}
-
-		if (user.getIms() != null) {
-			insertMultiValuedAttrs(user.getIms().getIm(), "ims", userId);
-		}
-
-		if (user.getPhotos() != null) {
-			insertMultiValuedAttrs(user.getPhotos().getPhoto(), "photos", userId);
-		}
-
-		if (user.getGroups() != null) {
-			insertMultiValuedAttrs(user.getGroups().getGroup(), "groups", userId);
-		}
-
-		if (user.getEntitlements() != null) {
-			insertMultiValuedAttrs(user.getEntitlements().getEntitlement(), "entitlements", userId);
-		}
-
-		if (user.getRoles() != null) {
-			insertMultiValuedAttrs(user.getRoles().getRole(), "roles", userId);
-		}
-
-		if (user.getX509Certificates() != null) {
-			insertMultiValuedAttrs(user.getX509Certificates().getX509Certificate(), "x509Certificates", userId);
-		}
-
-		if (user.getAddresses() != null) {
-			insertAddresses(user.getAddresses().getAddress(), userId);
-		}
 	}
 
 	@Override
@@ -173,12 +130,12 @@ public class UserDaoImpl implements UserDao {
 				user.setUserName(resultSet.getString("username"));
 
 				Name name = new Name();
-				name.setFormatted(Utils.trimOrNull(resultSet.getString("formattedName")));
-				name.setFamilyName(Utils.trimOrNull(resultSet.getString("familyName")));
-				name.setGivenName(Utils.trimOrNull(resultSet.getString("givenName")));
-				name.setHonorificPrefix(Utils.trimOrNull(resultSet.getString("honorificPrefix")));
-				name.setHonorificSuffix(Utils.trimOrNull(resultSet.getString("honorificSuffix")));
-				name.setMiddleName(Utils.trimOrNull(resultSet.getString("middleName")));
+				name.setFormatted(resultSet.getString("formattedName"));
+				name.setFamilyName(resultSet.getString("familyName"));
+				name.setGivenName(resultSet.getString("givenName"));
+				name.setHonorificPrefix(resultSet.getString("honorificPrefix"));
+				name.setHonorificSuffix(resultSet.getString("honorificSuffix"));
+				name.setMiddleName(resultSet.getString("middleName"));
 
 				if (name.getFormatted() != null
 						|| name.getFamilyName() != null
@@ -309,20 +266,19 @@ public class UserDaoImpl implements UserDao {
 					.append("locale,")
 					.append("timezone,")
 					.append("active,")
-//					.append("password,")
 					.append("lastModified,")
 					.append("gender")
 					.append(") = (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) where id = ?")
 					.toString(),
-					user.getUserName(),
-					name.getFormatted(),
-					name.getFamilyName(),
-					name.getGivenName(),
-					name.getMiddleName(),
-					name.getHonorificPrefix(),
-					name.getHonorificSuffix(),
-					user.getDisplayName(),
-					user.getNickName(),
+					Utils.trimOrNull(user.getUserName()),
+					Utils.trimOrNull(name.getFormatted()),
+					Utils.trimOrNull(name.getFamilyName()),
+					Utils.trimOrNull(name.getGivenName()),
+					Utils.trimOrNull(name.getMiddleName()),
+					Utils.trimOrNull(name.getHonorificPrefix()),
+					Utils.trimOrNull(name.getHonorificSuffix()),
+					Utils.trimOrNull(user.getDisplayName()),
+					Utils.trimOrNull(user.getNickName()),
 					user.getProfileUrl(),
 					user.getTitle(),
 					user.getUserType(),
@@ -330,7 +286,6 @@ public class UserDaoImpl implements UserDao {
 					user.getLocale(),
 					user.getTimezone(),
 					user.isActive(),
-//					user.getPassword(),
 					new java.util.Date(),
 					user.getGender(),
 					UUID.fromString(user.getId()));
@@ -352,6 +307,49 @@ public class UserDaoImpl implements UserDao {
 		deleteFromTable(userId,
 				"emails", "phoneNumbers", "ims", "photos", "groups",
 				"entitlements", "roles", "x509Certificates", "addresses");
+	}
+
+	private void insertAttrs(User user, UUID userId) {
+		try {
+			if (user.getEmails() != null) {
+				insertMultiValuedAttrs(user.getEmails().getEmail(), "emails", userId);
+			}
+
+		} catch (DuplicateKeyException e) {
+			throw new SCIMException(CONFLICT, "email:reserved");
+		}
+
+		if (user.getPhoneNumbers() != null) {
+			insertMultiValuedAttrs(user.getPhoneNumbers().getPhoneNumber(), "phoneNumbers", userId);
+		}
+
+		if (user.getIms() != null) {
+			insertMultiValuedAttrs(user.getIms().getIm(), "ims", userId);
+		}
+
+		if (user.getPhotos() != null) {
+			insertMultiValuedAttrs(user.getPhotos().getPhoto(), "photos", userId);
+		}
+
+		if (user.getGroups() != null) {
+			insertMultiValuedAttrs(user.getGroups().getGroup(), "groups", userId);
+		}
+
+		if (user.getEntitlements() != null) {
+			insertMultiValuedAttrs(user.getEntitlements().getEntitlement(), "entitlements", userId);
+		}
+
+		if (user.getRoles() != null) {
+			insertMultiValuedAttrs(user.getRoles().getRole(), "roles", userId);
+		}
+
+		if (user.getX509Certificates() != null) {
+			insertMultiValuedAttrs(user.getX509Certificates().getX509Certificate(), "x509Certificates", userId);
+		}
+
+		if (user.getAddresses() != null) {
+			insertAddresses(user.getAddresses().getAddress(), userId);
+		}
 	}
 
 	private void deleteFromTable(UUID userId, String...tables) {
