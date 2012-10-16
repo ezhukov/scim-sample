@@ -65,8 +65,11 @@ public class SCIMFilter implements Filter {
 		}
 		SecureToken token = Utils.decryptToken(
 				authorizationHeader.substring(BEARER_PREFIX.length(), authorizationHeader.length()));
+		long currentTimeMillis = System.currentTimeMillis();
 
-		if (token == null || token.getTimestamp() + TOKEN_VALIDITY_TIME_IN_MILLIS < System.currentTimeMillis()) {
+		if (token == null
+				|| token.getTimestamp() > currentTimeMillis
+				|| token.getTimestamp() + TOKEN_VALIDITY_TIME_IN_MILLIS < currentTimeMillis) {
 			return false;
 		}
 		request.setAttribute("password", token.getPassword());

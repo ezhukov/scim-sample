@@ -1,0 +1,121 @@
+<html>
+  <head>
+    <title>OAuth 2.0 Authorization</title>
+  </head>
+  <link href="formatting/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="formatting/prettify.js"></script>
+  <body bgcolor="white" onload="prettyPrint()">
+
+    <table border="0" cellpadding="10">
+      <tr>
+        <td>
+          <h2>OAuth 2.0 Authorization</h2>
+        </td>
+      </tr>
+    </table>
+
+    <p>The "Bearer" OAuth Access Token is required to authenticate. Here is an example of how to create that token (in Java 6 or later).</p>
+    <table border="0" cellpadding="10">
+      <tr>
+        <td>
+          >
+        </td>
+        <td>
+          First define token object similar to this:
+        </td>
+      </tr>
+    </table>
+    <pre class="prettyprint">
+      <code class="language-java">
+public class Token implements java.io.Externalizable {
+
+    private static final long serialVersionUID = 48346345L;
+
+    // password of the user you are trying to authenticate
+    private String password;
+
+    // current timestamp, token becomes invalid within one minute
+    private long timestamp;
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    @Override
+    public void writeExternal(java.io.ObjectOutput out) throws java.io.IOException {
+        out.writeObject(password);
+        out.writeLong(timestamp);
+    }
+
+    @Override
+    public void readExternal(java.io.ObjectInput in)
+            throws java.io.IOException, ClassNotFoundException {
+        password = (String) in.readObject();
+        timestamp = in.readLong();
+    }
+}
+    </code></pre>
+    
+    <table border="0" cellpadding="10">
+      <tr>
+        <td>
+          >
+        </td>
+        <td>
+          Then read <a href="public_key.der">this</a> public key as byte array.
+        </td>
+      </tr>
+    </table>
+    
+    <table border="0" cellpadding="10">
+      <tr>
+        <td>
+          >
+        </td>
+        <td>
+          Then, with this token object and public key, you are ready to create a token String:
+        </td>
+      </tr>
+    </table>
+
+    <pre class="prettyprint"><code class="language-java">
+    public static String encrypt(Token token, byte[] publicKey) throws Exception {
+        javax.crypto.Cipher c = javax.crypto.Cipher.getInstance("RSA");
+        java.security.spec.X509EncodedKeySpec spec
+                = new java.security.spec.X509EncodedKeySpec(publicKey);
+        c.init(javax.crypto.Cipher.ENCRYPT_MODE,
+                java.security.KeyFactory.getInstance("RSA").generatePublic(spec));
+
+        java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+        java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(baos);
+        out.writeObject(token);
+        out.flush();
+
+        byte[] tokenBytes = baos.toByteArray();
+        baos = new java.io.ByteArrayOutputStream();
+        javax.crypto.CipherOutputStream cout = new javax.crypto.CipherOutputStream(baos, c);
+        cout.write(tokenBytes);
+        cout.close();
+
+        return javax.xml.bind.DatatypeConverter.printBase64Binary(baos.toByteArray());
+    }
+    </code></pre>
+
+    <p>The output of the above function should be used in Authorization header as "Bearer ...". For example:
+    </br>
+    "Bearer bN9B2rMAtWG7xC/pYcEj9bYk9Iu2F1yiw0OSj+lLOK60bzuNWiukRD6gAKR1c6SRVRJFvOQVJ4FfhFYf8k0vqg265TWLR9ttZHZwhC4AyekFH0Bot3icpTC9SPdtVIULOcJPwLcyE89OpqSv31q2Ccdlxq1B70p5woqFeZHhwEw="
+    </p>
+  </body>
+</html>
