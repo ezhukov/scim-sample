@@ -51,7 +51,7 @@ public class SCIMFilter implements Filter {
 
 		chain.doFilter(req, resp);
 	}
-	
+
 	private static boolean isAccessGranted(HttpServletRequest request) {
 
 		if ("GET".equalsIgnoreCase(request.getMethod())
