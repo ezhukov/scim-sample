@@ -28,7 +28,7 @@ public class SCIMFilter implements Filter {
 	private static final String AUTHORIZATION_HEADER = "Authorization";
 	private static final String METHOD_OVERRIDE = "X-HTTP-Method-Override";
 	private static final String BEARER_PREFIX = "Bearer ";
-	private static final long TOKEN_VALIDITY_TIME_IN_MILLIS = 60000; // one minute
+	private static final long TOKEN_VALIDITY_TIME_IN_MILLIS = 5 * 60000; // five minutes
 
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response,
