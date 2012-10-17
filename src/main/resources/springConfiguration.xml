@@ -48,6 +48,7 @@
 }]]></value>
         </property>
         <property name="privateKey" value="classpath:private_key.der"/>
+        <property name="tokenValidityTime" value="60000"/>
     </bean>
 
 	<tx:advice id="txAdvice">

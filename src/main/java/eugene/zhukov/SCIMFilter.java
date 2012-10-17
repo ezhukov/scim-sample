@@ -28,7 +28,6 @@ public class SCIMFilter implements Filter {
 	private static final String AUTHORIZATION_HEADER = "Authorization";
 	private static final String METHOD_OVERRIDE = "X-HTTP-Method-Override";
 	private static final String BEARER_PREFIX = "Bearer ";
-	private static final long TOKEN_VALIDITY_TIME_IN_MILLIS = 5 * 60000; // five minutes
 
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response,
@@ -39,7 +38,7 @@ public class SCIMFilter implements Filter {
 		SecurityConfig securityConfig = (SecurityConfig) ApplicationContextProvider
 				.getContext().getBean(ApplicationContextProvider.SECURITY_CONFIG);
 
-		if (!isAccessGranted(req)) {
+		if (!isAccessGranted(req, securityConfig.getTokenValidityTime())) {
 			resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			PrintWriter out = new PrintWriter(response.getWriter(), true);
 			out.println(MediaType.APPLICATION_XML.equals(req.getHeader(ACCEPT_HEADER))
@@ -52,7 +51,7 @@ public class SCIMFilter implements Filter {
 		chain.doFilter(req, resp);
 	}
 
-	private static boolean isAccessGranted(HttpServletRequest request) {
+	private static boolean isAccessGranted(HttpServletRequest request, long tokenValidityTime) {
 
 		if ("GET".equalsIgnoreCase(request.getMethod())
 				&& API_VERSION.concat(ENDPOINT_SERVICE_PROVIDER_CONFIGS).equals(request.getPathInfo())) {
@@ -68,8 +67,8 @@ public class SCIMFilter implements Filter {
 		long currentTimeMillis = System.currentTimeMillis();
 
 		if (token == null
-				|| token.getTimestamp() > currentTimeMillis
-				|| token.getTimestamp() + TOKEN_VALIDITY_TIME_IN_MILLIS < currentTimeMillis) {
+				|| token.getTimestamp() > currentTimeMillis + tokenValidityTime
+				|| token.getTimestamp() + tokenValidityTime < currentTimeMillis) {
 			return false;
 		}
 		request.setAttribute("password", token.getPassword());
