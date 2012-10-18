@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.logging.Logger;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
@@ -24,6 +25,8 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import eugene.zhukov.ApplicationContextProvider;
 
 public class Utils {
+
+	private static Logger logger = Logger.getLogger(Utils.class.getName());
 
 	private final static String ALGORITHM = "RSA";
 	private final static String TIME_ZONE = "UTC";
@@ -45,14 +48,14 @@ public class Utils {
 					.generatePrivate(new PKCS8EncodedKeySpec(privateKeyBinary));
 
 		} catch (IOException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeySpecException e) {
-			e.printStackTrace();
+			logger.fine(e.getMessage());
 		}
 
 		try {
 			datatypeFactory = DatatypeFactory.newInstance();
 
 		} catch (DatatypeConfigurationException e) {
-			e.printStackTrace();
+			logger.fine(e.getMessage());
 		}
 	}
 
@@ -69,11 +72,8 @@ public class Utils {
 			return (SecureToken) new TokenObjectInputStream(new CipherInputStream(
 		    		new ByteArrayInputStream(DatatypeConverter.parseBase64Binary(token)), cipher)).readObject();
 
-		} catch (ArrayIndexOutOfBoundsException e) {
-			return null;
-
-		} catch (IOException | ClassNotFoundException | InvalidKeyException e) {
-			e.printStackTrace();
+		} catch (IOException | ClassNotFoundException | InvalidKeyException | ArrayIndexOutOfBoundsException e) {
+			logger.fine(e.getMessage());
 			return null;
 		}
 	}
