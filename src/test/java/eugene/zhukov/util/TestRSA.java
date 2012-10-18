@@ -51,25 +51,40 @@ public class TestRSA {
 	}
 
 	public static String encrypt(S token) throws Exception {
-		javax.crypto.Cipher c = javax.crypto.Cipher.getInstance("RSA");
-		java.security.spec.X509EncodedKeySpec spec = new java.security.spec.X509EncodedKeySpec(getKeyBytes("public_key.der"));
-	    c.init(javax.crypto.Cipher.ENCRYPT_MODE, java.security.KeyFactory.getInstance("RSA").generatePublic(spec));
-
-	    java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
-	    java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(baos);
-        out.writeObject(token);
-        out.flush();
-
-        byte[] tokenBytes = baos.toByteArray();
-//        System.out.println("Byte array length before encryption: " + tokenBytes.length);
-
-        baos = new java.io.ByteArrayOutputStream();
-        javax.crypto.CipherOutputStream cout = new javax.crypto.CipherOutputStream(baos, c);
-        cout.write(tokenBytes);
-        cout.close();
-
-        return javax.xml.bind.DatatypeConverter.printBase64Binary(baos.toByteArray());
+		return encrypt(token, getKeyBytes("public_key.der"));
 	}
+	
+	public static String encrypt(S token, byte[] publicKey) throws Exception {
+		String algorithm = "RSA";
+        javax.crypto.Cipher cipher
+                = javax.crypto.Cipher.getInstance(algorithm);
+
+        java.security.spec.X509EncodedKeySpec keySpec
+                = new java.security.spec.X509EncodedKeySpec(publicKey);
+
+        cipher.init(javax.crypto.Cipher.ENCRYPT_MODE,
+                java.security.KeyFactory.getInstance(
+                        algorithm).generatePublic(keySpec));
+
+        java.io.ByteArrayOutputStream tokenByteStream
+                = new java.io.ByteArrayOutputStream();
+
+        java.io.ObjectOutputStream tokenObjectStream
+                = new java.io.ObjectOutputStream(tokenByteStream);
+        tokenObjectStream.writeObject(token);
+        tokenObjectStream.flush();
+        // System.out.println("Byte array length before encryption: " + tokenByteStream.toByteArray().length);
+        java.io.ByteArrayOutputStream encryptedTokenStream
+                = new java.io.ByteArrayOutputStream();
+        javax.crypto.CipherOutputStream cipherOutStream
+                = new javax.crypto.CipherOutputStream(
+                        encryptedTokenStream, cipher);
+        cipherOutStream.write(tokenByteStream.toByteArray());
+        cipherOutStream.close();
+
+        return javax.xml.bind.DatatypeConverter
+                .printBase64Binary(encryptedTokenStream.toByteArray());
+    }
 
 	private static byte[] getKeyBytes(String key) throws Exception {
 		java.io.InputStream is = ClassLoader.getSystemResourceAsStream(key);
