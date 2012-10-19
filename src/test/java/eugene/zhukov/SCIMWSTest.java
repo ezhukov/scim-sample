@@ -37,6 +37,8 @@ public class SCIMWSTest {
 		changePasswd();
 		delete();
 		serviceProviderConfig();
+		groups();
+		schemas();
 	}
 
 	private static String create(String type) throws Exception {
@@ -167,6 +169,28 @@ public class SCIMWSTest {
 	private static void serviceProviderConfig() throws MalformedURLException, IOException {
 		HttpsURLConnection connection = (HttpsURLConnection) new URL(
 				URL_PATTERN_LOCAL + "ServiceProviderConfigs").openConnection();
+		connection.setDoOutput(true);
+		connection.setRequestProperty("X-HTTP-Method-Override", "GET");
+		makeCall(connection, "");
+	}
+
+	private static void groups() throws Exception {
+		HttpsURLConnection connection = (HttpsURLConnection) new URL(
+				URL_PATTERN_LOCAL + "Groups").openConnection();
+		connection.setDoOutput(true);
+		S token = new S();
+	    token.setTimestamp(System.currentTimeMillis());
+		String encrypted = TestRSA.encrypt(token);
+		connection
+				.setRequestProperty(
+						"Authorization",
+						"Bearer " + encrypted);
+		makeCall(connection, "");
+	}
+
+	private static void schemas() throws MalformedURLException, IOException {
+		HttpsURLConnection connection = (HttpsURLConnection) new URL(
+				URL_PATTERN_LOCAL + "Schemas").openConnection();
 		connection.setDoOutput(true);
 		connection.setRequestProperty("X-HTTP-Method-Override", "GET");
 		makeCall(connection, "");
