@@ -19,14 +19,14 @@ import eugene.zhukov.SCIMFilter;
 import eugene.zhukov.util.S;
 import eugene.zhukov.util.TestRSA;
 
-public class AccountManagementTest extends JerseyTest {
+public class UsersEndpointTest extends JerseyTest {
 
 	private static final String RESOURCE = "v1/Users";
 
 	private static final AppDescriptor APP_DESCRIPTOR
 			= new WebAppDescriptor.Builder("eugene.zhukov").addFilter(SCIMFilter.class, "f").build();
 
-	public AccountManagementTest() {
+	public UsersEndpointTest() {
 		super(APP_DESCRIPTOR);
 	}
 

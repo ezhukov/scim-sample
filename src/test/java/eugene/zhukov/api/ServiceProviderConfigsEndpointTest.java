@@ -15,12 +15,12 @@ import com.sun.jersey.test.framework.WebAppDescriptor;
 import eugene.zhukov.ApplicationContextProvider;
 import eugene.zhukov.SCIMFilter;
 
-public class ServiceProviderConfigurationTest extends JerseyTest {
+public class ServiceProviderConfigsEndpointTest extends JerseyTest {
 
 	private static final AppDescriptor APP_DESCRIPTOR
 			= new WebAppDescriptor.Builder("eugene.zhukov").addFilter(SCIMFilter.class, "f").build();
 	
-	public ServiceProviderConfigurationTest() {
+	public ServiceProviderConfigsEndpointTest() {
 		super(APP_DESCRIPTOR);
 	}
 

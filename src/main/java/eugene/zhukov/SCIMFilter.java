@@ -23,6 +23,8 @@ public class SCIMFilter implements Filter {
 	public static final String API_VERSION = "/v1";
 	public static final String ENDPOINT_SERVICE_PROVIDER_CONFIGS = "/ServiceProviderConfigs";
 	public static final String ENDPOINT_USERS = "/Users";
+	public static final String ENDPOINT_GROUPS = "/Groups";
+	public static final String ENDPOINT_SCHEMAS = "/Schemas";
 
 	private static final String ACCEPT_HEADER = "Accept";
 	private static final String AUTHORIZATION_HEADER = "Authorization";
@@ -54,7 +56,8 @@ public class SCIMFilter implements Filter {
 	private static boolean isAccessGranted(HttpServletRequest request, long tokenValidityTime) {
 
 		if ("GET".equalsIgnoreCase(request.getMethod())
-				&& API_VERSION.concat(ENDPOINT_SERVICE_PROVIDER_CONFIGS).equals(request.getPathInfo())) {
+				&& (API_VERSION.concat(ENDPOINT_SERVICE_PROVIDER_CONFIGS).equals(request.getPathInfo())
+				|| 	API_VERSION.concat(ENDPOINT_SCHEMAS).equals(request.getPathInfo()))) {
 			return true;
 		}
 		String authorizationHeader = request.getHeader(AUTHORIZATION_HEADER);

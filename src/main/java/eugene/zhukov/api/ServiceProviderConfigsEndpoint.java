@@ -14,7 +14,7 @@ import scim.schemas.v1.Response;
 import scim.schemas.v1.ServiceProviderConfig;
 
 @Path(API_VERSION + ENDPOINT_SERVICE_PROVIDER_CONFIGS)
-public class ServiceProviderConfiguration {
+public class ServiceProviderConfigsEndpoint {
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })

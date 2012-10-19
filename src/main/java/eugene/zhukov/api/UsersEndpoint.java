@@ -31,7 +31,7 @@ import eugene.zhukov.dao.UserDao;
 import eugene.zhukov.util.Utils;
 
 @Path(API_VERSION + ENDPOINT_USERS)
-public class AccountManagement {
+public class UsersEndpoint {
 
 	@POST
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
