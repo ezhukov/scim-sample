@@ -33,6 +33,7 @@ public class SCIMWSTest {
 	public static void main(String[] args) throws Exception {
 		create("application/json");
 		retrieve();
+		retrieveNotModified();
 		update();
 		changePasswd();
 		delete();
@@ -41,7 +42,7 @@ public class SCIMWSTest {
 		schemas();
 	}
 
-	private static String create(String type) throws Exception {
+	private static String[] create(String type) throws Exception {
 		HttpsURLConnection connection = (HttpsURLConnection) new URL(URL_PATTERN_LOCAL + "Users").openConnection();
 		connection.setDoOutput(true);
 		connection.setRequestProperty("Content-Type", "application/xml");
@@ -70,13 +71,14 @@ public class SCIMWSTest {
 				"<addresses><address><country>FI</country></address></addresses>" +
 				"<enterprise:gender>male</enterprise:gender>" +
 				"</User>");
-		return response;
+		String id = extractValue(response, "id");
+		return new String[] {id, connection.getHeaderField("ETag")};
 	}
 
 	private static void retrieve() throws Exception {
-		String id = extractValue(create("application/xml"), "id");
+		String[] created = create("application/xml");
 		HttpsURLConnection connection = (HttpsURLConnection) new URL(URL_PATTERN_LOCAL
-				+ "Users/" + id).openConnection();
+				+ "Users/" + created[0]).openConnection();
 		connection.setDoOutput(true);
 		connection.setRequestProperty("Accept", "application/xml");
 		connection.setRequestProperty("X-HTTP-Method-Override", "GET");
@@ -91,14 +93,34 @@ public class SCIMWSTest {
 		makeCall(connection, "");
 	}
 
-	private static void update() throws Exception {
-		String id = extractValue(create("application/xml"), "id");
+	private static void retrieveNotModified() throws Exception {
+		String[] created = create("application/xml");
 		HttpsURLConnection connection = (HttpsURLConnection) new URL(URL_PATTERN_LOCAL
-				+ "Users/" + id).openConnection();
+				+ "Users/" + created[0]).openConnection();
+		connection.setDoOutput(true);
+		connection.setRequestProperty("Accept", "application/xml");
+		connection.setRequestProperty("X-HTTP-Method-Override", "GET");
+		connection.setRequestProperty("If-None-Match", created[1]);
+		S token = new S();
+	    token.setTimestamp(System.currentTimeMillis());
+	    token.setPassword("foobar");
+		String encrypted = TestRSA.encrypt(token);
+		connection
+				.setRequestProperty(
+						"Authorization",
+						"Bearer " + encrypted);
+		makeCall(connection, "");
+	}
+
+	private static void update() throws Exception {
+		String[] created = create("application/xml");
+		HttpsURLConnection connection = (HttpsURLConnection) new URL(URL_PATTERN_LOCAL
+				+ "Users/" + created[0]).openConnection();
 		connection.setDoOutput(true);
 		connection.setRequestProperty("Content-Type", "application/xml");
-		connection.setRequestProperty("Accept", "application/xml");
+		connection.setRequestProperty("Accept", "application/json");
 		connection.setRequestProperty("X-HTTP-Method-Override", "PUT");
+		connection.setRequestProperty("If-Match", created[1]);
 
 		S token = new S();
 	    token.setTimestamp(System.currentTimeMillis());
@@ -126,13 +148,14 @@ public class SCIMWSTest {
 	}
 
 	private static void changePasswd() throws Exception {
-		String id = extractValue(create("application/xml"), "id");
+		String[] created = create("application/xml");
 		HttpsURLConnection connection = (HttpsURLConnection) new URL(URL_PATTERN_LOCAL
-				+ "Users/" + id + "/password").openConnection();
+				+ "Users/" + created[0] + "/password").openConnection();
 		connection.setDoOutput(true);
 		connection.setRequestProperty("Content-Type", "application/xml");
-		connection.setRequestProperty("Accept", "application/xml");
+		connection.setRequestProperty("Accept", "application/json");
 		connection.setRequestProperty("X-HTTP-Method-Override", "PATCH");
+		connection.setRequestProperty("If-Match", created[1]);
 
 		S token = new S();
 	    token.setTimestamp(System.currentTimeMillis());
@@ -150,9 +173,9 @@ public class SCIMWSTest {
 	}
 
 	private static void delete() throws Exception {
-		String id = extractValue(create("application/xml"), "id");
+		String[] created = create("application/xml");
 		HttpsURLConnection connection = (HttpsURLConnection) new URL(URL_PATTERN_LOCAL
-				+ "Users/" + id).openConnection();
+				+ "Users/" + created[0]).openConnection();
 		connection.setDoOutput(true);
 		connection.setRequestProperty("X-HTTP-Method-Override", "DELETE");
 		S token = new S();

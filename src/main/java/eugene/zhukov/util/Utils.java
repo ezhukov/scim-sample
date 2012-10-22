@@ -1,9 +1,8 @@
 package eugene.zhukov.util;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.MessageDigest;
@@ -33,6 +32,7 @@ public class Utils {
 
 	private final static String ALGORITHM = "RSA";
 	private final static String TIME_ZONE = "UTC";
+	private final static String CHARSET_NAME = "UTF-8";
 
 	private static Cipher cipher;
 	private static DatatypeFactory datatypeFactory;
@@ -51,14 +51,14 @@ public class Utils {
 					.generatePrivate(new PKCS8EncodedKeySpec(privateKeyBinary));
 
 		} catch (IOException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeySpecException e) {
-			logger.fine(e.getMessage());
+			logger.fine(e.toString());
 		}
 
 		try {
 			datatypeFactory = DatatypeFactory.newInstance();
 
 		} catch (DatatypeConfigurationException e) {
-			logger.fine(e.getMessage());
+			logger.fine(e.toString());
 		}
 	}
 
@@ -76,7 +76,7 @@ public class Utils {
 		    		new ByteArrayInputStream(DatatypeConverter.parseBase64Binary(token)), cipher)).readObject();
 
 		} catch (IOException | ClassNotFoundException | InvalidKeyException | ArrayIndexOutOfBoundsException e) {
-			logger.fine(e.getMessage());
+			logger.fine(e.toString());
 			return null;
 		}
 	}
@@ -136,20 +136,13 @@ public class Utils {
 
 	public static String toSHA1(java.util.Date dateTime) {
 		try {
-			ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-
-			ObjectOutputStream objectStream
-			        = new ObjectOutputStream(byteStream);
-			objectStream.writeObject(dateTime);
-			objectStream.flush();
-
 		    MessageDigest md = MessageDigest.getInstance("SHA-1");
-		    byte[] digested = md.digest(byteStream.toByteArray());
-		    byteStream.close();
+		    byte[] digested = md.digest(dateTime.toString().getBytes(CHARSET_NAME));
 
 		    return DatatypeConverter.printBase64Binary(digested);
-		} catch(NoSuchAlgorithmException | IOException e) {
-			logger.fine(e.getMessage());
+
+		} catch(NoSuchAlgorithmException | UnsupportedEncodingException e) {
+			logger.fine(e.toString());
 	        return null;
 	    }
 	}
