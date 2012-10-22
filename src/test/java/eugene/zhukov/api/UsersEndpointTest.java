@@ -2,6 +2,7 @@ package eugene.zhukov.api;
 
 import java.util.HashMap;
 
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
 import org.junit.Assert;
@@ -150,6 +151,7 @@ public class UsersEndpointTest extends JerseyTest {
 				.header(
 						"Authorization",
 						"Bearer " + encrypted)
+				.header(HttpHeaders.IF_MATCH, response.getEntityTag())
 				.type(MediaType.APPLICATION_XML).accept(MediaType.APPLICATION_XML)
 				.put(ClientResponse.class, responseContent);
 		

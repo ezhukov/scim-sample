@@ -1,9 +1,12 @@
 package eugene.zhukov.util;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.spec.InvalidKeySpecException;
@@ -129,5 +132,29 @@ public class Utils {
 	public static String trimOrNull(String s) {
 		s = s != null ? s.trim() : s;
 		return s != null && s.length() > 0 ? s : null;
+	}
+
+	public static String toSHA1(java.util.Date dateTime) {
+		try {
+			ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+
+			ObjectOutputStream objectStream
+			        = new ObjectOutputStream(byteStream);
+			objectStream.writeObject(dateTime);
+			objectStream.flush();
+
+		    MessageDigest md = MessageDigest.getInstance("SHA-1");
+		    byte[] digested = md.digest(byteStream.toByteArray());
+		    byteStream.close();
+
+		    return DatatypeConverter.printBase64Binary(digested);
+		} catch(NoSuchAlgorithmException | IOException e) {
+			logger.fine(e.getMessage());
+	        return null;
+	    }
+	}
+
+	public static String createVersion(java.util.Date dateTime) {
+		    return "\"" + toSHA1(dateTime) + "\"";
 	}
 }

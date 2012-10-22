@@ -10,11 +10,13 @@ public interface UserDao {
 
 	User retrieveUser(UUID userId);
 
-	void updateUser(User user);
+	void updateUser(User user, String eTag);
 
 	void deleteUser(UUID userId);
 
 	String retrievePasswd(UUID userId);
 
-	void updatePasswd(UUID userId, String password);
+	String updatePasswd(UUID userId, String password, String eTag);
+
+	String retrieveETag(UUID userId);
 }

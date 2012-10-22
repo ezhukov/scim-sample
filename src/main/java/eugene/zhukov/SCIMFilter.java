@@ -12,7 +12,10 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.xml.ws.BindingProvider;
 
 import eugene.zhukov.util.SecureToken;
 import eugene.zhukov.util.SecurityConfig;
@@ -26,8 +29,6 @@ public class SCIMFilter implements Filter {
 	public static final String ENDPOINT_GROUPS = "/Groups";
 	public static final String ENDPOINT_SCHEMAS = "/Schemas";
 
-	private static final String ACCEPT_HEADER = "Accept";
-	private static final String AUTHORIZATION_HEADER = "Authorization";
 	private static final String METHOD_OVERRIDE = "X-HTTP-Method-Override";
 	private static final String BEARER_PREFIX = "Bearer ";
 
@@ -43,7 +44,7 @@ public class SCIMFilter implements Filter {
 		if (!isAccessGranted(req, securityConfig.getTokenValidityTime())) {
 			resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			PrintWriter out = new PrintWriter(response.getWriter(), true);
-			out.println(MediaType.APPLICATION_XML.equals(req.getHeader(ACCEPT_HEADER))
+			out.println(MediaType.APPLICATION_XML.equals(req.getHeader(HttpHeaders.ACCEPT))
 					? securityConfig.getUnauthorizedXML()
 					: securityConfig.getUnauthorizedJSON());
 			out.close();
@@ -55,12 +56,12 @@ public class SCIMFilter implements Filter {
 
 	private static boolean isAccessGranted(HttpServletRequest request, long tokenValidityTime) {
 
-		if ("GET".equalsIgnoreCase(request.getMethod())
+		if (HttpMethod.GET.equalsIgnoreCase(request.getMethod())
 				&& (API_VERSION.concat(ENDPOINT_SERVICE_PROVIDER_CONFIGS).equals(request.getPathInfo())
 				|| 	API_VERSION.concat(ENDPOINT_SCHEMAS).equals(request.getPathInfo()))) {
 			return true;
 		}
-		String authorizationHeader = request.getHeader(AUTHORIZATION_HEADER);
+		String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
 		if (authorizationHeader == null || !authorizationHeader.startsWith(BEARER_PREFIX)) {
 			return false;
@@ -74,7 +75,7 @@ public class SCIMFilter implements Filter {
 				|| token.getTimestamp() + tokenValidityTime < currentTimeMillis) {
 			return false;
 		}
-		request.setAttribute("password", token.getPassword());
+		request.setAttribute(BindingProvider.PASSWORD_PROPERTY, token.getPassword());
 		return true;
 	}
 

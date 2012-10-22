@@ -42,7 +42,7 @@ public class ServiceProviderConfigsEndpoint {
 		config.setChangePassword(changePassword);
 
 		ServiceProviderConfig.Etag etag = new ServiceProviderConfig.Etag();
-		etag.setSupported(false);
+		etag.setSupported(true);
 		config.setEtag(etag);
 
 		ServiceProviderConfig.Filter filter = new ServiceProviderConfig.Filter();

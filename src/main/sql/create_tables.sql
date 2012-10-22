@@ -41,10 +41,10 @@ CREATE TABLE users (
     timezone          varchar(100),
     active            boolean,
     password          varchar(30),
-    created           timestamp with time zone,
-    lastModified      timestamp with time zone,
-    location          varchar(255),
-    version           varchar(10),
+    created           timestamp with time zone not null,
+    lastModified      timestamp with time zone not null,
+    location          varchar(255) not null,
+    version           varchar(100) not null,
     gender            varchar(6)
 );
 

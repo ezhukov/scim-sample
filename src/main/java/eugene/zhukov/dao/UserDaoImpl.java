@@ -2,6 +2,7 @@ package eugene.zhukov.dao;
 
 import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static javax.ws.rs.core.Response.Status.PRECONDITION_FAILED;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -90,13 +91,13 @@ public class UserDaoImpl implements UserDao {
 					dateTime,
 					dateTime,
 					"/Users/" + userId,
-					"v1",
+					Utils.createVersion(dateTime),
 					user.getGender());
 
 		} catch (DuplicateKeyException e) {
 			throw new SCIMException(CONFLICT, "username:reserved");
 		}
-		
+
 		insertAttrs(user, userId);
 
 		return userId;
@@ -113,10 +114,19 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	@Override
-	public void updatePasswd(UUID userId, String password) {
+	public String updatePasswd(UUID userId, String password, String eTag) {
+
+		if (!eTag.equalsIgnoreCase(retrieveETag(userId))) {
+			throw new SCIMException(PRECONDITION_FAILED, null,
+					"Failed to update as Resource " + userId
+					+ " changed on the server last retrieved");
+		}
+		java.util.Date dateTime = new java.util.Date();
+		String newEtag = Utils.toSHA1(dateTime);
 		jdbcTemplate.update(
-				"update users set (password, lastModified) = (?,?) where id = ?",
-				password, new java.util.Date(), userId);
+				"update users set (password, lastModified, version) = (?,?,?) where id = ?",
+				password, dateTime, "\"" + newEtag + "\"", userId);
+		return newEtag;
 	}
 
 	@Override
@@ -243,7 +253,15 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	@Override
-	public void updateUser(User user) {
+	public void updateUser(User user, String eTag) {
+		UUID id = UUID.fromString(user.getId());
+
+		if (!eTag.equalsIgnoreCase(retrieveETag(id))) {
+			throw new SCIMException(PRECONDITION_FAILED, null,
+					"Failed to update as Resource " + user.getId()
+					+ " changed on the server last retrieved");
+		}
+		java.util.Date dateTime = new java.util.Date();
 		Name name = user.getName() == null ? new Name() : user.getName();
 		StringBuilder sql = new StringBuilder();
 
@@ -267,8 +285,9 @@ public class UserDaoImpl implements UserDao {
 					.append("timezone,")
 					.append("active,")
 					.append("lastModified,")
+					.append("version,")
 					.append("gender")
-					.append(") = (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) where id = ?")
+					.append(") = (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) where id = ?")
 					.toString(),
 					Utils.trimOrNull(user.getUserName()),
 					Utils.trimOrNull(name.getFormatted()),
@@ -286,19 +305,20 @@ public class UserDaoImpl implements UserDao {
 					user.getLocale(),
 					user.getTimezone(),
 					user.isActive(),
-					new java.util.Date(),
+					dateTime,
+					Utils.createVersion(dateTime),
 					user.getGender(),
-					UUID.fromString(user.getId()));
+					id);
 
 		} catch (DuplicateKeyException e) {
 			throw new SCIMException(CONFLICT, "username:reserved");
 		}
 
-		deleteFromTable(UUID.fromString(user.getId()),
+		deleteFromTable(id,
 				"emails", "phoneNumbers", "ims", "photos", "groups",
 				"entitlements", "roles", "x509Certificates", "addresses");
 
-		insertAttrs(user, UUID.fromString(user.getId()));
+		insertAttrs(user, id);
 	}
 
 	@Override
@@ -307,6 +327,11 @@ public class UserDaoImpl implements UserDao {
 		deleteFromTable(userId,
 				"emails", "phoneNumbers", "ims", "photos", "groups",
 				"entitlements", "roles", "x509Certificates", "addresses");
+	}
+
+	@Override
+	public String retrieveETag(UUID userId) {
+		return jdbcTemplate.queryForObject("select version from users where id = ?", String.class, userId);
 	}
 
 	private void insertAttrs(User user, UUID userId) {
