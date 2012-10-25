@@ -1,5 +1,8 @@
 package eugene.zhukov.dao;
 
+import static eugene.zhukov.EndpointConstants.API_VERSION;
+import static eugene.zhukov.EndpointConstants.ENDPOINT_USERS;
+import static eugene.zhukov.EndpointConstants.HOST;
 import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.PRECONDITION_FAILED;
@@ -90,7 +93,7 @@ public class UserDaoImpl implements UserDao {
 					Utils.trimOrNull(user.getPassword()),
 					dateTime,
 					dateTime,
-					"/Users/" + userId,
+					HOST + API_VERSION + ENDPOINT_USERS + "/" + userId,
 					Utils.createVersion(dateTime),
 					user.getGender());
 

@@ -26,7 +26,7 @@
         <property name="jdbcTemplate" ref="jdbcTemplate"/>
     </bean>
     
-    <bean id="securityConfig" class="eugene.zhukov.util.SecurityConfig">
+    <bean id="configProperties" class="eugene.zhukov.util.ConfigProperties">
         <property name="unauthorizedXML">
         	<value><![CDATA[<Errors xmlns="urn:scim:schemas:core:1.0">
     <error>
@@ -49,6 +49,7 @@
         </property>
         <property name="privateKey" value="classpath:private_key.der"/>
         <property name="tokenValidityTime" value="60000"/>
+        <property name="host" value="https://ee.dy.fi"/>
     </bean>
 
 	<tx:advice id="txAdvice">

@@ -2,12 +2,13 @@ package eugene.zhukov.util;
 
 import org.springframework.core.io.Resource;
 
-public class SecurityConfig {
+public class ConfigProperties {
 
 	private String unauthorizedXML;
 	private String unauthorizedJSON;
 	private Resource privateKey;
 	private long tokenValidityTime;
+	private String host;
 
 	public Resource getPrivateKey() {
 		return privateKey;
@@ -32,5 +33,11 @@ public class SecurityConfig {
 	}
 	public void setTokenValidityTime(long tokenValidityTime) {
 		this.tokenValidityTime = tokenValidityTime;
+	}
+	public String getHost() {
+		return host;
+	}
+	public void setHost(String host) {
+		this.host = host;
 	}
 }

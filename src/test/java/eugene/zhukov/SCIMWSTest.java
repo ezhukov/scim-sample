@@ -14,7 +14,7 @@ import eugene.zhukov.util.S;
 import eugene.zhukov.util.TestRSA;
 
 public class SCIMWSTest {
-	private static final String URL_PATTERN_LOCAL = "https://ee.dy.fi/scim/v1/";
+	private static final String URL_PATTERN_LOCAL = "https://ee.dy.fi/v1/";
 //	private static final String URL_PATTERN_LOCAL = "https://localhost:8181/scim/v1/";
 
 //	static {
@@ -237,7 +237,7 @@ public class SCIMWSTest {
 			System.out.println(s);
 		}
 		System.out.println("----------------Response code: " + connection.getResponseCode() + "----------------");
-		
+
 		out.close();
 		in.close();
 		return response.toString();

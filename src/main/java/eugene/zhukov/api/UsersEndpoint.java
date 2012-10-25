@@ -1,14 +1,16 @@
 package eugene.zhukov.api;
 
 import static eugene.zhukov.ApplicationContextProvider.USER_DAO;
-import static eugene.zhukov.SCIMFilter.API_VERSION;
-import static eugene.zhukov.SCIMFilter.ENDPOINT_USERS;
+import static eugene.zhukov.EndpointConstants.API_VERSION;
+import static eugene.zhukov.EndpointConstants.ENDPOINT_USERS;
+import static eugene.zhukov.EndpointConstants.HOST;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.CREATED;
+import static javax.ws.rs.core.Response.Status.NOT_MODIFIED;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 import static javax.ws.rs.core.Response.Status.OK;
-import static javax.ws.rs.core.Response.Status.NOT_MODIFIED;
 
+import java.net.URI;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -48,7 +50,8 @@ public class UsersEndpoint {
 		User newUser = dao.retrieveUser(id);
 		response.setResource(newUser);
 		return javax.ws.rs.core.Response.status(CREATED)
-				.entity(response).tag(stripQuotes(newUser.getMeta().getVersion())).build();
+				.entity(response).tag(stripQuotes(newUser.getMeta().getVersion()))
+				.location(URI.create(newUser.getMeta().getLocation())).build();
 	}
 
 	@GET
@@ -68,7 +71,8 @@ public class UsersEndpoint {
 		User user = dao.retrieveUser(id);
 		response.setResource(user);
 		return javax.ws.rs.core.Response.status(OK)
-				.entity(response).tag(stripQuotes(user.getMeta().getVersion())).build();
+				.entity(response).tag(stripQuotes(user.getMeta().getVersion()))
+				.location(URI.create(user.getMeta().getLocation())).build();
 	}
 
 	@PUT
@@ -87,7 +91,8 @@ public class UsersEndpoint {
 		User newUser = dao.retrieveUser(id);
 		response.setResource(newUser);
 		return javax.ws.rs.core.Response.status(OK)
-				.entity(response).tag(stripQuotes(newUser.getMeta().getVersion())).build();
+				.entity(response).tag(stripQuotes(newUser.getMeta().getVersion()))
+				.location(URI.create(newUser.getMeta().getLocation())).build();
 	}
 
 	@PATCH
@@ -99,7 +104,8 @@ public class UsersEndpoint {
 		checkPassword(dao.retrievePasswd(id), request);
 		String eTag = dao.updatePasswd(id, Utils.trimOrNull(user.getPassword()), checkETag(request));
 
-		return javax.ws.rs.core.Response.status(NO_CONTENT).tag(eTag).build();
+		return javax.ws.rs.core.Response.status(NO_CONTENT).tag(eTag)
+				.location(URI.create(HOST + API_VERSION + ENDPOINT_USERS + "/" + id)).build();
 	}
 
 	@DELETE

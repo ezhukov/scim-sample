@@ -1,8 +1,8 @@
 package eugene.zhukov.api;
 
 import static javax.ws.rs.core.Response.Status.OK;
-import static eugene.zhukov.SCIMFilter.API_VERSION;
-import static eugene.zhukov.SCIMFilter.ENDPOINT_SERVICE_PROVIDER_CONFIGS;
+import static eugene.zhukov.EndpointConstants.API_VERSION;
+import static eugene.zhukov.EndpointConstants.ENDPOINT_SERVICE_PROVIDER_CONFIGS;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

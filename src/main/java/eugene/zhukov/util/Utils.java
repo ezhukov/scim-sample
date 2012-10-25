@@ -40,8 +40,8 @@ public class Utils {
 
 	static {
 		try {
-			java.io.InputStream is = ((SecurityConfig) ApplicationContextProvider
-					.getContext().getBean(ApplicationContextProvider.SECURITY_CONFIG)).getPrivateKey().getInputStream();
+			java.io.InputStream is = ((ConfigProperties) ApplicationContextProvider
+					.getContext().getBean(ApplicationContextProvider.CONFIG)).getPrivateKey().getInputStream();
 			byte[] privateKeyBinary = new byte[is.available()];
 			is.read(privateKeyBinary);
 		    is.close();

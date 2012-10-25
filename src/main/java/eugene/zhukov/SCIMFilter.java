@@ -1,5 +1,9 @@
 package eugene.zhukov;
 
+import static eugene.zhukov.EndpointConstants.API_VERSION;
+import static eugene.zhukov.EndpointConstants.ENDPOINT_SCHEMAS;
+import static eugene.zhukov.EndpointConstants.ENDPOINT_SERVICE_PROVIDER_CONFIGS;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -18,16 +22,10 @@ import javax.ws.rs.core.MediaType;
 import javax.xml.ws.BindingProvider;
 
 import eugene.zhukov.util.SecureToken;
-import eugene.zhukov.util.SecurityConfig;
+import eugene.zhukov.util.ConfigProperties;
 import eugene.zhukov.util.Utils;
 
 public class SCIMFilter implements Filter {
-
-	public static final String API_VERSION = "/v1";
-	public static final String ENDPOINT_SERVICE_PROVIDER_CONFIGS = "/ServiceProviderConfigs";
-	public static final String ENDPOINT_USERS = "/Users";
-	public static final String ENDPOINT_GROUPS = "/Groups";
-	public static final String ENDPOINT_SCHEMAS = "/Schemas";
 
 	private static final String METHOD_OVERRIDE = "X-HTTP-Method-Override";
 	private static final String BEARER_PREFIX = "Bearer ";
@@ -38,8 +36,8 @@ public class SCIMFilter implements Filter {
 		HttpServletRequest req = new FilteredRequest((HttpServletRequest) request);
 		HttpServletResponse resp = (HttpServletResponse) response;
 
-		SecurityConfig securityConfig = (SecurityConfig) ApplicationContextProvider
-				.getContext().getBean(ApplicationContextProvider.SECURITY_CONFIG);
+		ConfigProperties securityConfig = (ConfigProperties) ApplicationContextProvider
+				.getContext().getBean(ApplicationContextProvider.CONFIG);
 
 		if (!isAccessGranted(req, securityConfig.getTokenValidityTime())) {
 			resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

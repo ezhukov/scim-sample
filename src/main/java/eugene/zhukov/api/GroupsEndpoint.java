@@ -1,7 +1,7 @@
 package eugene.zhukov.api;
 
-import static eugene.zhukov.SCIMFilter.API_VERSION;
-import static eugene.zhukov.SCIMFilter.ENDPOINT_GROUPS;
+import static eugene.zhukov.EndpointConstants.API_VERSION;
+import static eugene.zhukov.EndpointConstants.ENDPOINT_GROUPS;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
