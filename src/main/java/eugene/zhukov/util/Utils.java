@@ -72,8 +72,15 @@ public class Utils {
 		try {
 			cipher.init(Cipher.DECRYPT_MODE, privateKey);
 
-			return (SecureToken) new TokenObjectInputStream(new CipherInputStream(
-		    		new ByteArrayInputStream(DatatypeConverter.parseBase64Binary(token)), cipher)).readObject();
+			CipherInputStream cipherInputStream = new CipherInputStream(
+					new ByteArrayInputStream(DatatypeConverter.parseBase64Binary(token)), cipher);
+			TokenObjectInputStream tokenObjectInputStream
+					= new TokenObjectInputStream(cipherInputStream);
+			SecureToken secureToken = (SecureToken) tokenObjectInputStream.readObject();
+			cipherInputStream.close();
+			tokenObjectInputStream.close();
+
+			return secureToken;
 
 		} catch (IOException | ClassNotFoundException | InvalidKeyException | ArrayIndexOutOfBoundsException e) {
 			logger.fine(e.toString());
@@ -134,6 +141,12 @@ public class Utils {
 		return s != null && s.length() > 0 ? s : null;
 	}
 
+	/**
+	 * Digests this Date object with SHA-1 algorithm.
+	 *
+	 * @param dateTime to digest
+	 * @return String which is base 64 encoded byte array 
+	 */
 	public static String toSHA1(java.util.Date dateTime) {
 		try {
 		    MessageDigest md = MessageDigest.getInstance("SHA-1");
@@ -147,6 +160,13 @@ public class Utils {
 	    }
 	}
 
+	/**
+	 * Convenience method, calls toSHA1(dateTime) function first and
+	 * then wraps the result into extra quotes.
+	 *
+	 * @param dateTime to digest and wrap
+	 * @return String result of toSHA1(dateTime) wrapped into extra quotes
+	 */
 	public static String createVersion(java.util.Date dateTime) {
 		    return "\"" + toSHA1(dateTime) + "\"";
 	}
