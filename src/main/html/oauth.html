@@ -84,7 +84,7 @@ public class Token implements java.io.Externalizable {
         java.io.ObjectOutputStream tokenObjectStream
                 = new java.io.ObjectOutputStream(tokenByteStream);
         tokenObjectStream.writeObject(token);
-        tokenObjectStream.flush();
+        tokenObjectStream.close();
 
         java.io.ByteArrayOutputStream encryptedTokenStream
                 = new java.io.ByteArrayOutputStream();

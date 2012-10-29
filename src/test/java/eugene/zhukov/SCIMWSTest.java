@@ -223,23 +223,29 @@ public class SCIMWSTest {
 		OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream(), "UTF-8");
 		out.write(input);
 		out.flush();
-		BufferedReader in;
+		BufferedReader in = null;
+
 		try {
 			in = new BufferedReader(
 					new InputStreamReader(connection.getInputStream()));
 		} catch (java.io.IOException e) {
-			in = new BufferedReader(
-					new InputStreamReader(connection.getErrorStream()));
+
+			if (connection.getErrorStream() != null) {
+				in = new BufferedReader(
+						new InputStreamReader(connection.getErrorStream()));
+			}
 		}
 		StringBuilder response = new StringBuilder();
-		for (String s = in.readLine(); s != null; s = in.readLine()) {
-			response.append(s);
-			System.out.println(s);
+		
+		if (in != null) {
+			for (String s = in.readLine(); s != null; s = in.readLine()) {
+				response.append(s);
+				System.out.println(s);
+			}
+			in.close();
 		}
-		System.out.println("----------------Response code: " + connection.getResponseCode() + "----------------");
-
 		out.close();
-		in.close();
+		System.out.println(connection.getHeaderFields());
 		return response.toString();
 	}
 

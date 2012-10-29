@@ -72,7 +72,7 @@ public class TestRSA {
         java.io.ObjectOutputStream tokenObjectStream
                 = new java.io.ObjectOutputStream(tokenByteStream);
         tokenObjectStream.writeObject(token);
-        tokenObjectStream.flush();
+        tokenObjectStream.close();
         // System.out.println("Byte array length before encryption: " + tokenByteStream.toByteArray().length);
         java.io.ByteArrayOutputStream encryptedTokenStream
                 = new java.io.ByteArrayOutputStream();
