@@ -27,26 +27,6 @@
     </bean>
     
     <bean id="configProperties" class="eugene.zhukov.util.ConfigProperties">
-        <property name="unauthorizedXML">
-        	<value><![CDATA[<Errors xmlns="urn:scim:schemas:core:1.0">
-    <error>
-        <description>Handling of provided authorization header failed</description>
-        <code>401</code>
-        <uri>urn:eugene.zhukov:scim:errors:1.0:unauthorized</uri>
-    </error>
-</Errors>]]></value>
-        </property>
-        <property name="unauthorizedJSON">
-        	<value><![CDATA[{
-  "Errors":[
-    {
-      "description":"Handling of provided authorization header failed",
-      "code":"401",
-      "uri":"urn:eugene.zhukov:scim:errors:1.0:unauthorized"
-    }
-  ]
-}]]></value>
-        </property>
         <property name="privateKey" value="classpath:private_key.der"/>
         <property name="tokenValidityTime" value="60000"/>
         <property name="host" value="https://ee.dy.fi"/>
