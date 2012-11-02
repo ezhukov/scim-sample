@@ -1,6 +1,7 @@
 package eugene.zhukov.api;
 
 import static eugene.zhukov.EndpointConstants.API_VERSION;
+import static eugene.zhukov.EndpointConstants.ENDPOINT_USERS;
 import static eugene.zhukov.EndpointConstants.ENDPOINT_SCHEMAS;
 import static javax.ws.rs.core.Response.Status.OK;
 
@@ -23,7 +24,7 @@ public class SchemasEndpoint {
 		schema.setId("urn:scim:schemas:core:1.0:User");
 		schema.setName("User");
 		schema.setDescription("http://tools.ietf.org/html/draft-ietf-scim-core-schema-00#section-11.6");
-		schema.setEndpoint("Users");
+		schema.setEndpoint(ENDPOINT_USERS);
 		response.setResource(schema);
 		return javax.ws.rs.core.Response.status(OK).entity(response).build();
 	}
