@@ -74,7 +74,8 @@ public class SCIMFilter implements Filter {
 		if (token == null
 				|| token.getTimestamp() > currentTimeMillis + tokenValidityTime
 				|| token.getTimestamp() + tokenValidityTime < currentTimeMillis) {
-			logger.fine("Timestamp: " + token.getTimestamp() + ", current timestamp: " + currentTimeMillis);
+			logger.fine("Timestamp: " + (token != null ? token.getTimestamp() : null)
+					+ ", current timestamp: " + currentTimeMillis);
 			return false;
 		}
 
