@@ -22,7 +22,8 @@ public class Token implements java.io.Externalizable {
 
     private static final long serialVersionUID = 48346345L;
 
-    // password of the user you are trying to authenticate
+    // password of the user you are trying to authenticate,
+    // omit for a new user
     private String password;
 
     // current timestamp, token becomes invalid within one minute
@@ -65,8 +66,7 @@ public class Token implements java.io.Externalizable {
     <p>&bull; Then, with this token object and public key, you are ready to create a token String:</p>
 
     <pre class="prettyprint"><code class="language-java">
-    public static String encrypt(
-            Token token, byte[] publicKey) throws Exception {
+    String encrypt(Token token, byte[] publicKey) throws Exception {
         String algorithm = "RSA";
         javax.crypto.Cipher cipher
                 = javax.crypto.Cipher.getInstance(algorithm);

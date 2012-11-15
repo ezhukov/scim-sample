@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -37,9 +36,7 @@ public class SCIMWSTest {
 		update();
 		changePasswd();
 		delete();
-		serviceProviderConfig();
 		groups();
-		schemas();
 	}
 
 	private static String[] create(String type) throws Exception {
@@ -189,14 +186,6 @@ public class SCIMWSTest {
 		makeCall(connection, "");
 	}
 
-	private static void serviceProviderConfig() throws MalformedURLException, IOException {
-		HttpsURLConnection connection = (HttpsURLConnection) new URL(
-				URL_PATTERN_LOCAL + "ServiceProviderConfigs").openConnection();
-		connection.setDoOutput(true);
-		connection.setRequestProperty("X-HTTP-Method-Override", "GET");
-		makeCall(connection, "");
-	}
-
 	private static void groups() throws Exception {
 		HttpsURLConnection connection = (HttpsURLConnection) new URL(
 				URL_PATTERN_LOCAL + "Groups").openConnection();
@@ -208,14 +197,6 @@ public class SCIMWSTest {
 				.setRequestProperty(
 						"Authorization",
 						"Bearer " + encrypted);
-		makeCall(connection, "");
-	}
-
-	private static void schemas() throws MalformedURLException, IOException {
-		HttpsURLConnection connection = (HttpsURLConnection) new URL(
-				URL_PATTERN_LOCAL + "Schemas").openConnection();
-		connection.setDoOutput(true);
-		connection.setRequestProperty("X-HTTP-Method-Override", "GET");
 		makeCall(connection, "");
 	}
 

@@ -22,6 +22,8 @@ import scim.schemas.v1.Error;
 import scim.schemas.v1.MultiValuedAttribute;
 import scim.schemas.v1.ObjectFactory;
 import scim.schemas.v1.Response;
+import scim.schemas.v1.Schema.Attributes;
+import scim.schemas.v1.SchemaAttribute;
 import scim.schemas.v1.ServiceProviderConfig.AuthenticationSchemes;
 import scim.schemas.v1.User.Addresses;
 import scim.schemas.v1.User.Emails;
@@ -42,6 +44,19 @@ public class SCIMSimpleModule {
 		final ObjectFactory objectFactory = new ObjectFactory();
 
 		module = new SimpleModule("SCIM", new Version(1, 0, 0, null))
+				.addSerializer(Attributes.class, new JsonSerializer<Attributes>() {
+
+					@Override
+					public void serialize(Attributes attributes, JsonGenerator jsonGenerator,
+							SerializerProvider provider) throws IOException, JsonProcessingException {
+						jsonGenerator.writeStartArray();
+
+						for (SchemaAttribute attribute : attributes.getAttribute()) {
+							jsonGenerator.writeObject(attribute);
+						}
+						jsonGenerator.writeEndArray();
+					}
+				})
 				.addDeserializer(Emails.class, new JsonDeserializer<Emails>() {
 
 					@Override

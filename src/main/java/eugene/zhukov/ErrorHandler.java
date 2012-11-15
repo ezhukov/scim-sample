@@ -27,9 +27,7 @@ public class ErrorHandler {
 				.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
 
 		if (statusCode == HttpServletResponse.SC_UNAUTHORIZED) {
-			return SCIMException.constructErrorResponse(
-					Response.Status.fromStatusCode(statusCode),
-					"unauthorized", SCIMException.UNAUTHORIZED);
+			return SCIMException.constructUnauthorized();
 		}
 		String errorUri = (String) request
 				.getAttribute(RequestDispatcher.ERROR_REQUEST_URI);

@@ -3,6 +3,8 @@ package eugene.zhukov;
 import static eugene.zhukov.EndpointConstants.API_VERSION;
 import static eugene.zhukov.EndpointConstants.ENDPOINT_ERRORS;
 import static eugene.zhukov.EndpointConstants.ENDPOINT_SCHEMAS;
+import static eugene.zhukov.EndpointConstants.ENDPOINT_USERS;
+import static eugene.zhukov.EndpointConstants.ENDPOINT_GROUPS;
 import static eugene.zhukov.EndpointConstants.ENDPOINT_SERVICE_PROVIDER_CONFIGS;
 
 import java.io.IOException;
@@ -43,7 +45,7 @@ public class SCIMFilter implements Filter {
 		ConfigProperties securityConfig = (ConfigProperties) ApplicationContextProvider
 				.getContext().getBean(ApplicationContextProvider.CONFIG);
 
-		if (!isAccessGranted(req, securityConfig.getTokenValidityTime())) {
+		if (!isAccessGranted(req, resp, securityConfig.getTokenValidityTime())) {
 			req = new FilteredRequest(req, HttpMethod.GET);
 			req.setAttribute(RequestDispatcher.ERROR_STATUS_CODE, HttpServletResponse.SC_UNAUTHORIZED);
 			RequestDispatcher dispatcher = req.getRequestDispatcher(ENDPOINT_ERRORS);
@@ -54,28 +56,35 @@ public class SCIMFilter implements Filter {
 		chain.doFilter(req, resp);
 	}
 
-	private static boolean isAccessGranted(HttpServletRequest request, long tokenValidityTime) {
+	private static boolean isAccessGranted(
+			HttpServletRequest request, HttpServletResponse response, long tokenValidityTime) {
 
 		if (HttpMethod.GET.equalsIgnoreCase(request.getMethod())
 				&& (API_VERSION.concat(ENDPOINT_SERVICE_PROVIDER_CONFIGS).equals(request.getPathInfo())
-				|| 	API_VERSION.concat(ENDPOINT_SCHEMAS).equals(request.getPathInfo()))) {
+				|| 	API_VERSION.concat(ENDPOINT_SCHEMAS).concat(ENDPOINT_USERS).equals(request.getPathInfo())
+				|| 	API_VERSION.concat(ENDPOINT_SCHEMAS).concat(ENDPOINT_GROUPS).equals(request.getPathInfo()))) {
 			return true;
 		}
 		String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
 		if (authorizationHeader == null || !authorizationHeader.startsWith(BEARER_PREFIX)) {
-			logger.fine("AUTH header: " + authorizationHeader);
+			response.setHeader(HttpHeaders.WWW_AUTHENTICATE, BEARER_PREFIX);
 			return false;
 		}
 		SecureToken token = Utils.decryptToken(
 				authorizationHeader.substring(BEARER_PREFIX.length(), authorizationHeader.length()));
+
+		if (token == null) {
+			response.setHeader(HttpHeaders.WWW_AUTHENTICATE, BEARER_PREFIX.concat("error=\"invalid_token\""));
+			return false;
+		}
 		long currentTimeMillis = System.currentTimeMillis();
 
-		if (token == null
-				|| token.getTimestamp() > currentTimeMillis + tokenValidityTime
+		if (token.getTimestamp() > currentTimeMillis + tokenValidityTime
 				|| token.getTimestamp() + tokenValidityTime < currentTimeMillis) {
-			logger.fine("Timestamp: " + (token != null ? token.getTimestamp() : null)
-					+ ", current timestamp: " + currentTimeMillis);
+			logger.fine("Timestamp: " + token.getTimestamp() + ", current timestamp: " + currentTimeMillis);
+			response.setHeader(HttpHeaders.WWW_AUTHENTICATE, BEARER_PREFIX.concat(
+					"error=\"invalid_token\", error_description=\"The access token expired\""));
 			return false;
 		}
 
