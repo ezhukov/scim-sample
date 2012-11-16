@@ -1,16 +1,21 @@
 package eugene.zhukov.providers;
 
-import eugene.zhukov.SCIMException;
-
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
+import eugene.zhukov.SCIMException;
+
+/**
+ * Catches SaxParseExceptions when unparseable xml input is provided.
+ *
+ */
 @Provider
-public class SCIMExceptionMapper implements ExceptionMapper<javax.ws.rs.WebApplicationException> {
+public class WebApplicationExceptionMapper implements ExceptionMapper<WebApplicationException> {
 
 	@Override
-	public Response toResponse(javax.ws.rs.WebApplicationException exception) {
+	public Response toResponse(WebApplicationException exception) {
 
 		if (exception.getCause() != null
 				&& exception.getCause().getCause() instanceof org.xml.sax.SAXParseException) {
