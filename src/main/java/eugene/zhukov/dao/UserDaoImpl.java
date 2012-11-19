@@ -3,7 +3,6 @@ package eugene.zhukov.dao;
 import static eugene.zhukov.EndpointConstants.API_VERSION;
 import static eugene.zhukov.EndpointConstants.ENDPOINT_USERS;
 import static eugene.zhukov.EndpointConstants.HOST;
-import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.PRECONDITION_FAILED;
 
@@ -11,7 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
-import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -47,59 +46,54 @@ public class UserDaoImpl implements UserDao {
 		Name name = user.getName() == null ? new Name() : user.getName();
 		UUID userId = UUID.randomUUID();
 
-		try {
-			jdbcTemplate.update(sql.append("insert into users (")
-					.append("id,")
-					.append("username,")
-					.append("formattedName,")
-					.append("familyName,")
-					.append("givenName,")
-					.append("middleName,")
-					.append("honorificPrefix,")
-					.append("honorificSuffix,")
-					.append("displayName,")
-					.append("nickname,")
-					.append("profileURL,")
-					.append("title,")
-					.append("userType,")
-					.append("preferredLanguage,")
-					.append("locale,")
-					.append("timezone,")
-					.append("active,")
-					.append("password,")
-					.append("created,")
-					.append("lastModified,")
-					.append("location,")
-					.append("version,")
-					.append("gender")
-					.append(") values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)").toString(),
-					userId,
-					Utils.trimOrNull(user.getUserName()),
-					Utils.trimOrNull(name.getFormatted()),
-					Utils.trimOrNull(name.getFamilyName()),
-					Utils.trimOrNull(name.getGivenName()),
-					Utils.trimOrNull(name.getMiddleName()),
-					Utils.trimOrNull(name.getHonorificPrefix()),
-					Utils.trimOrNull(name.getHonorificSuffix()),
-					Utils.trimOrNull(user.getDisplayName()),
-					Utils.trimOrNull(user.getNickName()),
-					user.getProfileUrl(),
-					user.getTitle(),
-					user.getUserType(),
-					user.getPreferredLanguage(),
-					user.getLocale(),
-					user.getTimezone(),
-					true,
-					Utils.trimOrNull(user.getPassword()),
-					dateTime,
-					dateTime,
-					HOST + API_VERSION + ENDPOINT_USERS + "/" + userId,
-					Utils.createVersion(dateTime),
-					user.getGender());
-
-		} catch (DuplicateKeyException e) {
-			throw new SCIMException(CONFLICT, "username:reserved");
-		}
+		jdbcTemplate.update(sql.append("insert into users (")
+				.append("id,")
+				.append("username,")
+				.append("formattedName,")
+				.append("familyName,")
+				.append("givenName,")
+				.append("middleName,")
+				.append("honorificPrefix,")
+				.append("honorificSuffix,")
+				.append("displayName,")
+				.append("nickname,")
+				.append("profileURL,")
+				.append("title,")
+				.append("userType,")
+				.append("preferredLanguage,")
+				.append("locale,")
+				.append("timezone,")
+				.append("active,")
+				.append("password,")
+				.append("created,")
+				.append("lastModified,")
+				.append("location,")
+				.append("version,")
+				.append("gender")
+				.append(") values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)").toString(),
+				userId,
+				Utils.trimOrNull(user.getUserName()),
+				Utils.trimOrNull(name.getFormatted()),
+				Utils.trimOrNull(name.getFamilyName()),
+				Utils.trimOrNull(name.getGivenName()),
+				Utils.trimOrNull(name.getMiddleName()),
+				Utils.trimOrNull(name.getHonorificPrefix()),
+				Utils.trimOrNull(name.getHonorificSuffix()),
+				Utils.trimOrNull(user.getDisplayName()),
+				Utils.trimOrNull(user.getNickName()),
+				user.getProfileUrl(),
+				user.getTitle(),
+				user.getUserType(),
+				user.getPreferredLanguage(),
+				user.getLocale(),
+				user.getTimezone(),
+				true,
+				Utils.trimOrNull(user.getPassword()),
+				dateTime,
+				dateTime,
+				HOST + API_VERSION + ENDPOINT_USERS + "/" + userId,
+				Utils.createVersion(dateTime),
+				user.getGender());
 
 		insertAttrs(user, userId);
 
@@ -111,7 +105,7 @@ public class UserDaoImpl implements UserDao {
 		try {
 			return jdbcTemplate.queryForObject("select password from users where id = ?", String.class, userId);
 
-		} catch (org.springframework.dao.EmptyResultDataAccessException e) {
+		} catch (EmptyResultDataAccessException e) {
 			throw new SCIMException(NOT_FOUND, null, "Resource " + userId + " not found");
 		}
 	}
@@ -268,54 +262,49 @@ public class UserDaoImpl implements UserDao {
 		Name name = user.getName() == null ? new Name() : user.getName();
 		StringBuilder sql = new StringBuilder();
 
-		try {
-			jdbcTemplate.update(
-					sql.append("update users set (")
-					.append("username,")
-					.append("formattedName,")
-					.append("familyName,")
-					.append("givenName,")
-					.append("middleName,")
-					.append("honorificPrefix,")
-					.append("honorificSuffix,")
-					.append("displayName,")
-					.append("nickname,")
-					.append("profileURL,")
-					.append("title,")
-					.append("userType,")
-					.append("preferredLanguage,")
-					.append("locale,")
-					.append("timezone,")
-					.append("active,")
-					.append("lastModified,")
-					.append("version,")
-					.append("gender")
-					.append(") = (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) where id = ?")
-					.toString(),
-					Utils.trimOrNull(user.getUserName()),
-					Utils.trimOrNull(name.getFormatted()),
-					Utils.trimOrNull(name.getFamilyName()),
-					Utils.trimOrNull(name.getGivenName()),
-					Utils.trimOrNull(name.getMiddleName()),
-					Utils.trimOrNull(name.getHonorificPrefix()),
-					Utils.trimOrNull(name.getHonorificSuffix()),
-					Utils.trimOrNull(user.getDisplayName()),
-					Utils.trimOrNull(user.getNickName()),
-					user.getProfileUrl(),
-					user.getTitle(),
-					user.getUserType(),
-					user.getPreferredLanguage(),
-					user.getLocale(),
-					user.getTimezone(),
-					user.isActive(),
-					dateTime,
-					Utils.createVersion(dateTime),
-					user.getGender(),
-					id);
-
-		} catch (DuplicateKeyException e) {
-			throw new SCIMException(CONFLICT, "username:reserved");
-		}
+		jdbcTemplate.update(
+				sql.append("update users set (")
+				.append("username,")
+				.append("formattedName,")
+				.append("familyName,")
+				.append("givenName,")
+				.append("middleName,")
+				.append("honorificPrefix,")
+				.append("honorificSuffix,")
+				.append("displayName,")
+				.append("nickname,")
+				.append("profileURL,")
+				.append("title,")
+				.append("userType,")
+				.append("preferredLanguage,")
+				.append("locale,")
+				.append("timezone,")
+				.append("active,")
+				.append("lastModified,")
+				.append("version,")
+				.append("gender")
+				.append(") = (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) where id = ?")
+				.toString(),
+				Utils.trimOrNull(user.getUserName()),
+				Utils.trimOrNull(name.getFormatted()),
+				Utils.trimOrNull(name.getFamilyName()),
+				Utils.trimOrNull(name.getGivenName()),
+				Utils.trimOrNull(name.getMiddleName()),
+				Utils.trimOrNull(name.getHonorificPrefix()),
+				Utils.trimOrNull(name.getHonorificSuffix()),
+				Utils.trimOrNull(user.getDisplayName()),
+				Utils.trimOrNull(user.getNickName()),
+				user.getProfileUrl(),
+				user.getTitle(),
+				user.getUserType(),
+				user.getPreferredLanguage(),
+				user.getLocale(),
+				user.getTimezone(),
+				user.isActive(),
+				dateTime,
+				Utils.createVersion(dateTime),
+				user.getGender(),
+				id);
 
 		deleteFromTable(id,
 				"emails", "phoneNumbers", "ims", "photos", "groups",
@@ -338,13 +327,9 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	private void insertAttrs(User user, UUID userId) {
-		try {
-			if (user.getEmails() != null) {
-				insertMultiValuedAttrs(user.getEmails().getEmail(), "emails", userId);
-			}
 
-		} catch (DuplicateKeyException e) {
-			throw new SCIMException(CONFLICT, "email:reserved");
+		if (user.getEmails() != null) {
+			insertMultiValuedAttrs(user.getEmails().getEmail(), "emails", userId);
 		}
 
 		if (user.getPhoneNumbers() != null) {

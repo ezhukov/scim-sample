@@ -1,4 +1,4 @@
-package eugene.zhukov.providers;
+package eugene.zhukov.dao;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
