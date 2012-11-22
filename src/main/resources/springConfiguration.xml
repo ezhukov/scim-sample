@@ -21,31 +21,18 @@
     <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
         <property name="dataSource" ref="dataSource"/>
     </bean>
-    
+
     <bean id="userDao" class="eugene.zhukov.dao.UserDaoImpl">
         <property name="jdbcTemplate" ref="jdbcTemplate"/>
     </bean>
-    
+
     <bean id="configProperties" class="eugene.zhukov.util.ConfigProperties">
         <property name="privateKey" value="classpath:private_key.der"/>
         <property name="tokenValidityTime" value="60000"/>
         <property name="host" value="https://ee.dy.fi"/>
     </bean>
 
-	<tx:advice id="txAdvice">
-		<tx:attributes>
-		  <tx:method name="retrieve*" read-only="true"/>
-		  <tx:method name="persist*"/>
-		  <tx:method name="update*"/>
-		  <tx:method name="delete*"/>
-		</tx:attributes>
-	</tx:advice>
-
-	<aop:config>
-		<aop:pointcut id="userServiceOperation" expression="execution(* eugene.zhukov.dao.UserDao.*(..))"/>
-		<aop:advisor advice-ref="txAdvice" pointcut-ref="userServiceOperation"/>
-	</aop:config>
-
+	<tx:annotation-driven/>
 	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource" ref="dataSource"/>
 	</bean>

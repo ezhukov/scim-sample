@@ -13,6 +13,7 @@ import java.util.UUID;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.transaction.annotation.Transactional;
 
 import scim.schemas.v1.Address;
 import scim.schemas.v1.Meta;
@@ -40,6 +41,7 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	@Override
+	@Transactional
 	public UUID persistUser(User user) {
 		java.util.Date dateTime = new java.util.Date();
 		StringBuilder sql = new StringBuilder();
@@ -101,6 +103,7 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public String retrievePasswd(UUID userId) {
 		try {
 			return jdbcTemplate.queryForObject("select password from users where id = ?", String.class, userId);
@@ -111,6 +114,7 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	@Override
+	@Transactional
 	public String updatePasswd(UUID userId, String password, String eTag) {
 
 		if (!eTag.equalsIgnoreCase(retrieveETag(userId))) {
@@ -127,6 +131,7 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public User retrieveUser(UUID userId) {
 		User user = jdbcTemplate.queryForObject("select * from users where id =?", new RowMapper<User>() {
 
@@ -250,6 +255,7 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	@Override
+	@Transactional
 	public void updateUser(User user, String eTag) {
 		UUID id = UUID.fromString(user.getId());
 
@@ -314,6 +320,7 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	@Override
+	@Transactional
 	public void deleteUser(UUID userId) {
 		jdbcTemplate.update("delete from users where id = ?", userId);
 		deleteFromTable(userId,
@@ -322,6 +329,7 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public String retrieveETag(UUID userId) {
 		return jdbcTemplate.queryForObject("select version from users where id = ?", String.class, userId);
 	}
