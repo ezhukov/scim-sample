@@ -1,11 +1,9 @@
 package eugene.zhukov;
 
-import static eugene.zhukov.EndpointConstants.API_VERSION;
 import static eugene.zhukov.EndpointConstants.ENDPOINT_ERRORS;
-import static eugene.zhukov.EndpointConstants.ENDPOINT_SCHEMAS;
-import static eugene.zhukov.EndpointConstants.ENDPOINT_USERS;
-import static eugene.zhukov.EndpointConstants.ENDPOINT_GROUPS;
-import static eugene.zhukov.EndpointConstants.ENDPOINT_SERVICE_PROVIDER_CONFIGS;
+import static eugene.zhukov.EndpointConstants.PROVIDER_CONFIGS_PATH;
+import static eugene.zhukov.EndpointConstants.SCHEMAS_USERS_PATH;
+import static eugene.zhukov.EndpointConstants.SCHEMAS_GROUPS_PATH;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -48,8 +46,7 @@ public class SCIMFilter implements Filter {
 		if (!isAccessGranted(req, resp, securityConfig.getTokenValidityTime())) {
 			req = new FilteredRequest(req, HttpMethod.GET);
 			req.setAttribute(RequestDispatcher.ERROR_STATUS_CODE, HttpServletResponse.SC_UNAUTHORIZED);
-			RequestDispatcher dispatcher = req.getRequestDispatcher(ENDPOINT_ERRORS);
-			dispatcher.forward(req, resp);
+			req.getRequestDispatcher(ENDPOINT_ERRORS).forward(req, resp);
 			return;
 		}
 
@@ -60,9 +57,9 @@ public class SCIMFilter implements Filter {
 			HttpServletRequest request, HttpServletResponse response, long tokenValidityTime) {
 
 		if (HttpMethod.GET.equalsIgnoreCase(request.getMethod())
-				&& (API_VERSION.concat(ENDPOINT_SERVICE_PROVIDER_CONFIGS).equals(request.getPathInfo())
-				|| 	API_VERSION.concat(ENDPOINT_SCHEMAS).concat(ENDPOINT_USERS).equals(request.getPathInfo())
-				|| 	API_VERSION.concat(ENDPOINT_SCHEMAS).concat(ENDPOINT_GROUPS).equals(request.getPathInfo()))) {
+				&& (PROVIDER_CONFIGS_PATH.equals(request.getPathInfo())
+				|| SCHEMAS_USERS_PATH.equals(request.getPathInfo())
+				|| SCHEMAS_GROUPS_PATH.equals(request.getPathInfo()))) {
 			return true;
 		}
 		String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
@@ -75,16 +72,23 @@ public class SCIMFilter implements Filter {
 				authorizationHeader.substring(BEARER_PREFIX.length(), authorizationHeader.length()));
 
 		if (token == null) {
-			response.setHeader(HttpHeaders.WWW_AUTHENTICATE, BEARER_PREFIX.concat("error=\"invalid_token\""));
+			response.setHeader(HttpHeaders.WWW_AUTHENTICATE,
+					BEARER_PREFIX.concat("error=\"invalid_token\""));
 			return false;
 		}
 		long currentTimeMillis = System.currentTimeMillis();
 
-		if (token.getTimestamp() > currentTimeMillis + tokenValidityTime
-				|| token.getTimestamp() + tokenValidityTime < currentTimeMillis) {
+		if (token.getTimestamp() > currentTimeMillis + tokenValidityTime) {
 			logger.fine("Timestamp: " + token.getTimestamp() + ", current timestamp: " + currentTimeMillis);
 			response.setHeader(HttpHeaders.WWW_AUTHENTICATE, BEARER_PREFIX.concat(
-					"error=\"invalid_token\", error_description=\"The access token expired\""));
+					"error=\"invalid_token\", error_description=\"Token has invalid timestamp\""));
+			return false;
+		}
+
+		if (token.getTimestamp() + tokenValidityTime < currentTimeMillis) {
+			logger.fine("Timestamp: " + token.getTimestamp() + ", current timestamp: " + currentTimeMillis);
+			response.setHeader(HttpHeaders.WWW_AUTHENTICATE, BEARER_PREFIX.concat(
+					"error=\"invalid_token\", error_description=\"Token expired\""));
 			return false;
 		}
 
