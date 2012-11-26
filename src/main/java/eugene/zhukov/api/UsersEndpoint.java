@@ -25,8 +25,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response.Status;
 import javax.xml.ws.BindingProvider;
 
+import scim.schemas.v1.Meta;
 import scim.schemas.v1.Response;
 import scim.schemas.v1.User;
 import eugene.zhukov.ApplicationContextProvider;
@@ -38,20 +40,19 @@ import eugene.zhukov.util.Utils;
 @Path(API_VERSION + ENDPOINT_USERS)
 public class UsersEndpoint {
 
+	private UserDao userDao = (UserDao) ApplicationContextProvider.getContext().getBean(USER_DAO);
+
 	@POST
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	public javax.ws.rs.core.Response create(User user) {
-		UserDao dao = (UserDao) ApplicationContextProvider.getContext().getBean(USER_DAO);
 		validateUser(user);
-		UUID id = dao.persistUser(user);
+		UUID id = userDao.persistUser(user);
 
 		Response response = new Response();
-		User newUser = dao.retrieveUser(id);
+		User newUser = userDao.retrieveUser(id);
 		response.setResource(newUser);
-		return javax.ws.rs.core.Response.status(CREATED)
-				.entity(response).tag(stripQuotes(newUser.getMeta().getVersion()))
-				.location(URI.create(newUser.getMeta().getLocation())).build();
+		return toResponse(CREATED, response, newUser.getMeta());
 	}
 
 	@GET
@@ -59,20 +60,17 @@ public class UsersEndpoint {
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	public javax.ws.rs.core.Response retrieve(
 			@PathParam("id") UUID id, @Context HttpServletRequest request) {
-		UserDao dao = (UserDao) ApplicationContextProvider.getContext().getBean(USER_DAO);
-		checkPassword(dao.retrievePasswd(id), request);
+		checkPassword(userDao.retrievePasswd(id), request);
 		String eTag = Utils.trimOrNull(request.getHeader(HttpHeaders.IF_NONE_MATCH));
 
-		if (eTag != null && eTag.equalsIgnoreCase(dao.retrieveETag(id))) {
+		if (eTag != null && eTag.equalsIgnoreCase(userDao.retrieveETag(id))) {
 			return javax.ws.rs.core.Response.status(NOT_MODIFIED).build();
 		}
 
 		Response response = new Response();
-		User user = dao.retrieveUser(id);
+		User user = userDao.retrieveUser(id);
 		response.setResource(user);
-		return javax.ws.rs.core.Response.status(OK)
-				.entity(response).tag(stripQuotes(user.getMeta().getVersion()))
-				.location(URI.create(user.getMeta().getLocation())).build();
+		return toResponse(OK, response, user.getMeta());
 	}
 
 	@PUT
@@ -81,18 +79,15 @@ public class UsersEndpoint {
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	public javax.ws.rs.core.Response update(
 			User user, @PathParam("id") UUID id, @Context HttpServletRequest request) {
-		UserDao dao = (UserDao) ApplicationContextProvider.getContext().getBean(USER_DAO);
-		checkPassword(dao.retrievePasswd(id), request);
+		checkPassword(userDao.retrievePasswd(id), request);
 		validateUser(user);
 		user.setId(id.toString());
-		dao.updateUser(user, checkETag(request));
+		userDao.updateUser(user, checkETag(request));
 
 		Response response = new Response();
-		User newUser = dao.retrieveUser(id);
+		User newUser = userDao.retrieveUser(id);
 		response.setResource(newUser);
-		return javax.ws.rs.core.Response.status(OK)
-				.entity(response).tag(stripQuotes(newUser.getMeta().getVersion()))
-				.location(URI.create(newUser.getMeta().getLocation())).build();
+		return toResponse(OK, response, newUser.getMeta());
 	}
 
 	@PATCH
@@ -100,9 +95,8 @@ public class UsersEndpoint {
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 	public javax.ws.rs.core.Response passwordChange(
 			@PathParam("id") UUID id, User user, @Context HttpServletRequest request) {
-		UserDao dao = (UserDao) ApplicationContextProvider.getContext().getBean(USER_DAO);
-		checkPassword(dao.retrievePasswd(id), request);
-		String eTag = dao.updatePasswd(id, Utils.trimOrNull(user.getPassword()), checkETag(request));
+		checkPassword(userDao.retrievePasswd(id), request);
+		String eTag = userDao.updatePasswd(id, Utils.trimOrNull(user.getPassword()), checkETag(request));
 
 		return javax.ws.rs.core.Response.status(NO_CONTENT).tag(eTag)
 				.location(URI.create(HOST + API_VERSION + ENDPOINT_USERS + "/" + id)).build();
@@ -111,11 +105,16 @@ public class UsersEndpoint {
 	@DELETE
 	@Path("{id}")
 	public javax.ws.rs.core.Response remove(@PathParam("id") UUID id, @Context HttpServletRequest request) {
-		UserDao dao = (UserDao) ApplicationContextProvider.getContext().getBean(USER_DAO);
-		checkPassword(dao.retrievePasswd(id), request);
-		dao.deleteUser(id);
+		checkPassword(userDao.retrievePasswd(id), request);
+		userDao.deleteUser(id);
 
 		return javax.ws.rs.core.Response.status(OK).build();
+	}
+
+	private javax.ws.rs.core.Response toResponse(Status status, Response response, Meta meta) {
+		return javax.ws.rs.core.Response.status(status).entity(response)
+				.tag(meta.getVersion().substring(1, meta.getVersion().length() - 1))
+				.location(URI.create(meta.getLocation())).build();
 	}
 
 	private void validateUser(User user) {
@@ -144,9 +143,5 @@ public class UsersEndpoint {
 					+ " header with ETag is requred for this request");
 		}
 		return eTag;
-	}
-
-	private static String stripQuotes(String version) {
-		return version.substring(1, version.length() - 1);
 	}
 }
