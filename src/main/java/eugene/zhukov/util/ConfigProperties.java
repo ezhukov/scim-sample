@@ -7,6 +7,7 @@ public class ConfigProperties {
 	private Resource privateKey;
 	private long tokenValidityTime;
 	private String host;
+	private java.util.Set<String> openEndpoints;
 
 	public Resource getPrivateKey() {
 		return privateKey;
@@ -25,5 +26,11 @@ public class ConfigProperties {
 	}
 	public void setHost(String host) {
 		this.host = host;
+	}
+	public java.util.Set<String> getOpenEndpoints() {
+		return openEndpoints;
+	}
+	public void setOpenEndpoints(java.util.Set<String> openEndpoints) {
+		this.openEndpoints = openEndpoints;
 	}
 }

@@ -27,6 +27,13 @@
         <property name="privateKey" value="classpath:private_key.der"/>
         <property name="tokenValidityTime" value="60000"/>
         <property name="host" value="https://ee.dy.fi"/>
+        <property name="openEndpoints">
+        	<set value-type="java.lang.String">
+        		<value>/v1/ServiceProviderConfigs</value>
+        		<value>/v1/Schemas/Users</value>
+        		<value>/v1/Schemas/Groups</value>
+        	</set>
+        </property>
     </bean>
 
 	<tx:annotation-driven/>

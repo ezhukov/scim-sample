@@ -14,7 +14,7 @@ import eugene.zhukov.util.TestRSA;
 
 public class SCIMWSTest {
 	private static final String URL_PATTERN_LOCAL = "https://ee.dy.fi/v1/";
-//	private static final String URL_PATTERN_LOCAL = "https://localhost:8181/scim/v1/";
+//	private static final String URL_PATTERN_LOCAL = "https://localhost:8181/scim-1.0/v1/";
 
 //	static {
 //		System.getProperties().put("javax.net.ssl.keyStore", "/home/eugene/Downloads/cert/eugene.jks");
