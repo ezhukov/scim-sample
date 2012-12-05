@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:tx="http://www.springframework.org/schema/tx"
-	xsi:schemaLocation="
+    xsi:schemaLocation="
 		http://www.springframework.org/schema/beans 
 		http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/tx
 		http://www.springframework.org/schema/tx/spring-tx.xsd">
 
-	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="org.postgresql.Driver"/>
        	<property name="url" value="jdbc:postgresql://localhost/scim_db"/>
        	<property name="username" value="eugene"/>
@@ -28,18 +28,18 @@
         <property name="tokenValidityTime" value="60000"/>
         <property name="host" value="https://ee.dy.fi"/>
         <property name="openEndpoints">
-        	<set value-type="java.lang.String">
-        		<value>/v1/ServiceProviderConfigs</value>
-        		<value>/v1/Schemas/Users</value>
-        		<value>/v1/Schemas/Groups</value>
-        	</set>
+            <set value-type="java.lang.String">
+                <value>/v1/ServiceProviderConfigs</value>
+                <value>/v1/Schemas/Users</value>
+                <value>/v1/Schemas/Groups</value>
+            </set>
         </property>
     </bean>
 
-	<tx:annotation-driven/>
-	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-		<property name="dataSource" ref="dataSource"/>
-	</bean>
+    <tx:annotation-driven/>
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
 
     <bean id="applicationContextProvider" class="eugene.zhukov.ApplicationContextProvider"/>
 </beans>
