@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" version="3.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
-                      http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
-  version="3.0">
+                      http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
@@ -40,59 +39,6 @@
 	</filter-mapping>
 
 	<error-page>
-		<error-code>400</error-code>
-		<location>/Errors</location>
-	</error-page>
-	<error-page>
-		<error-code>404</error-code>
-		<location>/Errors</location>
-	</error-page>
-	<error-page>
-		<error-code>405</error-code>
-		<location>/Errors</location>
-	</error-page>
-	<error-page>
-		<error-code>406</error-code>
-		<location>/Errors</location>
-	</error-page>
-	<error-page>
-		<error-code>408</error-code>
-		<location>/Errors</location>
-	</error-page>
-	<error-page>
-		<error-code>413</error-code>
-		<location>/Errors</location>
-	</error-page>
-	<error-page>
-		<error-code>414</error-code>
-		<location>/Errors</location>
-	</error-page>
-	<error-page>
-		<error-code>415</error-code>
-		<location>/Errors</location>
-	</error-page>
-	<error-page>
-		<error-code>500</error-code>
-		<location>/Errors</location>
-	</error-page>
-	<error-page>
-		<error-code>501</error-code>
-		<location>/Errors</location>
-	</error-page>
-	<error-page>
-		<error-code>502</error-code>
-		<location>/Errors</location>
-	</error-page>
-	<error-page>
-		<error-code>503</error-code>
-		<location>/Errors</location>
-	</error-page>
-	<error-page>
-		<error-code>504</error-code>
-		<location>/Errors</location>
-	</error-page>
-	<error-page>
-		<error-code>505</error-code>
 		<location>/Errors</location>
 	</error-page>
 </web-app>
