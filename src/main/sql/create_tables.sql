@@ -90,7 +90,7 @@ CREATE TABLE photos (
 
 CREATE TABLE addresses (
     id            SERIAL PRIMARY KEY,
-    value         varchar(250) not null,
+    value         varchar(250),
     display       varchar(50),
     isPrimary     boolean,
     type          varchar(20),
