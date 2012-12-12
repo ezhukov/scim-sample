@@ -5,29 +5,15 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.URL;
-
-import javax.net.ssl.HttpsURLConnection;
 
 import eugene.zhukov.util.S;
 import eugene.zhukov.util.TestRSA;
 
 public class SCIMWSTest {
 	private static final String URL_PATTERN_LOCAL = "https://ee.dy.fi/v1/";
-//	private static final String URL_PATTERN_LOCAL = "https://localhost:8181/scim-1.0/v1/";
-
-//	static {
-//		System.getProperties().put("javax.net.ssl.keyStore", "/home/eugene/Downloads/cert/eugene.jks");
-//		System.getProperties().put("javax.net.ssl.keyStorePassword", "changeit");
-//		
-//		javax.net.ssl.HttpsURLConnection.setDefaultHostnameVerifier(
-//			    new javax.net.ssl.HostnameVerifier(){
-//
-//			        public boolean verify(String hostname, javax.net.ssl.SSLSession sslSession) {
-//			        	return hostname.equals("localhost");
-//			        }
-//			    });
-//	}
+//	private static final String URL_PATTERN_LOCAL = "http://localhost:8080/scim-1.0/v1/";
 
 	public static void main(String[] args) throws Exception {
 		create("application/json");
@@ -40,7 +26,7 @@ public class SCIMWSTest {
 	}
 
 	private static String[] create(String type) throws Exception {
-		HttpsURLConnection connection = (HttpsURLConnection) new URL(URL_PATTERN_LOCAL + "Users").openConnection();
+		HttpURLConnection connection = (HttpURLConnection) new URL(URL_PATTERN_LOCAL + "Users").openConnection();
 		connection.setDoOutput(true);
 		connection.setRequestProperty("Content-Type", "application/xml");
 		connection.setRequestProperty("Accept", type);
@@ -74,7 +60,7 @@ public class SCIMWSTest {
 
 	private static void retrieve() throws Exception {
 		String[] created = create("application/xml");
-		HttpsURLConnection connection = (HttpsURLConnection) new URL(URL_PATTERN_LOCAL
+		HttpURLConnection connection = (HttpURLConnection) new URL(URL_PATTERN_LOCAL
 				+ "Users/" + created[0]).openConnection();
 		connection.setDoOutput(true);
 		connection.setRequestProperty("Accept", "application/xml");
@@ -92,7 +78,7 @@ public class SCIMWSTest {
 
 	private static void retrieveNotModified() throws Exception {
 		String[] created = create("application/xml");
-		HttpsURLConnection connection = (HttpsURLConnection) new URL(URL_PATTERN_LOCAL
+		HttpURLConnection connection = (HttpURLConnection) new URL(URL_PATTERN_LOCAL
 				+ "Users/" + created[0]).openConnection();
 		connection.setDoOutput(true);
 		connection.setRequestProperty("Accept", "application/xml");
@@ -111,7 +97,7 @@ public class SCIMWSTest {
 
 	private static void update() throws Exception {
 		String[] created = create("application/xml");
-		HttpsURLConnection connection = (HttpsURLConnection) new URL(URL_PATTERN_LOCAL
+		HttpURLConnection connection = (HttpURLConnection) new URL(URL_PATTERN_LOCAL
 				+ "Users/" + created[0]).openConnection();
 		connection.setDoOutput(true);
 		connection.setRequestProperty("Content-Type", "application/xml");
@@ -146,7 +132,7 @@ public class SCIMWSTest {
 
 	private static void changePasswd() throws Exception {
 		String[] created = create("application/xml");
-		HttpsURLConnection connection = (HttpsURLConnection) new URL(URL_PATTERN_LOCAL
+		HttpURLConnection connection = (HttpURLConnection) new URL(URL_PATTERN_LOCAL
 				+ "Users/" + created[0] + "/password").openConnection();
 		connection.setDoOutput(true);
 		connection.setRequestProperty("Content-Type", "application/xml");
@@ -171,7 +157,7 @@ public class SCIMWSTest {
 
 	private static void delete() throws Exception {
 		String[] created = create("application/xml");
-		HttpsURLConnection connection = (HttpsURLConnection) new URL(URL_PATTERN_LOCAL
+		HttpURLConnection connection = (HttpURLConnection) new URL(URL_PATTERN_LOCAL
 				+ "Users/" + created[0]).openConnection();
 		connection.setDoOutput(true);
 		connection.setRequestProperty("X-HTTP-Method-Override", "DELETE");
@@ -187,7 +173,7 @@ public class SCIMWSTest {
 	}
 
 	private static void groups() throws Exception {
-		HttpsURLConnection connection = (HttpsURLConnection) new URL(
+		HttpURLConnection connection = (HttpURLConnection) new URL(
 				URL_PATTERN_LOCAL + "Groups").openConnection();
 		connection.setDoOutput(true);
 		S token = new S();
@@ -200,7 +186,7 @@ public class SCIMWSTest {
 		makeCall(connection, "");
 	}
 
-	private static String makeCall(HttpsURLConnection connection, String input) throws UnsupportedEncodingException, IOException {
+	private static String makeCall(HttpURLConnection connection, String input) throws UnsupportedEncodingException, IOException {
 		OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream(), "UTF-8");
 		out.write(input);
 		out.flush();
