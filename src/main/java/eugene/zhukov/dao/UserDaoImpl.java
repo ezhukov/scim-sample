@@ -157,6 +157,7 @@ public class UserDaoImpl implements UserDao {
 						|| name.getMiddleName() != null) {
 					user.setName(name);
 				}
+				user.setDisplayName(resultSet.getString("displayName"));
 				user.setNickName(resultSet.getString("nickname"));
 				user.setProfileUrl(resultSet.getString("profileURL"));
 				user.setTitle(resultSet.getString("title"));

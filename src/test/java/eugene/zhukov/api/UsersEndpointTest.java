@@ -97,6 +97,7 @@ public class UsersEndpointTest extends JerseyTest {
 
 		String input = "{ \"schemas\":[\"urn:scim:schemas:core:1.0\", \"urn:scim:schemas:extension:enterprise:1.0\"], "
 				+ "\"userName\":\"S" + nanoTime + "\","
+				+ "\"displayName\":\"D" + nanoTime + "\","
 				+ "\"preferredLanguage\":\"en_FI\","
 				+ "\"password\":\"" + password + "\","
 				+ "\"name\":{"
@@ -145,6 +146,7 @@ public class UsersEndpointTest extends JerseyTest {
 		
 		HashMap<String, String> values = new HashMap<String, String>();
 		values.put("familyName", "Zhukov");
+		values.put("displayName", "display");
 		responseContent = substituteValues(values, responseContent);
 		
 		response = resource().path(RESOURCE + "/" + id)
@@ -158,6 +160,7 @@ public class UsersEndpointTest extends JerseyTest {
 		Assert.assertEquals(200, response.getStatus());
 		responseContent = response.getEntity(String.class);
 		Assert.assertEquals("Zhukov", extractValue(responseContent, "familyName"));
+		Assert.assertEquals("display", extractValue(responseContent, "displayName"));
 	}
 
 	@Test
