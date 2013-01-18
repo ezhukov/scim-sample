@@ -44,10 +44,10 @@ public class Utils {
 					.getContext().getBean(ApplicationContextProvider.CONFIG)).getPrivateKey().getInputStream();
 			byte[] privateKeyBinary = new byte[is.available()];
 			is.read(privateKeyBinary);
-		    is.close();
+			is.close();
 
-		    cipher = Cipher.getInstance(ALGORITHM);
-		    privateKey = KeyFactory.getInstance(ALGORITHM)
+			cipher = Cipher.getInstance(ALGORITHM);
+			privateKey = KeyFactory.getInstance(ALGORITHM)
 					.generatePrivate(new PKCS8EncodedKeySpec(privateKeyBinary));
 
 		} catch (IOException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeySpecException e) {
@@ -89,22 +89,22 @@ public class Utils {
 	}
 
 	/**
-     * Converts a java.sql.Timestamp into an instance of XMLGregorianCalendar
-     *
-     * @param timestamp Instance of java.sql.Timestamp from database
-     * @return XMLGregorianCalendar instance
-     */
+	 * Converts a java.sql.Timestamp into an instance of XMLGregorianCalendar
+	 *
+	 * @param timestamp Instance of java.sql.Timestamp from database
+	 * @return XMLGregorianCalendar instance
+	 */
 	public static XMLGregorianCalendar asXMLGregorianCalendar(java.sql.Timestamp timestamp) {
 
-    	if (timestamp == null) {
-            return null;
-        }
-    	GregorianCalendar gregorianCalendar = new GregorianCalendar(TimeZone.getTimeZone(TIME_ZONE));
+		if (timestamp == null) {
+        	return null;
+    	}
+		GregorianCalendar gregorianCalendar = new GregorianCalendar(TimeZone.getTimeZone(TIME_ZONE));
     	gregorianCalendar.setTime(timestamp);
         XMLGregorianCalendar calendar = datatypeFactory.newXMLGregorianCalendar(gregorianCalendar);
         calendar.setFractionalSecond(null);
         return calendar;
-    }
+	}
 
 	/**
 	 * Checks if given locale is valid according to SCIM schema.
