@@ -97,13 +97,13 @@ public class Utils {
 	public static XMLGregorianCalendar asXMLGregorianCalendar(java.sql.Timestamp timestamp) {
 
 		if (timestamp == null) {
-        	return null;
-    	}
+			return null;
+		}
 		GregorianCalendar gregorianCalendar = new GregorianCalendar(TimeZone.getTimeZone(TIME_ZONE));
-    	gregorianCalendar.setTime(timestamp);
-        XMLGregorianCalendar calendar = datatypeFactory.newXMLGregorianCalendar(gregorianCalendar);
-        calendar.setFractionalSecond(null);
-        return calendar;
+		gregorianCalendar.setTime(timestamp);
+		XMLGregorianCalendar calendar = datatypeFactory.newXMLGregorianCalendar(gregorianCalendar);
+		calendar.setFractionalSecond(null);
+		return calendar;
 	}
 
 	/**
@@ -156,8 +156,8 @@ public class Utils {
 
 		} catch(NoSuchAlgorithmException | UnsupportedEncodingException e) {
 			logger.fine(e.toString());
-	        return null;
-	    }
+			return null;
+		}
 	}
 
 	/**
@@ -168,6 +168,6 @@ public class Utils {
 	 * @return String result of toSHA1(dateTime) wrapped into extra quotes
 	 */
 	public static String createVersion(java.util.Date dateTime) {
-		    return "\"" + toSHA1(dateTime) + "\"";
+		return "\"" + toSHA1(dateTime) + "\"";
 	}
 }
