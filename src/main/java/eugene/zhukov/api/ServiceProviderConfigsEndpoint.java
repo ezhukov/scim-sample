@@ -21,13 +21,13 @@ public class ServiceProviderConfigsEndpoint {
 	public javax.ws.rs.core.Response retrieve() {
 		Response response = new Response();
 		ServiceProviderConfig config = new ServiceProviderConfig();
-		config.setDocumentationUrl("http://ee.dy.fi/help/scim.html");
+		config.setDocumentationUrl("http://ee.dy.fi/scim");
 
 		ServiceProviderConfig.AuthenticationSchemes authenticationSchemes
 				= new ServiceProviderConfig.AuthenticationSchemes();
 		AuthenticationScheme authenticationScheme = new AuthenticationScheme();
 		authenticationScheme.setDescription("Authentication Scheme using the OAuth Bearer Token Standard");
-		authenticationScheme.setDocumentationUrl("http://ee.dy.fi/help/oauth.html");
+		authenticationScheme.setDocumentationUrl("http://ee.dy.fi/scim/oauth.html");
 		authenticationScheme.setName("OAuth Bearer Token");
 		authenticationScheme.setSpecUrl("http://tools.ietf.org/html/draft-ietf-oauth-v2-bearer-01");
 		authenticationSchemes.getAuthenticationScheme().add(authenticationScheme);
