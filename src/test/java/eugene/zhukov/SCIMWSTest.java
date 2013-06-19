@@ -13,9 +13,9 @@ import eugene.zhukov.util.TestRSA;
 
 public class SCIMWSTest {
 	private static final String URL_PATTERN_LOCAL = "https://ee.dy.fi/v1/";
-//	private static final String URL_PATTERN_LOCAL = "http://localhost:8080/scim-1.0/v1/";
 
-	public static void main(String[] args) throws Exception {
+	@org.junit.Test
+	public void testRaw() throws Exception {
 		create("application/json");
 		retrieve();
 		retrieveNotModified();
