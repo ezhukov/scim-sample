@@ -40,7 +40,7 @@ CREATE TABLE users (
     locale            char(5),
     timezone          varchar(100),
     active            boolean,
-    password          varchar(30),
+    password          varchar(255),
     created           timestamp with time zone not null,
     lastModified      timestamp with time zone not null,
     location          varchar(255) not null,

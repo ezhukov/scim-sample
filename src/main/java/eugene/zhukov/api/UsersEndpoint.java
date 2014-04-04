@@ -96,7 +96,7 @@ public class UsersEndpoint {
 	public javax.ws.rs.core.Response passwordChange(
 			@PathParam("id") UUID id, User user, @Context HttpServletRequest request) {
 		checkPassword(userDao.retrievePasswd(id), request);
-		String eTag = userDao.updatePasswd(id, Utils.trimOrNull(user.getPassword()), checkETag(request));
+		String eTag = userDao.updatePasswd(id, user.getPassword(), checkETag(request));
 
 		return javax.ws.rs.core.Response.status(NO_CONTENT).tag(eTag)
 				.location(URI.create(HOST + API_VERSION + ENDPOINT_USERS + "/" + id)).build();

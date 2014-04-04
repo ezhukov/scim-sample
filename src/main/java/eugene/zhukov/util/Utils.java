@@ -145,7 +145,7 @@ public class Utils {
 	 * Digests this Date object with SHA-1 algorithm.
 	 *
 	 * @param dateTime to digest
-	 * @return String which is base 64 encoded byte array 
+	 * @return String which is base 64 encoded byte array
 	 */
 	public static String toSHA1(java.util.Date dateTime) {
 		try {
@@ -158,6 +158,30 @@ public class Utils {
 			logger.fine(e.toString());
 			return null;
 		}
+	}
+
+	/**
+	 * Digests this string with SHA-256 algorithm.
+	 *
+	 * @param string to digest
+	 * @return String which is base 64 encoded byte array
+	 */
+	public static String toSHA256(String string) {
+		try {
+		    MessageDigest md = MessageDigest.getInstance("SHA-256");
+		    byte[] digested = md.digest(string.getBytes(CHARSET_NAME));
+
+		    return DatatypeConverter.printBase64Binary(digested);
+
+		} catch(NoSuchAlgorithmException | UnsupportedEncodingException e) {
+			logger.fine(e.toString());
+			return null;
+		}
+	}
+
+	public static String hashPassword(String password) {
+		String passwd = trimOrNull(password);
+		return passwd != null ? toSHA256(passwd) : null;
 	}
 
 	/**

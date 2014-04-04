@@ -88,7 +88,7 @@ public class SCIMFilter implements Filter {
 			return false;
 		}
 
-		request.setAttribute(BindingProvider.PASSWORD_PROPERTY, token.getPassword());
+		request.setAttribute(BindingProvider.PASSWORD_PROPERTY, Utils.hashPassword(token.getPassword()));
 		return true;
 	}
 

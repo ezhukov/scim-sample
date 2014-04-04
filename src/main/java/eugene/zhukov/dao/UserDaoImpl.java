@@ -90,7 +90,7 @@ public class UserDaoImpl implements UserDao {
 				user.getLocale(),
 				user.getTimezone(),
 				true,
-				Utils.trimOrNull(user.getPassword()),
+				Utils.hashPassword(user.getPassword()),
 				dateTime,
 				dateTime,
 				HOST + API_VERSION + ENDPOINT_USERS + "/" + userId,
@@ -126,7 +126,7 @@ public class UserDaoImpl implements UserDao {
 		String newEtag = Utils.toSHA1(dateTime);
 		jdbcTemplate.update(
 				"update users set (password, lastModified, version) = (?,?,?) where id = ?",
-				password, dateTime, "\"" + newEtag + "\"", userId);
+				Utils.hashPassword(password), dateTime, "\"" + newEtag + "\"", userId);
 		return newEtag;
 	}
 
