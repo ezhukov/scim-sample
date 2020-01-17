@@ -1,7 +1,6 @@
 name: default
-
 kind: pipeline
-type: docker
+type: kubernetes
 
 steps:
 - name: backend
