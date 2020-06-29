@@ -1,9 +1,0 @@
-name: default
-kind: pipeline
-type: kubernetes
-
-steps:
-- name: backend
-  image: java
-  commands:
-    - mvn clean package
